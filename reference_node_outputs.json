@@ -1,0 +1,1161 @@
+{
+  "dag_id": "yk_storyboard_tool_narration_shortcut_dag",
+  "run_id": "narration_final_process_5b7690e1_4e4f6e00",
+  "generate_time": "2026-04-24T14:20:03.760826",
+  "success": true,
+  "final_video_url": "https://anim-res.youku.com/yk/ai-animation/animate_video/narration_scene_1_d332c8d7_ebdae7c4/scene_video.mp4",
+  "global_config": {
+    "voice_id": "ttv-voice-2026042414015526-FtlHVvRA",
+    "scene_count": 1,
+    "total_segments": 18
+  },
+  "steps": {
+    "scene_split": {
+      "_step": "原文场次拆分",
+      "_task_id": "scene_split_task",
+      "_dag_id": "yk_storyboard_tool_narration_shortcut_dag",
+      "success": true,
+      "scene_count": 1
+    },
+    "asset_prompt": {
+      "_step": "资产提示词生成(v2)",
+      "_task_id": "generate_asset_prompts",
+      "_dag_id": "auto_script_asset_gen_prompt_v2_dag",
+      "success": true,
+      "character_assets": [
+        {
+          "character_id": 1,
+          "name": "我",
+          "sex": "男",
+          "voice_name": "我_音色",
+          "voice_prompt": "青年男性，声线内敛克制带有压抑感，语速沉稳平缓，内心独白深沉隐忍与对外言语的顺从形成鲜明反差，营造蛰伏待发的压抑氛围",
+          "costumes": [
+            {
+              "costume_seq": 1,
+              "episodes": 1,
+              "costume_name": "我_深藏青西装",
+              "style_tag": "_现代_青年",
+              "prompt": "一名28岁左右亚洲男性, 全身, 身材普通略显消瘦, 轮廓柔和的椭圆脸, 面部线条平和内敛, 鼻梁适中不突出, 有着顺直的深黑色头发, 梳成规整的侧分发型, 发丝服帖整洁, 无发饰, 搭配一枚低调的银色简约领带夹, 无其他多余配饰, 淡眉细目眼型偏圆润, 深棕色瞳色, 唇线薄而平直, 唇色自然浅淡, 穿着一套版型略显宽松的深藏青色哑光聚酯纤维西装, 内搭一件白色棉质衬衫, 领口系着一条深灰色哑光涤纶领带, 下身是同款面料深藏青色西裤, 裤线略显疲软, 脚穿一双款式普通的黑色磨砂皮鞋, 鞋面有轻微磨痕, 具有哑光面料的平整纹理和柔和环境光效果, 无明显发光效果, 衣物整洁但做工普通略显廉价, 站姿挺拔端正, 双手自然垂在身侧, 眼神低敛克制带有一丝深藏的锐利, 皮肤质感普通略显暗沉, 面色平静。整体色彩饱和度极低, 以深藏青、深灰、白色为主色调, 低调压抑。极致细节, 8K分辨率, 超高清, 完美对焦, 黑色背景,"
+            }
+          ]
+        },
+        {
+          "character_id": 2,
+          "name": "顾炎",
+          "sex": "男",
+          "voice_name": "顾炎_音色",
+          "voice_prompt": "富家公子，声线傲慢轻佻带有鼻音，语速随意拖沓，笑意中夹带居高临下的轻蔑感，营造恃权凌人的压迫氛围",
+          "costumes": [
+            {
+              "costume_seq": 1,
+              "episodes": 1,
+              "costume_name": "顾炎_香槟金西装",
+              "style_tag": "_现代_青年",
+              "prompt": "一名30岁左右亚洲男性, 全身, 身材高挑匀称肩宽腰直, 轮廓立体的菱形脸, 面部骨骼分明颧骨略高, 鼻梁高挺鼻翼微张, 有着浓密有光泽的黑色头发, 梳成潇洒的侧向纹理造型, 发根微微蓬起彰显随性贵气, 无发饰, 搭配手腕上一枚刻有家族徽记的限量版白金腕表, 领口点缀一枚圆形宝石领针, 大眼双眼皮眼型上挑, 琥珀色瞳色, 唇线饱满微厚, 唇色红润带有轻佻笑意, 穿着一套剪裁精良的香槟金暗纹提花真丝混纺西装外套, 内搭一件象牙白丝质衬衫, 领口敞开两粒纽扣随性外露, 无领带, 下身是同款香槟金暗纹西裤, 裤线挺括完美, 脚穿一双手工定制的棕色鳄鱼皮孟克鞋, 金属扣件耀眼, 具有真丝提花面料的流动光泽纹理和宴会厅华灯漫射光效果, 暗纹在光线下隐隐泛出金色光晕, 整体服装奢华张扬做工极致, 站姿挺拔端正, 双手自然垂在身侧, 眼神慵懒傲慢带有居高临下的审视意味, 皮肤质感细腻白皙光泽感强, 面部轮廓在灯光下显得锋利张扬。整体色彩饱和度偏高, 以香槟金、象牙白、棕色为主色调, 奢华炫耀。极致细节, 8K分辨率, 超高清, 完美对焦, 黑色背景,"
+            }
+          ]
+        }
+      ],
+      "scene_assets": [
+        {
+          "scene_id": 1,
+          "scene_name": "顾家_家宴厅",
+          "states": [
+            {
+              "state_seq": 1,
+              "state_name": "顾家_家宴厅_家宴",
+              "style_tag": "_现代_室内",
+              "prompt": "以宴会长桌作为视觉中心，围绕其构建包含宽阔对称布局的豪门宴客厅，展现出奢华压迫的权贵气场。长桌以深色名贵木材打造，桌面铺设雪白亚麻桌布，其上摆放着描金骨瓷餐具、水晶酒杯与银质烛台，烛台上的白蜡烛跳动着暖焰。厅内四壁镶嵌深色护墙板，悬挂着巨幅油画与家族徽章装饰。天花板中央垂挂一盏层叠式水晶吊灯，无数棱镜折射出璀璨金白色光芒洒满全室，将每一处雕花细节镀上炫目光晕，勾勒出金碧辉煌却令人窒息的权贵家宴画面。场景中无人，避免场景中出现任何人。"
+            }
+          ]
+        }
+      ],
+      "props_asset_library": [],
+      "ui_overlay_library": []
+    },
+    "asset_image": {
+      "_step": "资产图生成(v2)",
+      "_task_id": "generate_asset_images",
+      "_dag_id": "auto_script_asset_gen_image_v2_dag",
+      "success": true,
+      "character_images": [
+        {
+          "character_name": "我",
+          "costume_name": "我_深藏青西装",
+          "image_url": "https://anim-res.youku.com/yk/ai-animation/animate_image/2026-04-24/1777010677182093457e5775/1777010677182093457e5775_cw.png",
+          "all_urls": [
+            "https://anim-res.youku.com/yk/ai-animation/animate_image/2026-04-24/1777010677182093457e5775/1777010677182093457e5775_cw.png"
+          ]
+        },
+        {
+          "character_name": "顾炎",
+          "costume_name": "顾炎_香槟金西装",
+          "image_url": "https://anim-res.youku.com/yk/ai-animation/animate_image/2026-04-24/177701067729659097b15484/177701067729659097b15484_cw.png",
+          "all_urls": [
+            "https://anim-res.youku.com/yk/ai-animation/animate_image/2026-04-24/177701067729659097b15484/177701067729659097b15484_cw.png"
+          ]
+        }
+      ],
+      "scene_images": [
+        {
+          "scene_name": "顾家_家宴厅_家宴",
+          "image_url": "https://anim-res.youku.com/yk/ai-animation/animate_image/2026-04-24/17770106778705936e18054e/17770106778705936e18054e_cw.png",
+          "all_urls": [
+            "https://anim-res.youku.com/yk/ai-animation/animate_image/2026-04-24/17770106778705936e18054e/17770106778705936e18054e_cw.png"
+          ]
+        }
+      ]
+    },
+    "voice_design": {
+      "_step": "全局音色设计",
+      "_task_id": "global_voice_design",
+      "_dag_id": "yk_storyboard_tool_narration_shortcut_dag",
+      "voice_id": "ttv-voice-2026042414015526-FtlHVvRA"
+    }
+  },
+  "scenes": [
+    {
+      "scene_index": 1,
+      "scene_video_url": "https://anim-res.youku.com/yk/ai-animation/animate_video/narration_scene_1_d332c8d7_ebdae7c4/scene_video.mp4",
+      "scene_duration": 60.06569,
+      "voice_id": "ttv-voice-2026042414015526-FtlHVvRA",
+      "narration_split": {
+        "_step": "旁白切分",
+        "_task_id": "aistudio_narration_split_task",
+        "_dag_id": "yk_narration_scene_prod_dag",
+        "success": true,
+        "error_enum": "",
+        "error_detail": "",
+        "narration_segments": [
+          "我当上门女婿，只为钱。",
+          "三年合同，五千万。",
+          "还差最后一个月，我就能拿钱滚蛋，彻底自由。",
+          "可豪门大舅子顾炎，显然不想让我轻易得逞。",
+          "家宴上，他当着所有宾客的面，炫耀自己手腕上那块刻着顾家徽记的限量表。",
+          "然后，他走到我面前，轻蔑地拍了拍我的脸。",
+          "知道你和这块表的差距吗？",
+          "它是无价之宝，而你，一文不值。",
+          "我没说话，只是死死盯着那块表。",
+          "在所有人眼里，我是被羞辱到破防的废物。",
+          "只有我自己知道，我心里早已掀起狂喜。",
+          "我正愁没有完美的办法脱身。",
+          "现在，他亲手把这个价值连城的\"证据\"——送到了我的面前！",
+          "一个疯狂的计划，瞬间成型。",
+          "……",
+          "顾炎的笑容僵在脸上。",
+          "我的沉默，比任何反驳都让他难堪。",
+          "他脸上的肌肉抽动了一下。",
+          "下一秒，他手中那杯红酒\"不慎\"倾斜。"
+        ]
+      },
+      "emotion_labels": {
+        "_step": "情绪标签",
+        "_task_id": "tts_emotion_label_task",
+        "_dag_id": "yk_narration_scene_prod_dag",
+        "success": true,
+        "emotion_segments": [
+          {
+            "原文内容": "我当上门女婿，只为钱。",
+            "情绪标签": "中性"
+          },
+          {
+            "原文内容": "三年合同，五千万。",
+            "情绪标签": "中性"
+          },
+          {
+            "原文内容": "还差最后一个月，我就能拿钱滚蛋，彻底自由。",
+            "情绪标签": "开心"
+          },
+          {
+            "原文内容": "可豪门大舅子顾炎，显然不想让我轻易得逞。",
+            "情绪标签": "生气"
+          },
+          {
+            "原文内容": "家宴上，他当着所有宾客的面，炫耀自己手腕上那块刻着顾家徽记的限量表。",
+            "情绪标签": "厌恶"
+          },
+          {
+            "原文内容": "然后，他走到我面前，轻蔑地拍了拍我的脸。",
+            "情绪标签": "生气"
+          },
+          {
+            "原文内容": "知道你和这块表的差距吗？",
+            "情绪标签": "厌恶"
+          },
+          {
+            "原文内容": "它是无价之宝，而你，一文不值。",
+            "情绪标签": "生气"
+          },
+          {
+            "原文内容": "我没说话，只是死死盯着那块表。",
+            "情绪标签": "中性"
+          },
+          {
+            "原文内容": "在所有人眼里，我是被羞辱到破防的废物。",
+            "情绪标签": "难过"
+          },
+          {
+            "原文内容": "只有我自己知道，我心里早已掀起狂喜。",
+            "情绪标签": "开心"
+          },
+          {
+            "原文内容": "我正愁没有完美的办法脱身。",
+            "情绪标签": "中性"
+          },
+          {
+            "原文内容": "现在，他亲手把这个价值连城的\"证据\"——送到了我的面前！",
+            "情绪标签": "惊讶"
+          },
+          {
+            "原文内容": "一个疯狂的计划，瞬间成型。",
+            "情绪标签": "生动"
+          },
+          {
+            "原文内容": "……",
+            "情绪标签": "中性"
+          },
+          {
+            "原文内容": "顾炎的笑容僵在脸上。",
+            "情绪标签": "惊讶"
+          },
+          {
+            "原文内容": "我的沉默，比任何反驳都让他难堪。",
+            "情绪标签": "中性"
+          },
+          {
+            "原文内容": "他脸上的肌肉抽动了一下。",
+            "情绪标签": "生气"
+          },
+          {
+            "原文内容": "下一秒，他手中那杯红酒\"不慎\"倾斜。",
+            "情绪标签": "生动"
+          }
+        ]
+      },
+      "keyframe_prompts": {
+        "_step": "九宫格关键帧提示词",
+        "_task_id": "narration_grid_prompt_task",
+        "_dag_id": "yk_narration_scene_prod_dag",
+        "success": true,
+        "prompt_groups": [
+          {
+            "group_index": 0,
+            "mode": "grid",
+            "grid_prompt": "生成3x3的9:16的竖屏九宫格图。每一个分格采用9:16的竖屏画幅。每个分格严禁分屏、拼接。\n{\"m\": {\"style\": \"人设：[我：穿着低调深色西装，眼神隐忍冷峻；顾炎：穿着浮夸昂贵的定制西装，神态傲慢张扬]; 场景：[顾家_家宴厅：奢华璀璨，水晶吊灯，暖金色调，背景为模糊的权贵宾客]; 风格：[现代豪门，电影级光影，高对比度，超高分辨率，8k]\", \"logic\": \"采用步步紧逼的空间调度策略：前3镜将男主固定在宴会厅角落，营造压抑与隐忍感；第4-5镜通过主观与客观视角的切换引入反派顾炎并在空间上形成远距离对立；第6-9镜顾炎主动发生位移侵入男主私人空间，景别从双人中景逐级推进至极度特写，通过视点反打与局部特写（手表、眼神）完成情绪张力的推演。\"}, \"s\": [{\"id\": 1, \"arc\": \"建置主角与环境\", \"src\": \"我当上门女婿，只为钱。\", \"cam\": \"Medium Shot\", \"spatial\": \"观察者：平视正面; 被观察者：男主（我）; 位置：宴会厅角落座位\", \"vis\": \"男主穿着低调西装独自坐在奢华宴会厅的角落，表情冷峻隐忍，背景是模糊的推杯换盏的豪门宾客\", \"prompt\": \"Vertical 9:16 aspect ratio, full vertical composition, tall framing, Medium Shot, a young man in an understated dark suit sitting quietly in the corner of a luxurious banquet hall, calm and restrained expression, blurred wealthy guests interacting in the background, crystal chandeliers, warm golden cinematic lighting, sharp focus on the man, photorealistic, 8k resolution, no horizontal, no landscape, no 16:9, no text, no letters, no words, no subtitles, no watermark, no logo, clean image\", \"check\": \"开场镜头，确立主角位置（角落）与宴会厅整体奢华环境，确立孤立状态。\"}, {\"id\": 2, \"arc\": \"动机提示\", \"src\": \"三年合同，五千万。\", \"cam\": \"Close Up\", \"spatial\": \"观察者：轻微俯视; 被观察者：男主手部与酒杯; 位置：男主身前桌面\", \"vis\": \"男主单手握着高脚杯，指关节微微用力发白，酒杯折射着宴会厅璀璨的光芒，暗示内心的盘算与隐忍\", \"prompt\": \"Vertical 9:16 aspect ratio, full vertical composition, tall framing, Close Up, the young man's hand tightly gripping a luxurious crystal wine glass, knuckles slightly white from pressure, the glass refracting the dazzling golden light of the banquet hall, detailed skin texture, rich cinematic lighting, emotional storytelling, photorealistic, no horizontal, no landscape, no 16:9, no text, no letters, no words, no subtitles, no watermark, no logo, clean image\", \"check\": \"空间保持在男主座位，从半身切入特写，通过肢体语言（用力握杯）外化内心动机。\"}, {\"id\": 3, \"arc\": \"情绪递进\", \"src\": \"还差最后一个月，我就能拿钱滚蛋，彻底自由。\", \"cam\": \"Side Profile Close Up\", \"spatial\": \"观察者：侧面平视; 被观察者：男主面部; 位置：宴会厅角落座位\", \"vis\": \"男主侧脸特写，视线越过喧嚣望向宴会厅紧闭的大门方向，眼神中透出一丝对自由的渴望\", \"prompt\": \"Vertical 9:16 aspect ratio, full vertical composition, tall framing, Side Profile Close Up, the young man looking towards the distant banquet hall doors, a glimmer of longing and anticipation in his calm eyes, soft rim lighting highlighting his facial profile against the dim luxury background, cinematic color grading, hyper-detailed, no horizontal, no landscape, no 16:9, no text, no letters, no words, no subtitles, no watermark, no logo, clean image\", \"check\": \"机位移至男主侧面，表现其视线方向，空间位置依然锁定在角落，维持静止状态。\"}, {\"id\": 4, \"arc\": \"矛盾引入\", \"src\": \"可豪门大舅子顾炎，显然不想让我轻易得逞。\", \"cam\": \"Over The Shoulder (OTS)\", \"spatial\": \"观察者：男主左后方; 被观察者：顾炎; 位置：男主座位看向宴会厅中央\", \"vis\": \"越过男主的肩膀，看到远处宴会主桌旁的顾炎，顾炎穿着浮夸昂贵的西装，正带着充满敌意的冷笑看向男主方向\", \"prompt\": \"Vertical 9:16 aspect ratio, full vertical composition, tall framing, Over The Shoulder shot, looking past the back of the protagonist's shoulder towards the center of the banquet hall, Gu Yan a wealthy young man in a flamboyant expensive suit standing at the main table, sneering hostilely directly at the camera, luxurious background, depth of field blurring the foreground shoulder, no horizontal, no landscape, no 16:9, no text, no letters, no words, no subtitles, no watermark, no logo, clean image\", \"check\": \"反打镜头，利用男主视角建立顾炎的初始位置（宴会厅中央），确立双方的空间对立距离。\"}, {\"id\": 5, \"arc\": \"动作展示\", \"src\": \"家宴上，他当着所有宾客的面，炫耀自己手腕上那块刻着顾家徽记的限量表。\", \"cam\": \"Medium Close Up\", \"spatial\": \"观察者：正面平视顾炎; 被观察者：顾炎及其手腕; 位置：宴会厅中央\", \"vis\": \"顾炎高调地抬起左手腕，向周围模糊的宾客展示一块机械结构复杂的限量版金表，表情极其得意\", \"prompt\": \"Vertical 9:16 aspect ratio, full vertical composition, tall framing, Medium Close Up, Gu Yan proudly raising his left wrist to show off a highly complex limited-edition mechanical gold watch, arrogant and boastful expression, surrounding wealthy guests slightly blurred in the background, sparkling chandeliers, extreme detail on the gold watch, cinematic lighting, no horizontal, no landscape, no 16:9, no text, no letters, no words, no subtitles, no watermark, no logo, clean image\", \"check\": \"机位推进到顾炎正面，表现其炫耀动作，此时顾炎仍处于宴会厅中央。\"}, {\"id\": 6, \"arc\": \"肢体冲突\", \"src\": \"然后，他走到我面前，轻蔑地拍了拍我的脸。\", \"cam\": \"Two Shot, Side Angle\", \"spatial\": \"观察者：侧面平视; 被观察者：顾炎与男主; 位置：男主座位前\", \"vis\": \"顾炎已走到男主面前，俯身伸出手背轻蔑地拍打男主的脸颊，男主依然端坐不动，两人一站一坐气氛紧张\", \"prompt\": \"Vertical 9:16 aspect ratio, full vertical composition, tall framing, Two Shot from a side angle, Gu Yan standing and leaning over to disdainfully pat the face of the protagonist who is still sitting calmly, tense atmosphere, luxurious banquet hall background, dynamic power imbalance, detailed facial expressions, dramatic lighting, no horizontal, no landscape, no 16:9, no text, no letters, no words, no subtitles, no watermark, no logo, clean image\", \"check\": \"顾炎发生物理位移，从中央走到男主面前。侧面双人镜头交代两人的物理接触与高低姿态差。\"}, {\"id\": 7, \"arc\": \"焦点特写\", \"src\": \"\\\"知道你和这块表的差距吗？\\\"\", \"cam\": \"Extreme Close Up\", \"spatial\": \"观察者：极近距离侧面; 被观察者：限量表与男主脸颊; 位置：男主面部微距\", \"vis\": \"特写顾炎戴着昂贵手表的手停在男主脸颊旁，金表的金属光泽与男主紧绷的面部皮肤形成强烈对比\", \"prompt\": \"Vertical 9:16 aspect ratio, full vertical composition, tall framing, Extreme Close Up, Gu Yan's hand wearing the intricate luxury gold watch resting against the protagonist's tense cheek, stark contrast between the metallic gleam of the watch and the human skin texture, micro-expressions of endurance, cinematic macro photography, shallow depth of field, no horizontal, no landscape, no 16:9, no text, no letters, no words, no subtitles, no watermark, no logo, clean image\", \"check\": \"空间保持一致，从中景切入局部极度特写，强化手表的压迫感和男主的隐忍，无瞬移。\"}, {\"id\": 8, \"arc\": \"反派施压\", \"src\": \"\\\"它是无价之宝，而你，一文不值。\\\"\", \"cam\": \"Low Angle POV Close Up\", \"spatial\": \"观察者：男主主观低视角; 被观察者：顾炎面部; 位置：男主座位仰视\", \"vis\": \"从男主视角的低角度特写，顾炎居高临下地看着镜头，眼神充满鄙夷和嘲弄，背后是宴会厅刺眼的水晶灯\", \"prompt\": \"Vertical 9:16 aspect ratio, full vertical composition, tall framing, Low Angle Close Up from the protagonist's POV, Gu Yan looking down at the camera with extreme contempt and a mocking sneer, bright crystal chandeliers directly behind his head creating a harsh backlight, arrogant posture, hyper-detailed facial features, dramatic cinematic lighting, no horizontal, no landscape, no 16:9, no text, no letters, no words, no subtitles, no watermark, no logo, clean image\", \"check\": \"采用男主的主观仰视视角(POV)，完美衔接上一个动作，凸显顾炎的傲慢和泰山压顶的压迫感。\"}, {\"id\": 9, \"arc\": \"情绪落点\", \"src\": \"我没说话，只是死死盯着那块表。\", \"cam\": \"Extreme Close Up\", \"spatial\": \"观察者：正面极近距离; 被观察者：男主眼部; 位置：男主座位正面微距\", \"vis\": \"男主眼部极度特写，眼神阴冷坚忍，瞳孔中清晰地反射出那块金表的倒影，没有愤怒只有深不见底的算计\", \"prompt\": \"Vertical 9:16 aspect ratio, full vertical composition, tall framing, Extreme Close Up on the protagonist's eyes, dark cold and enduring gaze, a clear sharp reflection of the intricate gold watch visible in his pupils, intense hidden calculation, no visible anger, cinematic lighting highlighting eye details, highly detailed iris texture, macro lens, no horizontal, no landscape, no 16:9, no text, no letters, no words, no subtitles, no watermark, no logo, clean image\", \"check\": \"最后切回男主反应。从顾炎POV切回客观特写，通过瞳孔反射交代男主视线的焦点（手表），空间与动作完全闭环连贯。\"}], \"scene\": [\"顾家_家宴厅\"], \"character\": [\"我\", \"顾炎\"]}",
+            "prompts": [
+              "Vertical 9:16 aspect ratio, full vertical composition, tall framing, Medium Shot, a young man in an understated dark suit sitting quietly in the corner of a luxurious banquet hall, calm and restrained expression, blurred wealthy guests interacting in the background, crystal chandeliers, warm golden cinematic lighting, sharp focus on the man, photorealistic, 8k resolution, no horizontal, no landscape, no 16:9, no text, no letters, no words, no subtitles, no watermark, no logo, clean image",
+              "Vertical 9:16 aspect ratio, full vertical composition, tall framing, Close Up, the young man's hand tightly gripping a luxurious crystal wine glass, knuckles slightly white from pressure, the glass refracting the dazzling golden light of the banquet hall, detailed skin texture, rich cinematic lighting, emotional storytelling, photorealistic, no horizontal, no landscape, no 16:9, no text, no letters, no words, no subtitles, no watermark, no logo, clean image",
+              "Vertical 9:16 aspect ratio, full vertical composition, tall framing, Side Profile Close Up, the young man looking towards the distant banquet hall doors, a glimmer of longing and anticipation in his calm eyes, soft rim lighting highlighting his facial profile against the dim luxury background, cinematic color grading, hyper-detailed, no horizontal, no landscape, no 16:9, no text, no letters, no words, no subtitles, no watermark, no logo, clean image",
+              "Vertical 9:16 aspect ratio, full vertical composition, tall framing, Over The Shoulder shot, looking past the back of the protagonist's shoulder towards the center of the banquet hall, Gu Yan a wealthy young man in a flamboyant expensive suit standing at the main table, sneering hostilely directly at the camera, luxurious background, depth of field blurring the foreground shoulder, no horizontal, no landscape, no 16:9, no text, no letters, no words, no subtitles, no watermark, no logo, clean image",
+              "Vertical 9:16 aspect ratio, full vertical composition, tall framing, Medium Close Up, Gu Yan proudly raising his left wrist to show off a highly complex limited-edition mechanical gold watch, arrogant and boastful expression, surrounding wealthy guests slightly blurred in the background, sparkling chandeliers, extreme detail on the gold watch, cinematic lighting, no horizontal, no landscape, no 16:9, no text, no letters, no words, no subtitles, no watermark, no logo, clean image",
+              "Vertical 9:16 aspect ratio, full vertical composition, tall framing, Two Shot from a side angle, Gu Yan standing and leaning over to disdainfully pat the face of the protagonist who is still sitting calmly, tense atmosphere, luxurious banquet hall background, dynamic power imbalance, detailed facial expressions, dramatic lighting, no horizontal, no landscape, no 16:9, no text, no letters, no words, no subtitles, no watermark, no logo, clean image",
+              "Vertical 9:16 aspect ratio, full vertical composition, tall framing, Extreme Close Up, Gu Yan's hand wearing the intricate luxury gold watch resting against the protagonist's tense cheek, stark contrast between the metallic gleam of the watch and the human skin texture, micro-expressions of endurance, cinematic macro photography, shallow depth of field, no horizontal, no landscape, no 16:9, no text, no letters, no words, no subtitles, no watermark, no logo, clean image",
+              "Vertical 9:16 aspect ratio, full vertical composition, tall framing, Low Angle Close Up from the protagonist's POV, Gu Yan looking down at the camera with extreme contempt and a mocking sneer, bright crystal chandeliers directly behind his head creating a harsh backlight, arrogant posture, hyper-detailed facial features, dramatic cinematic lighting, no horizontal, no landscape, no 16:9, no text, no letters, no words, no subtitles, no watermark, no logo, clean image",
+              "Vertical 9:16 aspect ratio, full vertical composition, tall framing, Extreme Close Up on the protagonist's eyes, dark cold and enduring gaze, a clear sharp reflection of the intricate gold watch visible in his pupils, intense hidden calculation, no visible anger, cinematic lighting highlighting eye details, highly detailed iris texture, macro lens, no horizontal, no landscape, no 16:9, no text, no letters, no words, no subtitles, no watermark, no logo, clean image"
+            ],
+            "segment_indices": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8
+            ],
+            "ref_image_urls": [
+              "https://anim-res.youku.com/yk/ai-animation/animate_image/2026-04-24/177701155051176303d45424/177701155051176303d45424_cw.png",
+              "https://anim-res.youku.com/yk/ai-animation/animate_image/2026-04-24/1777011550709886af29aa1b/1777011550709886af29aa1b_cw.png"
+            ],
+            "ref_image_mapping": [
+              {
+                "name": "我",
+                "type": "character",
+                "url": "https://anim-res.youku.com/yk/ai-animation/animate_image/2026-04-24/177701155051176303d45424/177701155051176303d45424_cw.png"
+              },
+              {
+                "name": "顾炎",
+                "type": "character",
+                "url": "https://anim-res.youku.com/yk/ai-animation/animate_image/2026-04-24/1777011550709886af29aa1b/1777011550709886af29aa1b_cw.png"
+              }
+            ]
+          },
+          {
+            "group_index": 1,
+            "mode": "grid",
+            "grid_prompt": "生成3x3的9:16的竖屏九宫格图。每一个分格采用9:16的竖屏画幅。每个分格严禁分屏、拼接。\n{\"m\": {\"style\": \"人设：[我：表面颓废垂眸，实则暗藏机锋；顾炎：傲慢富贵，身穿奢华高定西装]; 场景：[顾家家宴厅，奢华长木餐桌，水晶吊灯，冷暖对比光影]; 风格：[电影感，高对比度，微表情捕捉，胶片质感]\", \"logic\": \"围绕家宴厅长餐桌进行180度轴线调度。主角与顾炎对坐，以过肩反打(OTS)和局部特写(ECU)交替，构建心理博弈的压迫感，确保视线匹配不越轴。\"}, \"s\": [{\"id\": 1, \"arc\": \"铺垫\", \"src\": \"在所有人眼里，我是被羞辱到破防的废物。\", \"cam\": \"Medium Shot, High Angle\", \"spatial\": \"观察者：宴会厅宾客的主观俯视视角; 被观察者：我; 位置：我坐在长餐桌一端，低头垂目\", \"vis\": \"主角坐在华丽的餐桌前低着头，双肩微垂，面部被阴影笼罩，背景是模糊的奢华宴会厅和衣香鬓影的宾客，光线压抑，充满被孤立的颓废感。\", \"prompt\": \"Vertical 9:16 aspect ratio, full vertical composition, tall framing, medium shot, high angle, protagonist sitting at a luxurious long dining table looking down with drooping shoulders, face partially obscured by heavy shadows, feigned defeat, blurred affluent guests in background, opulent chandelier lighting overhead, cinematic shadow, dramatic atmosphere, film-like color grading, no horizontal, no landscape, no 16:9, no text, no letters, no words, no subtitles, no watermark, no logo, clean image\", \"check\": \"开场确立主角在宴会厅受屈辱的物理位置与压抑氛围，光线从上方打下。\"}, {\"id\": 2, \"arc\": \"反转暗示\", \"src\": \"只有我自己知道，我心里早已掀起狂喜。\", \"cam\": \"Extreme Close Up\", \"spatial\": \"观察者：餐桌正前方平视; 被观察者：我的面部; 位置：保持在餐桌同一端的特写\", \"vis\": \"画面极度拉近到主角半低垂的脸部，阴影中露出一只眼睛，眼神锐利且藏着一丝不易察觉的狂喜与冷笑，与上一镜的颓废形成强烈反差，高光点缀在瞳孔。\", \"prompt\": \"Vertical 9:16 aspect ratio, full vertical composition, tall framing, extreme close up, protagonist's face half hidden in shadows, head slightly tilted down but eyes looking up sharply, intense gleaming eyes with a hidden subtle smirk, micro-expression of wild ecstasy, opulent banquet hall background completely out of focus, cinematic rim lighting on the cheek, sharp focus on iris, no horizontal, no landscape, no 16:9, no text, no letters, no words, no subtitles, no watermark, no logo, clean image\", \"check\": \"由中景推进至极特写，保持物理位置不变，揭示主角隐藏的真实情绪。\"}, {\"id\": 3, \"arc\": \"内心独白\", \"src\": \"我正愁没有完美的办法脱身。\", \"cam\": \"Over The Shoulder Shot\", \"spatial\": \"观察者：主角侧后方; 被观察者：对面的顾炎; 位置：从主角肩膀看向餐桌另一端的顾炎\", \"vis\": \"主角的肩膀在画面前景边缘（虚化），焦点对准坐在长桌对面的顾炎，顾炎姿态傲慢，手里正把玩着一个精致的小物件，背景是宴会厅奢华的装饰屏风。\", \"prompt\": \"Vertical 9:16 aspect ratio, full vertical composition, tall framing, over the shoulder shot from protagonist looking at Gu Yan, protagonist's shoulder blurred in foreground, Gu Yan sitting arrogantly across the luxurious mahogany dining table, holding a small glowing object, wearing a high-end tailored suit, intricate decorative screen in background, shallow depth of field, moody cinematic lighting, no horizontal, no landscape, no 16:9, no text, no letters, no words, no subtitles, no watermark, no logo, clean image\", \"check\": \"建立两人的对立空间关系，视线由主角引向对面的顾炎，引入关键道具。\"}, {\"id\": 4, \"arc\": \"动作交锋\", \"src\": \"现在，他亲手把这个价值连城的\\\"证据\\\"——送到了我的面前！\", \"cam\": \"Close Up\", \"spatial\": \"观察者：侧面平视餐桌中央; 被观察者：顾炎的手与道具; 位置：餐桌正中，顾炎的手将物品推向画面前方\", \"vis\": \"顾炎戴着昂贵腕表的手，将一个镶嵌着金属纹理的绝密文件盒（证据）沿着光洁的木质桌面用力推向前方，桌面反射着暖黄色的灯光，动势强烈。\", \"prompt\": \"Vertical 9:16 aspect ratio, full vertical composition, tall framing, close up, Gu Yan's hand wearing an expensive watch sliding an ornate metal-accented document box across a highly polished wooden dining table, dynamic motion blur on the hand, warm chandelier lighting reflecting off the table surface, high detail texture, cinematic tension, no horizontal, no landscape, no 16:9, no text, no letters, no words, no subtitles, no watermark, no logo, clean image\", \"check\": \"空间焦点转移至两人之间的桌面，动作连贯，展现道具的移交过程。\"}, {\"id\": 5, \"arc\": \"高潮起手\", \"src\": \"一个疯狂的计划，瞬间成型。\", \"cam\": \"Macro Shot\", \"spatial\": \"观察者：正面微距; 被观察者：主角的眼睛; 位置：主角眼部极特写\", \"vis\": \"微距镜头下主角的眼睛，瞳孔瞬间放大，清澈的眼球表面反射出桌面上那个文件盒的轮廓，眼神从隐忍彻底转为深不可测的算计，眼睫毛清晰可见。\", \"prompt\": \"Vertical 9:16 aspect ratio, full vertical composition, tall framing, macro shot of protagonist's eye, pupil slightly dilating, reflection of an ornate box visible on the wet surface of the eye, calculating and sharp gaze, high detail iris texture, cinematic cold lighting contrasting with the warm reflection, dramatic micro-expression, no horizontal, no landscape, no 16:9, no text, no letters, no words, no subtitles, no watermark, no logo, clean image\", \"check\": \"无缝衔接上一镜的道具掉落，通过眼球反射确认物理空间的一致性，表现主角思维的闪电般运转。\"}, {\"id\": 6, \"arc\": \"停顿蓄势\", \"src\": \"……\", \"cam\": \"Wide Shot, Symmetrical\", \"spatial\": \"观察者：餐桌侧面正中; 被观察者：对坐的两人; 位置：宴会厅中景，展示两人对峙全貌\", \"vis\": \"画面绝对静止，侧面展现长餐桌的全景，主角和顾炎分坐两端，形成完美的对称构图。周围空气仿佛凝固，背景的宾客全被隐入黑暗，只有一束顶光打在两人和桌面的文件盒上。\", \"prompt\": \"Vertical 9:16 aspect ratio, full vertical composition, tall framing, wide shot, strict symmetrical composition, side view of the long dining table, protagonist and Gu Yan sitting frozen at opposite ends, an ornate box in the center, heavy suffocating silence, surrounding guests and banquet hall hidden in deep shadows, a single dramatic top light illuminating the table, high contrast chiaroscuro, cinematic stillness, no horizontal, no landscape, no 16:9, no text, no letters, no words, no subtitles, no watermark, no logo, clean image\", \"check\": \"从微观拉回宏观空间，用对称和留白表现剧情的无声停顿，物理位置绝对符合此前的座位设定。\"}, {\"id\": 7, \"arc\": \"对手反应\", \"src\": \"顾炎的笑容僵在脸上。\", \"cam\": \"Close Up\", \"spatial\": \"观察者：主角主观视角平视; 被观察者：顾炎面部; 位置：顾炎坐在座位上\", \"vis\": \"顾炎原本得意的笑容在脸上呈现出诡异的僵硬感，瞳孔微微收缩，嘴角悬停在半空，奢华的西装衣领在灯光下闪烁，面部光影逐渐变冷，显出内心的不安。\", \"prompt\": \"Vertical 9:16 aspect ratio, full vertical composition, tall framing, close up of Gu Yan's face, an arrogant smile unnaturally freezing on his lips, eyes showing sudden uncertainty and confusion, luxurious suit collar details, lighting shifting from warm to slightly cold and harsh, high detail skin texture, cinematic tension, no horizontal, no landscape, no 16:9, no text, no letters, no words, no subtitles, no watermark, no logo, clean image\", \"check\": \"视线回到顾炎，承接上一镜的停顿，展现他打破沉默失败后的神态变化。\"}, {\"id\": 8, \"arc\": \"施压\", \"src\": \"我的沉默，比任何反驳都让他难堪。\", \"cam\": \"Over The Shoulder Shot, Low Angle\", \"spatial\": \"观察者：顾炎侧后方低机位; 被观察者：主角; 位置：从顾炎肩膀看向主角\", \"vis\": \"顾炎的肩膀在前景（轻微颤抖的动势），镜头仰拍对面的主角。主角端坐在阴影中，如同一尊毫无波澜的雕像，冷漠地注视着顾炎，压迫感十足。\", \"prompt\": \"Vertical 9:16 aspect ratio, full vertical composition, tall framing, over the shoulder shot from Gu Yan looking at the protagonist, low angle, Gu Yan's shoulder slightly tense in the foreground, protagonist sitting perfectly still in the shadows like a statue, cold and emotionless expression, dominating aura, blurred dark banquet hall background, tense cinematic lighting, no horizontal, no landscape, no 16:9, no text, no letters, no words, no subtitles, no watermark, no logo, clean image\", \"check\": \"标准反打镜头，利用低角度强化主角的心理优势，确认主角一动不动的施压状态。\"}, {\"id\": 9, \"arc\": \"破防\", \"src\": \"他脸上的肌肉抽动了一下。\", \"cam\": \"Extreme Close Up\", \"spatial\": \"观察者：侧方微距; 被观察者：顾炎的下颌部; 位置：顾炎脸部极近距离\", \"vis\": \"极度特写顾炎的侧脸下颌线，由于过度咬牙导致的咬肌剧烈抽搐，一滴冷汗从鬓角滑落，背景完全漆黑，光影锐利切割面部轮廓。\", \"prompt\": \"Vertical 9:16 aspect ratio, full vertical composition, tall framing, extreme close up of Gu Yan's jawline and cheek, tight facial muscles visibly twitching, masseter muscle flexing, a single drop of cold sweat rolling down his temple, skin texture and pores highly detailed, pitch black background, sharp dramatic side lighting cutting the facial contours, psychological breakdown, no horizontal, no landscape, no 16:9, no text, no letters, no words, no subtitles, no watermark, no logo, clean image\", \"check\": \"最终镜头收束在顾炎的微表情崩溃上，完美对应文本的肌肉抽动，结束这场无声的交锋。\"}], \"scene\": [\"顾家_家宴厅\"], \"character\": [\"我\", \"顾炎\"]}",
+            "prompts": [
+              "Vertical 9:16 aspect ratio, full vertical composition, tall framing, medium shot, high angle, protagonist sitting at a luxurious long dining table looking down with drooping shoulders, face partially obscured by heavy shadows, feigned defeat, blurred affluent guests in background, opulent chandelier lighting overhead, cinematic shadow, dramatic atmosphere, film-like color grading, no horizontal, no landscape, no 16:9, no text, no letters, no words, no subtitles, no watermark, no logo, clean image",
+              "Vertical 9:16 aspect ratio, full vertical composition, tall framing, extreme close up, protagonist's face half hidden in shadows, head slightly tilted down but eyes looking up sharply, intense gleaming eyes with a hidden subtle smirk, micro-expression of wild ecstasy, opulent banquet hall background completely out of focus, cinematic rim lighting on the cheek, sharp focus on iris, no horizontal, no landscape, no 16:9, no text, no letters, no words, no subtitles, no watermark, no logo, clean image",
+              "Vertical 9:16 aspect ratio, full vertical composition, tall framing, over the shoulder shot from protagonist looking at Gu Yan, protagonist's shoulder blurred in foreground, Gu Yan sitting arrogantly across the luxurious mahogany dining table, holding a small glowing object, wearing a high-end tailored suit, intricate decorative screen in background, shallow depth of field, moody cinematic lighting, no horizontal, no landscape, no 16:9, no text, no letters, no words, no subtitles, no watermark, no logo, clean image",
+              "Vertical 9:16 aspect ratio, full vertical composition, tall framing, close up, Gu Yan's hand wearing an expensive watch sliding an ornate metal-accented document box across a highly polished wooden dining table, dynamic motion blur on the hand, warm chandelier lighting reflecting off the table surface, high detail texture, cinematic tension, no horizontal, no landscape, no 16:9, no text, no letters, no words, no subtitles, no watermark, no logo, clean image",
+              "Vertical 9:16 aspect ratio, full vertical composition, tall framing, macro shot of protagonist's eye, pupil slightly dilating, reflection of an ornate box visible on the wet surface of the eye, calculating and sharp gaze, high detail iris texture, cinematic cold lighting contrasting with the warm reflection, dramatic micro-expression, no horizontal, no landscape, no 16:9, no text, no letters, no words, no subtitles, no watermark, no logo, clean image",
+              "Vertical 9:16 aspect ratio, full vertical composition, tall framing, wide shot, strict symmetrical composition, side view of the long dining table, protagonist and Gu Yan sitting frozen at opposite ends, an ornate box in the center, heavy suffocating silence, surrounding guests and banquet hall hidden in deep shadows, a single dramatic top light illuminating the table, high contrast chiaroscuro, cinematic stillness, no horizontal, no landscape, no 16:9, no text, no letters, no words, no subtitles, no watermark, no logo, clean image",
+              "Vertical 9:16 aspect ratio, full vertical composition, tall framing, close up of Gu Yan's face, an arrogant smile unnaturally freezing on his lips, eyes showing sudden uncertainty and confusion, luxurious suit collar details, lighting shifting from warm to slightly cold and harsh, high detail skin texture, cinematic tension, no horizontal, no landscape, no 16:9, no text, no letters, no words, no subtitles, no watermark, no logo, clean image",
+              "Vertical 9:16 aspect ratio, full vertical composition, tall framing, over the shoulder shot from Gu Yan looking at the protagonist, low angle, Gu Yan's shoulder slightly tense in the foreground, protagonist sitting perfectly still in the shadows like a statue, cold and emotionless expression, dominating aura, blurred dark banquet hall background, tense cinematic lighting, no horizontal, no landscape, no 16:9, no text, no letters, no words, no subtitles, no watermark, no logo, clean image",
+              "Vertical 9:16 aspect ratio, full vertical composition, tall framing, extreme close up of Gu Yan's jawline and cheek, tight facial muscles visibly twitching, masseter muscle flexing, a single drop of cold sweat rolling down his temple, skin texture and pores highly detailed, pitch black background, sharp dramatic side lighting cutting the facial contours, psychological breakdown, no horizontal, no landscape, no 16:9, no text, no letters, no words, no subtitles, no watermark, no logo, clean image"
+            ],
+            "segment_indices": [
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17
+            ],
+            "ref_image_urls": [
+              "https://anim-res.youku.com/yk/ai-animation/animate_image/2026-04-24/177701155051176303d45424/177701155051176303d45424_cw.png",
+              "https://anim-res.youku.com/yk/ai-animation/animate_image/2026-04-24/1777011550709886af29aa1b/1777011550709886af29aa1b_cw.png"
+            ],
+            "ref_image_mapping": [
+              {
+                "name": "我",
+                "type": "character",
+                "url": "https://anim-res.youku.com/yk/ai-animation/animate_image/2026-04-24/177701155051176303d45424/177701155051176303d45424_cw.png"
+              },
+              {
+                "name": "顾炎",
+                "type": "character",
+                "url": "https://anim-res.youku.com/yk/ai-animation/animate_image/2026-04-24/1777011550709886af29aa1b/1777011550709886af29aa1b_cw.png"
+              }
+            ]
+          },
+          {
+            "group_index": 2,
+            "mode": "single",
+            "grid_prompt": "",
+            "prompts": [
+              "Vertical 9:16 aspect ratio, Medium Close Up, a handsome man wearing a well-tailored dark suit, holding a crystal wine glass, his wrist slightly tilting downward intentionally, vibrant red wine liquid spilling out dynamically, a subtle cold smirk on his lips, macro details on the glass and liquid, blurred luxurious banquet hall background, crystal chandelier bokeh, dramatic cinematic lighting, rich colors, 8k resolution, highly detailed, film-like style, no horizontal, no landscape, no 16:9, no text, no letters, no words, no subtitles, no watermark, no logo, clean image"
+            ],
+            "segment_indices": [
+              18
+            ],
+            "ref_image_urls": [
+              "https://anim-res.youku.com/yk/ai-animation/animate_image/2026-04-24/177701155051176303d45424/177701155051176303d45424_cw.png",
+              "https://anim-res.youku.com/yk/ai-animation/animate_image/2026-04-24/1777011550709886af29aa1b/1777011550709886af29aa1b_cw.png"
+            ],
+            "ref_image_mapping": [
+              {
+                "name": "我",
+                "type": "character",
+                "url": "https://anim-res.youku.com/yk/ai-animation/animate_image/2026-04-24/177701155051176303d45424/177701155051176303d45424_cw.png"
+              },
+              {
+                "name": "顾炎",
+                "type": "character",
+                "url": "https://anim-res.youku.com/yk/ai-animation/animate_image/2026-04-24/1777011550709886af29aa1b/1777011550709886af29aa1b_cw.png"
+              }
+            ]
+          }
+        ]
+      },
+      "video_prompt_map": {
+        "_step": "视频提示词Agent",
+        "_task_id": "aistudio_video_prompt_v2_task",
+        "_dag_id": "yk_narration_scene_prod_dag",
+        "success": true,
+        "video_prompt_map": {
+          "0": "固定机位中景正面拍摄，镜头静止，景深压缩宴会厅纵深空间，水晶吊灯暖金光芒从头顶倾泻，背景宾客虚化成流动的光斑，男主穿低调深色西装独自坐于宴会厅角落，双手自然置于腿上，表情冷峻隐忍，眼神平静地扫视前方，嘴角微抿，周身与喧嚣环境格格不入",
+          "1": "静止特写下压，镜头从男主胸口缓缓下移至手部，聚焦于桌面酒杯，水晶杯身折射出宴会厅璀璨光点，男主五指缓缓收拢握紧高脚杯杯身，指关节因用力泛出白痕，手腕处肌腱轻微绷紧，握持动作克制而有力，透出内心压抑的算计",
+          "2": "侧面平视固定特写，镜头锁定男主左侧脸，景深模糊身后宴会厅门廊，轮廓光从侧后方勾勒出男主面部线条，男主侧脸微微转向宴会厅出口方向，眼神越过熙攘人群望向远处紧闭的大门，眼底深处一闪而过一丝渴望与克制的期待，随即恢复冷静",
+          "3": "越肩主观镜头，越过男主左肩向宴会厅中央方向拍摄，前景肩部虚化，焦点推向中景处的顾炎，形成明显纵深对立感，顾炎站于宴会主桌旁，穿着浮夸昂贵定制西装，挺胸昂首，嘴角挂着充满敌意的冷笑，目光锐利地越过宾客人群直射向男主方向，气势张扬逼人",
+          "4": "正面平视中近景，镜头缓缓向顾炎小幅推进，聚焦于其高举的左手腕，背景宾客随推进逐渐虚化，金表成为画面视觉中心，顾炎骄横地高抬左手腕，将手表正面朝向四周宾客，右手拨弄袖口以更充分露出表盘，面部表情极度得意自矜，下巴微抬，眼神扫视周围人群以确认关注度",
+          "5": "侧面平视双人中景固定，镜头置于两人正侧方，完整收录一站一坐的高低姿态对比，宴会厅背景在两人之间的空隙中隐约可见，顾炎大步走至男主座位前停下，俯身向前，伸出右手手背轻蔑地拍打男主左侧脸颊，动作带有明显的挑衅意味；男主端坐不动，脊背挺直，双手按在腿上，脸被拍打时颈部轻微侧移后立刻回正，目光直视前方，隐忍至极",
+          "6": "极度特写固定微距，镜头推至男主面部侧方，聚焦于顾炎戴表的手停悬于男主脸颊旁的局部画面，极浅景深使皮肤纹理与金属表壳质感同时清晰呈现，顾炎戴着限量金表的手背停在男主脸颊旁侧，手腕微微翻转使表盘朝向男主，金属表壳在灯光下散射出冷冽光芒；男主面部肌肉极度绷紧，颧骨处皮肤轻微收缩，眼角余光瞥向金表，嘴唇紧闭一丝不动",
+          "7": "男主主观低角度仰拍近景，镜头置于坐姿男主的视点高度向上仰拍顾炎面部，顾炎身后水晶吊灯形成逆光光晕，产生泰山压顶的压迫感，顾炎居高临下俯视镜头，嘴角拉开一抹充满鄙夷的冷笑，眼神中是毫不掩饰的蔑视与嘲弄，右手拇指与食指轻捻，做出一个暗示\"一文不值\"的细小手势，姿态傲慢至极",
+          "8": "正面极度特写固定微距，镜头锁定男主双眼区域，构图仅保留眉弓至鼻梁上端，极浅景深使睫毛与虹膜纹理清晰可见，瞳孔中金表倒影成为画面叙事焦点，男主双眼一动不动地死死凝视前方顾炎手腕方向，眼神阴沉冷静，没有愤怒没有慌乱，瞳孔深处清晰地倒映出金表表盘的微小影像，眼周肌肉纹丝不动，嘴唇紧闭，整张脸透出深不见底的隐忍与算计",
+          "9": "中景高角度俯拍，固定机位略微下压，模拟宴会厅宾客居高临下的主观视角，镜头静止，光线从头顶水晶吊灯垂直压下，阴影将主角脸部大半笼罩，主角坐于奢华长木餐桌一端，双肩微微内扣下垂，头部低垂不抬，手掌平放桌面，全身呈现被压制的颓败姿态，眼神藏于阴影之中，嘴角紧抿，表情空洞而顺从",
+          "10": "由中景缓慢推进至极度特写，镜头沿主角面部轴线正面缓推，最终定格于半遮于阴影中的单侧眼部，聚焦精准锁定瞳孔区域，背景宴会厅完全虚化，主角头部保持微低状态，但眼球在阴影掩护下悄然上挑，眼神从空洞骤然转为锋利深邃，嘴角隐现一丝极细微的冷笑弧度，面部其余肌肉刻意维持松弛，形成表里截然相反的双层表情",
+          "11": "过肩镜头，固定机位架设于主角侧后方，主角肩膀虚化占据画面前景左侧边缘，焦点越过餐桌拉向对面远端，浅景深将空间纵深感拉满，装饰屏风在顾炎身后形成框中框构图，主角肩膀在前景保持静止微沉，画面焦点落于对面的顾炎——顾炎斜靠椅背，姿态慵懒傲慢，单手托腮，另一手轻描淡写地把玩手腕上那块刻着顾家徽记的限量腕表，偶尔抬眼扫视全场，唇角挂着居高临下的浅笑",
+          "12": "侧面平视特写，镜头低位架于餐桌桌面高度，贴近桌面平视拍摄，随顾炎手部推送动作做极细微跟焦前移，光洁桌面的暖黄反射光在镜头前景形成流动光斑，顾炎戴着刻有顾家徽记限量腕表的手腕入画，五指张开将腕表扣在桌面上用力向前一推，动作干脆强势，腕表沿抛光木质桌面向主角方向滑行，袖口奢华面料在灯光下微微闪动，手指收回时流露出不屑的随意感",
+          "13": "微距正面固定机位，镜头极近距离锁定主角单眼，画面充满整个瞳孔与虹膜细节，眼球湿润表面作为反射介质，在焦外形成奶油般的光晕，主角眼球在微距镜头下微微一颤，瞳孔骤然放大，眼球湿润表面清晰倒映出桌面腕表的轮廓光斑，眼睫毛纹丝不动，目光深处涌现出猎手锁定猎物般的精准算计，整个眼神在零点几秒内完成从隐忍到决断的切换",
+          "14": "餐桌侧面正中广角固定机位，严格水平对称构图，镜头完全静止，不做任何运动，单束顶光如舞台追光从正上方垂直打下，周围环境压入深重阴影，主角与顾炎同时凝固在各自座位上，两人形成对称的沉默雕塑，主角端坐于一端，脊背挺直却气若游丝；顾炎坐于另一端，笑容悬停在脸上尚未消散，腕表静置于桌面正中被顶光照亮，整个画面凝滞如被按下暂停键，空气压迫感极强",
+          "15": "主角主观视角平视特写，固定机位模拟主角目光直视顾炎面部，镜头轻微呼吸式微颤模拟注视状态，光线色温在顾炎面部随情绪变化从暖黄微转冷白，顾炎脸上原本游刃有余的得意笑容在肌肉层面出现异样——嘴角弧度僵在半途无法继续上扬，也无法自然收回，悬停成一个不自然的表情，眼睑轻微一跳，瞳孔收缩，下意识地想用视线压制对方却找不到着力点",
+          "16": "过肩低角度仰拍，机位架于顾炎侧后方低位，镜头仰角朝向对面主角，顾炎肩膀在前景略微入画，利用低机位与仰角共同强化画面对面主角的心理压制感，顾炎前景肩膀传递出细微的紧绷张力，画面主体为对面仰视视角下的主角——主角端坐于阴影深处，双手自然置于桌面，身体一毫米不动，面部表情平静如湖面，眼神不偏不倚直视顾炎，既无愤怒也无恐惧，仅以沉默本身作为最重的武器",
+          "17": "侧方极度特写微距，镜头贴近顾炎侧脸下颌线区域，锐利的侧光从单侧切入，在面部骨骼轮廓处形成刀锋般的光影分割线，背景完全化入纯黑，顾炎下颌咬肌在极特写下可见明显的非自主抽搐，腮部皮肤随肌肉收缩产生细微形变，一滴冷汗从鬓角发际线悄然渗出缓缓下滑，颈部喉结微微一动，他在用尽全力维持面部的最后一道防线"
+        }
+      },
+      "segments": [
+        {
+          "segment_index": 0,
+          "narration_text": "我当上门女婿，只为钱。",
+          "emotion": "中性",
+          "speed": 1.0,
+          "keyframe": {
+            "_step": "关键帧图片生成",
+            "_task_id": "grid_gen_and_crop_task | keyframe_image_gen_task",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "image_url": "https://anim-res.youku.com/yk/ai-animation/animate_image/2026-04-24/17770115507675052306a755/17770115507675052306a755_cw.png",
+            "source": "grid",
+            "prompt": "Vertical 9:16 aspect ratio, full vertical composition, tall framing, Medium Shot, a young man in an understated dark suit sitting quietly in the corner of a luxurious banquet hall, calm and restrained expression, blurred wealthy guests interacting in the background, crystal chandeliers, warm golden cinematic lighting, sharp focus on the man, photorealistic, 8k resolution, no horizontal, no landscape, no 16:9, no text, no letters, no words, no subtitles, no watermark, no logo, clean image"
+          },
+          "video": {
+            "_step": "逐段视频生成",
+            "_task_id": "bailian_wan22_video_task",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "success": true,
+            "video_url": "https://anim-res.youku.com/yk/ai-animation/animate_video/2026-04-24/1777011035383691f75be76f/1777011035383691f75be76f.mp4",
+            "duration": 5.0,
+            "video_prompt": "固定机位中景正面拍摄，镜头静止，景深压缩宴会厅纵深空间，水晶吊灯暖金光芒从头顶倾泻，背景宾客虚化成流动的光斑，男主穿低调深色西装独自坐于宴会厅角落，双手自然置于腿上，表情冷峻隐忍，眼神平静地扫视前方，嘴角微抿，周身与喧嚣环境格格不入",
+            "src_image_url": "https://anim-res.youku.com/yk/ai-animation/animate_image/2026-04-24/17770115507675052306a755/17770115507675052306a755_cw.png"
+          },
+          "tts": {
+            "_step": "逐段TTS生成",
+            "_task_id": "tts_single_segment_gen",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "success": true,
+            "audio_url": "https://anim-res.youku.com/yk/ai-animation/animate_audio/2026-04-24/1777011551029437995c7faa/1777011551029437995c7faa_cw.mp3",
+            "duration": 2.766667,
+            "text": "我当上门女婿，只为钱。",
+            "emotion": "中性"
+          },
+          "merged": {
+            "_step": "逐段音视频合并",
+            "_task_id": "merge_single_segment_av",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "success": true,
+            "merged_video_url": "https://anim-res.youku.com/yk/ai-animation/animate_video/narration_scene_1_d332c8d7_ebdae7c4/merged_seg_001.mp4",
+            "duration": 2.766667
+          }
+        },
+        {
+          "segment_index": 1,
+          "narration_text": "三年合同，五千万。",
+          "emotion": "中性",
+          "speed": 1.0,
+          "keyframe": {
+            "_step": "关键帧图片生成",
+            "_task_id": "grid_gen_and_crop_task | keyframe_image_gen_task",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "image_url": "https://anim-res.youku.com/yk/ai-animation/animate_image/2026-04-24/17770115507073836b661cca/17770115507073836b661cca_cw.png",
+            "source": "grid",
+            "prompt": "Vertical 9:16 aspect ratio, full vertical composition, tall framing, Close Up, the young man's hand tightly gripping a luxurious crystal wine glass, knuckles slightly white from pressure, the glass refracting the dazzling golden light of the banquet hall, detailed skin texture, rich cinematic lighting, emotional storytelling, photorealistic, no horizontal, no landscape, no 16:9, no text, no letters, no words, no subtitles, no watermark, no logo, clean image"
+          },
+          "video": {
+            "_step": "逐段视频生成",
+            "_task_id": "bailian_wan22_video_task",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "success": true,
+            "video_url": "https://anim-res.youku.com/yk/ai-animation/animate_video/2026-04-24/177701110684509495e3cc03/177701110684509495e3cc03.mp4",
+            "duration": 5.0,
+            "video_prompt": "静止特写下压，镜头从男主胸口缓缓下移至手部，聚焦于桌面酒杯，水晶杯身折射出宴会厅璀璨光点，男主五指缓缓收拢握紧高脚杯杯身，指关节因用力泛出白痕，手腕处肌腱轻微绷紧，握持动作克制而有力，透出内心压抑的算计",
+            "src_image_url": "https://anim-res.youku.com/yk/ai-animation/animate_image/2026-04-24/17770115507073836b661cca/17770115507073836b661cca_cw.png"
+          },
+          "tts": {
+            "_step": "逐段TTS生成",
+            "_task_id": "tts_single_segment_gen",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "success": true,
+            "audio_url": "https://anim-res.youku.com/yk/ai-animation/animate_audio/2026-04-24/1777011551025049fdbf0928/1777011551025049fdbf0928_cw.mp3",
+            "duration": 2.533333,
+            "text": "三年合同，五千万。",
+            "emotion": "中性"
+          },
+          "merged": {
+            "_step": "逐段音视频合并",
+            "_task_id": "merge_single_segment_av",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "success": true,
+            "merged_video_url": "https://anim-res.youku.com/yk/ai-animation/animate_video/narration_scene_1_d332c8d7_ebdae7c4/merged_seg_002.mp4",
+            "duration": 2.533333
+          }
+        },
+        {
+          "segment_index": 2,
+          "narration_text": "还差最后一个月，我就能拿钱滚蛋，彻底自由。",
+          "emotion": "开心",
+          "speed": 1.1,
+          "keyframe": {
+            "_step": "关键帧图片生成",
+            "_task_id": "grid_gen_and_crop_task | keyframe_image_gen_task",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "image_url": "https://anim-res.youku.com/yk/ai-animation/animate_image/2026-04-24/1777011550356710adee3deb/1777011550356710adee3deb_cw.png",
+            "source": "grid",
+            "prompt": "Vertical 9:16 aspect ratio, full vertical composition, tall framing, Side Profile Close Up, the young man looking towards the distant banquet hall doors, a glimmer of longing and anticipation in his calm eyes, soft rim lighting highlighting his facial profile against the dim luxury background, cinematic color grading, hyper-detailed, no horizontal, no landscape, no 16:9, no text, no letters, no words, no subtitles, no watermark, no logo, clean image"
+          },
+          "video": {
+            "_step": "逐段视频生成",
+            "_task_id": "bailian_wan22_video_task",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "success": true,
+            "video_url": "https://anim-res.youku.com/yk/ai-animation/animate_video/2026-04-24/1777011068027522485f81d0/1777011068027522485f81d0.mp4",
+            "duration": 5.0,
+            "video_prompt": "侧面平视固定特写，镜头锁定男主左侧脸，景深模糊身后宴会厅门廊，轮廓光从侧后方勾勒出男主面部线条，男主侧脸微微转向宴会厅出口方向，眼神越过熙攘人群望向远处紧闭的大门，眼底深处一闪而过一丝渴望与克制的期待，随即恢复冷静",
+            "src_image_url": "https://anim-res.youku.com/yk/ai-animation/animate_image/2026-04-24/1777011550356710adee3deb/1777011550356710adee3deb_cw.png"
+          },
+          "tts": {
+            "_step": "逐段TTS生成",
+            "_task_id": "tts_single_segment_gen",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "success": true,
+            "audio_url": "https://anim-res.youku.com/yk/ai-animation/animate_audio/2026-04-24/177701155366653284d29cd2/177701155366653284d29cd2_cw.mp3",
+            "duration": 3.9,
+            "text": "还差最后一个月，我就能拿钱滚蛋，彻底自由。",
+            "emotion": "开心"
+          },
+          "merged": {
+            "_step": "逐段音视频合并",
+            "_task_id": "merge_single_segment_av",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "success": true,
+            "merged_video_url": "https://anim-res.youku.com/yk/ai-animation/animate_video/narration_scene_1_d332c8d7_ebdae7c4/merged_seg_003.mp4",
+            "duration": 3.9
+          }
+        },
+        {
+          "segment_index": 3,
+          "narration_text": "可豪门大舅子顾炎，显然不想让我轻易得逞。",
+          "emotion": "生气",
+          "speed": 1.15,
+          "keyframe": {
+            "_step": "关键帧图片生成",
+            "_task_id": "grid_gen_and_crop_task | keyframe_image_gen_task",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "image_url": "https://anim-res.youku.com/yk/ai-animation/animate_image/2026-04-24/17770115519429891cfb2ac7/17770115519429891cfb2ac7_cw.png",
+            "source": "grid",
+            "prompt": "Vertical 9:16 aspect ratio, full vertical composition, tall framing, Over The Shoulder shot, looking past the back of the protagonist's shoulder towards the center of the banquet hall, Gu Yan a wealthy young man in a flamboyant expensive suit standing at the main table, sneering hostilely directly at the camera, luxurious background, depth of field blurring the foreground shoulder, no horizontal, no landscape, no 16:9, no text, no letters, no words, no subtitles, no watermark, no logo, clean image"
+          },
+          "video": {
+            "_step": "逐段视频生成",
+            "_task_id": "bailian_wan22_video_task",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "success": true,
+            "video_url": "https://anim-res.youku.com/yk/ai-animation/animate_video/2026-04-24/177701103551503172973e4f/177701103551503172973e4f.mp4",
+            "duration": 5.0,
+            "video_prompt": "越肩主观镜头，越过男主左肩向宴会厅中央方向拍摄，前景肩部虚化，焦点推向中景处的顾炎，形成明显纵深对立感，顾炎站于宴会主桌旁，穿着浮夸昂贵定制西装，挺胸昂首，嘴角挂着充满敌意的冷笑，目光锐利地越过宾客人群直射向男主方向，气势张扬逼人",
+            "src_image_url": "https://anim-res.youku.com/yk/ai-animation/animate_image/2026-04-24/17770115519429891cfb2ac7/17770115519429891cfb2ac7_cw.png"
+          },
+          "tts": {
+            "_step": "逐段TTS生成",
+            "_task_id": "tts_single_segment_gen",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "success": true,
+            "audio_url": "https://anim-res.youku.com/yk/ai-animation/animate_audio/2026-04-24/1777011554700126682930ad/1777011554700126682930ad_cw.mp3",
+            "duration": 3.466667,
+            "text": "可豪门大舅子顾炎，显然不想让我轻易得逞。",
+            "emotion": "生气"
+          },
+          "merged": {
+            "_step": "逐段音视频合并",
+            "_task_id": "merge_single_segment_av",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "success": true,
+            "merged_video_url": "https://anim-res.youku.com/yk/ai-animation/animate_video/narration_scene_1_d332c8d7_ebdae7c4/merged_seg_004.mp4",
+            "duration": 3.466667
+          }
+        },
+        {
+          "segment_index": 4,
+          "narration_text": "家宴上，他当着所有宾客的面，炫耀自己手腕上那块刻着顾家徽记的限量表。",
+          "emotion": "厌恶",
+          "speed": 0.95,
+          "keyframe": {
+            "_step": "关键帧图片生成",
+            "_task_id": "grid_gen_and_crop_task | keyframe_image_gen_task",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "image_url": "https://anim-res.youku.com/yk/ai-animation/animate_image/2026-04-24/1777011552507535d0a6248d/1777011552507535d0a6248d_cw.png",
+            "source": "grid",
+            "prompt": "Vertical 9:16 aspect ratio, full vertical composition, tall framing, Medium Close Up, Gu Yan proudly raising his left wrist to show off a highly complex limited-edition mechanical gold watch, arrogant and boastful expression, surrounding wealthy guests slightly blurred in the background, sparkling chandeliers, extreme detail on the gold watch, cinematic lighting, no horizontal, no landscape, no 16:9, no text, no letters, no words, no subtitles, no watermark, no logo, clean image"
+          },
+          "video": {
+            "_step": "逐段视频生成",
+            "_task_id": "bailian_wan22_video_task",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "success": true,
+            "video_url": "https://anim-res.youku.com/yk/ai-animation/animate_video/2026-04-24/1777011067736511c15431d4/1777011067736511c15431d4.mp4",
+            "duration": 5.0,
+            "video_prompt": "正面平视中近景，镜头缓缓向顾炎小幅推进，聚焦于其高举的左手腕，背景宾客随推进逐渐虚化，金表成为画面视觉中心，顾炎骄横地高抬左手腕，将手表正面朝向四周宾客，右手拨弄袖口以更充分露出表盘，面部表情极度得意自矜，下巴微抬，眼神扫视周围人群以确认关注度",
+            "src_image_url": "https://anim-res.youku.com/yk/ai-animation/animate_image/2026-04-24/1777011552507535d0a6248d/1777011552507535d0a6248d_cw.png"
+          },
+          "tts": {
+            "_step": "逐段TTS生成",
+            "_task_id": "tts_single_segment_gen",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "success": true,
+            "audio_url": "https://anim-res.youku.com/yk/ai-animation/animate_audio/2026-04-24/1777011555127673d9a59678/1777011555127673d9a59678_cw.mp3",
+            "duration": 7.966667,
+            "text": "家宴上，他当着所有宾客的面，炫耀自己手腕上那块刻着顾家徽记的限量表。",
+            "emotion": "厌恶"
+          },
+          "merged": {
+            "_step": "逐段音视频合并",
+            "_task_id": "merge_single_segment_av",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "success": true,
+            "merged_video_url": "https://anim-res.youku.com/yk/ai-animation/animate_video/narration_scene_1_d332c8d7_ebdae7c4/merged_seg_005.mp4",
+            "duration": 7.966667
+          }
+        },
+        {
+          "segment_index": 5,
+          "narration_text": "然后，他走到我面前，轻蔑地拍了拍我的脸。",
+          "emotion": "生气",
+          "speed": 1.15,
+          "keyframe": {
+            "_step": "关键帧图片生成",
+            "_task_id": "grid_gen_and_crop_task | keyframe_image_gen_task",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "image_url": "https://anim-res.youku.com/yk/ai-animation/animate_image/2026-04-24/177701155369503063ad21f6/177701155369503063ad21f6_cw.png",
+            "source": "grid",
+            "prompt": "Vertical 9:16 aspect ratio, full vertical composition, tall framing, Two Shot from a side angle, Gu Yan standing and leaning over to disdainfully pat the face of the protagonist who is still sitting calmly, tense atmosphere, luxurious banquet hall background, dynamic power imbalance, detailed facial expressions, dramatic lighting, no horizontal, no landscape, no 16:9, no text, no letters, no words, no subtitles, no watermark, no logo, clean image"
+          },
+          "video": {
+            "_step": "逐段视频生成",
+            "_task_id": "bailian_wan22_video_task",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "success": true,
+            "video_url": "https://anim-res.youku.com/yk/ai-animation/animate_video/2026-04-24/17770111483715916a57fcfe/17770111483715916a57fcfe.mp4",
+            "duration": 5.0,
+            "video_prompt": "侧面平视双人中景固定，镜头置于两人正侧方，完整收录一站一坐的高低姿态对比，宴会厅背景在两人之间的空隙中隐约可见，顾炎大步走至男主座位前停下，俯身向前，伸出右手手背轻蔑地拍打男主左侧脸颊，动作带有明显的挑衅意味；男主端坐不动，脊背挺直，双手按在腿上，脸被拍打时颈部轻微侧移后立刻回正，目光直视前方，隐忍至极",
+            "src_image_url": "https://anim-res.youku.com/yk/ai-animation/animate_image/2026-04-24/177701155369503063ad21f6/177701155369503063ad21f6_cw.png"
+          },
+          "tts": {
+            "_step": "逐段TTS生成",
+            "_task_id": "tts_single_segment_gen",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "success": true,
+            "audio_url": "https://anim-res.youku.com/yk/ai-animation/animate_audio/2026-04-24/17770115546051029d54adbc/17770115546051029d54adbc_cw.mp3",
+            "duration": 4.133333,
+            "text": "然后，他走到我面前，轻蔑地拍了拍我的脸。",
+            "emotion": "生气"
+          },
+          "merged": {
+            "_step": "逐段音视频合并",
+            "_task_id": "merge_single_segment_av",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "success": true,
+            "merged_video_url": "https://anim-res.youku.com/yk/ai-animation/animate_video/narration_scene_1_d332c8d7_ebdae7c4/merged_seg_006.mp4",
+            "duration": 4.133333
+          }
+        },
+        {
+          "segment_index": 6,
+          "narration_text": "知道你和这块表的差距吗？",
+          "emotion": "厌恶",
+          "speed": 0.95,
+          "keyframe": {
+            "_step": "关键帧图片生成",
+            "_task_id": "grid_gen_and_crop_task | keyframe_image_gen_task",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "image_url": "https://anim-res.youku.com/yk/ai-animation/animate_image/2026-04-24/1777011554007260b84fbb1f/1777011554007260b84fbb1f_cw.png",
+            "source": "grid",
+            "prompt": "Vertical 9:16 aspect ratio, full vertical composition, tall framing, Extreme Close Up, Gu Yan's hand wearing the intricate luxury gold watch resting against the protagonist's tense cheek, stark contrast between the metallic gleam of the watch and the human skin texture, micro-expressions of endurance, cinematic macro photography, shallow depth of field, no horizontal, no landscape, no 16:9, no text, no letters, no words, no subtitles, no watermark, no logo, clean image"
+          },
+          "video": {
+            "_step": "逐段视频生成",
+            "_task_id": "bailian_wan22_video_task",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "success": true,
+            "video_url": "https://anim-res.youku.com/yk/ai-animation/animate_video/2026-04-24/1777011097819439267b19db/1777011097819439267b19db.mp4",
+            "duration": 5.0,
+            "video_prompt": "极度特写固定微距，镜头推至男主面部侧方，聚焦于顾炎戴表的手停悬于男主脸颊旁的局部画面，极浅景深使皮肤纹理与金属表壳质感同时清晰呈现，顾炎戴着限量金表的手背停在男主脸颊旁侧，手腕微微翻转使表盘朝向男主，金属表壳在灯光下散射出冷冽光芒；男主面部肌肉极度绷紧，颧骨处皮肤轻微收缩，眼角余光瞥向金表，嘴唇紧闭一丝不动",
+            "src_image_url": "https://anim-res.youku.com/yk/ai-animation/animate_image/2026-04-24/1777011554007260b84fbb1f/1777011554007260b84fbb1f_cw.png"
+          },
+          "tts": {
+            "_step": "逐段TTS生成",
+            "_task_id": "tts_single_segment_gen",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "success": true,
+            "audio_url": "https://anim-res.youku.com/yk/ai-animation/animate_audio/2026-04-24/1777011554601414f64863cb/1777011554601414f64863cb_cw.mp3",
+            "duration": 2.7,
+            "text": "知道你和这块表的差距吗？",
+            "emotion": "厌恶"
+          },
+          "merged": {
+            "_step": "逐段音视频合并",
+            "_task_id": "merge_single_segment_av",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "success": true,
+            "merged_video_url": "https://anim-res.youku.com/yk/ai-animation/animate_video/narration_scene_1_d332c8d7_ebdae7c4/merged_seg_007.mp4",
+            "duration": 2.7
+          }
+        },
+        {
+          "segment_index": 7,
+          "narration_text": "它是无价之宝，而你，一文不值。",
+          "emotion": "生气",
+          "speed": 1.15,
+          "keyframe": {
+            "_step": "关键帧图片生成",
+            "_task_id": "grid_gen_and_crop_task | keyframe_image_gen_task",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "image_url": "https://anim-res.youku.com/yk/ai-animation/animate_image/2026-04-24/1777011555280552ec60ce58/1777011555280552ec60ce58_cw.png",
+            "source": "grid",
+            "prompt": "Vertical 9:16 aspect ratio, full vertical composition, tall framing, Low Angle Close Up from the protagonist's POV, Gu Yan looking down at the camera with extreme contempt and a mocking sneer, bright crystal chandeliers directly behind his head creating a harsh backlight, arrogant posture, hyper-detailed facial features, dramatic cinematic lighting, no horizontal, no landscape, no 16:9, no text, no letters, no words, no subtitles, no watermark, no logo, clean image"
+          },
+          "video": {
+            "_step": "逐段视频生成",
+            "_task_id": "bailian_wan22_video_task",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "success": true,
+            "video_url": "https://anim-res.youku.com/yk/ai-animation/animate_video/2026-04-24/1777011204877238b52f10c1/1777011204877238b52f10c1.mp4",
+            "duration": 5.0,
+            "video_prompt": "男主主观低角度仰拍近景，镜头置于坐姿男主的视点高度向上仰拍顾炎面部，顾炎身后水晶吊灯形成逆光光晕，产生泰山压顶的压迫感，顾炎居高临下俯视镜头，嘴角拉开一抹充满鄙夷的冷笑，眼神中是毫不掩饰的蔑视与嘲弄，右手拇指与食指轻捻，做出一个暗示\"一文不值\"的细小手势，姿态傲慢至极",
+            "src_image_url": "https://anim-res.youku.com/yk/ai-animation/animate_image/2026-04-24/1777011555280552ec60ce58/1777011555280552ec60ce58_cw.png"
+          },
+          "tts": {
+            "_step": "逐段TTS生成",
+            "_task_id": "tts_single_segment_gen",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "success": true,
+            "audio_url": "https://anim-res.youku.com/yk/ai-animation/animate_audio/2026-04-24/17770115561552302363cde3/17770115561552302363cde3_cw.mp3",
+            "duration": 3.4,
+            "text": "它是无价之宝，而你，一文不值。",
+            "emotion": "生气"
+          },
+          "merged": {
+            "_step": "逐段音视频合并",
+            "_task_id": "merge_single_segment_av",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "success": true,
+            "merged_video_url": "https://anim-res.youku.com/yk/ai-animation/animate_video/narration_scene_1_d332c8d7_ebdae7c4/merged_seg_008.mp4",
+            "duration": 3.4
+          }
+        },
+        {
+          "segment_index": 8,
+          "narration_text": "我没说话，只是死死盯着那块表。",
+          "emotion": "中性",
+          "speed": 1.0,
+          "keyframe": {
+            "_step": "关键帧图片生成",
+            "_task_id": "grid_gen_and_crop_task | keyframe_image_gen_task",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "image_url": "https://anim-res.youku.com/yk/ai-animation/animate_image/2026-04-24/17770115558479349c108d9e/17770115558479349c108d9e_cw.png",
+            "source": "grid",
+            "prompt": "Vertical 9:16 aspect ratio, full vertical composition, tall framing, Extreme Close Up on the protagonist's eyes, dark cold and enduring gaze, a clear sharp reflection of the intricate gold watch visible in his pupils, intense hidden calculation, no visible anger, cinematic lighting highlighting eye details, highly detailed iris texture, macro lens, no horizontal, no landscape, no 16:9, no text, no letters, no words, no subtitles, no watermark, no logo, clean image"
+          },
+          "video": {
+            "_step": "逐段视频生成",
+            "_task_id": "bailian_wan22_video_task",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "success": true,
+            "video_url": "https://anim-res.youku.com/yk/ai-animation/animate_video/2026-04-24/17770111329327579a29f209/17770111329327579a29f209.mp4",
+            "duration": 5.0,
+            "video_prompt": "正面极度特写固定微距，镜头锁定男主双眼区域，构图仅保留眉弓至鼻梁上端，极浅景深使睫毛与虹膜纹理清晰可见，瞳孔中金表倒影成为画面叙事焦点，男主双眼一动不动地死死凝视前方顾炎手腕方向，眼神阴沉冷静，没有愤怒没有慌乱，瞳孔深处清晰地倒映出金表表盘的微小影像，眼周肌肉纹丝不动，嘴唇紧闭，整张脸透出深不见底的隐忍与算计",
+            "src_image_url": "https://anim-res.youku.com/yk/ai-animation/animate_image/2026-04-24/17770115558479349c108d9e/17770115558479349c108d9e_cw.png"
+          },
+          "tts": {
+            "_step": "逐段TTS生成",
+            "_task_id": "tts_single_segment_gen",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "success": true,
+            "audio_url": "https://anim-res.youku.com/yk/ai-animation/animate_audio/2026-04-24/1777011556664494f1d543ac/1777011556664494f1d543ac_cw.mp3",
+            "duration": 3.333333,
+            "text": "我没说话，只是死死盯着那块表。",
+            "emotion": "中性"
+          },
+          "merged": {
+            "_step": "逐段音视频合并",
+            "_task_id": "merge_single_segment_av",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "success": true,
+            "merged_video_url": "https://anim-res.youku.com/yk/ai-animation/animate_video/narration_scene_1_d332c8d7_ebdae7c4/merged_seg_009.mp4",
+            "duration": 3.333333
+          }
+        },
+        {
+          "segment_index": 9,
+          "narration_text": "在所有人眼里，我是被羞辱到破防的废物。",
+          "emotion": "难过",
+          "speed": 0.9,
+          "keyframe": {
+            "_step": "关键帧图片生成",
+            "_task_id": "grid_gen_and_crop_task | keyframe_image_gen_task",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "image_url": "https://anim-res.youku.com/yk/ai-animation/animate_image/2026-04-24/1777011556683021c200bff9/1777011556683021c200bff9_cw.png",
+            "source": "grid",
+            "prompt": "Vertical 9:16 aspect ratio, full vertical composition, tall framing, medium shot, high angle, protagonist sitting at a luxurious long dining table looking down with drooping shoulders, face partially obscured by heavy shadows, feigned defeat, blurred affluent guests in background, opulent chandelier lighting overhead, cinematic shadow, dramatic atmosphere, film-like color grading, no horizontal, no landscape, no 16:9, no text, no letters, no words, no subtitles, no watermark, no logo, clean image"
+          },
+          "video": {
+            "_step": "逐段视频生成",
+            "_task_id": "bailian_wan22_video_task",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "success": true,
+            "video_url": "https://anim-res.youku.com/yk/ai-animation/animate_video/2026-04-24/1777011246075583f38e0deb/1777011246075583f38e0deb.mp4",
+            "duration": 5.0,
+            "video_prompt": "中景高角度俯拍，固定机位略微下压，模拟宴会厅宾客居高临下的主观视角，镜头静止，光线从头顶水晶吊灯垂直压下，阴影将主角脸部大半笼罩，主角坐于奢华长木餐桌一端，双肩微微内扣下垂，头部低垂不抬，手掌平放桌面，全身呈现被压制的颓败姿态，眼神藏于阴影之中，嘴角紧抿，表情空洞而顺从",
+            "src_image_url": "https://anim-res.youku.com/yk/ai-animation/animate_image/2026-04-24/1777011556683021c200bff9/1777011556683021c200bff9_cw.png"
+          },
+          "tts": {
+            "_step": "逐段TTS生成",
+            "_task_id": "tts_single_segment_gen",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "success": true,
+            "audio_url": "https://anim-res.youku.com/yk/ai-animation/animate_audio/2026-04-24/177701156041614618a5bf5a/177701156041614618a5bf5a_cw.mp3",
+            "duration": 4.833333,
+            "text": "在所有人眼里，我是被羞辱到破防的废物。",
+            "emotion": "难过"
+          },
+          "merged": {
+            "_step": "逐段音视频合并",
+            "_task_id": "merge_single_segment_av",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "success": true,
+            "merged_video_url": "https://anim-res.youku.com/yk/ai-animation/animate_video/narration_scene_1_d332c8d7_ebdae7c4/merged_seg_010.mp4",
+            "duration": 4.833333
+          }
+        },
+        {
+          "segment_index": 10,
+          "narration_text": "只有我自己知道，我心里早已掀起狂喜。",
+          "emotion": "开心",
+          "speed": 1.1,
+          "keyframe": {
+            "_step": "关键帧图片生成",
+            "_task_id": "grid_gen_and_crop_task | keyframe_image_gen_task",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "image_url": "https://anim-res.youku.com/yk/ai-animation/animate_image/2026-04-24/1777011557205739b65eba8f/1777011557205739b65eba8f_cw.png",
+            "source": "grid",
+            "prompt": "Vertical 9:16 aspect ratio, full vertical composition, tall framing, extreme close up, protagonist's face half hidden in shadows, head slightly tilted down but eyes looking up sharply, intense gleaming eyes with a hidden subtle smirk, micro-expression of wild ecstasy, opulent banquet hall background completely out of focus, cinematic rim lighting on the cheek, sharp focus on iris, no horizontal, no landscape, no 16:9, no text, no letters, no words, no subtitles, no watermark, no logo, clean image"
+          },
+          "video": {
+            "_step": "逐段视频生成",
+            "_task_id": "bailian_wan22_video_task",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "success": true,
+            "video_url": "https://anim-res.youku.com/yk/ai-animation/animate_video/2026-04-24/1777011169454543c1f533f8/1777011169454543c1f533f8.mp4",
+            "duration": 5.0,
+            "video_prompt": "由中景缓慢推进至极度特写，镜头沿主角面部轴线正面缓推，最终定格于半遮于阴影中的单侧眼部，聚焦精准锁定瞳孔区域，背景宴会厅完全虚化，主角头部保持微低状态，但眼球在阴影掩护下悄然上挑，眼神从空洞骤然转为锋利深邃，嘴角隐现一丝极细微的冷笑弧度，面部其余肌肉刻意维持松弛，形成表里截然相反的双层表情",
+            "src_image_url": "https://anim-res.youku.com/yk/ai-animation/animate_image/2026-04-24/1777011557205739b65eba8f/1777011557205739b65eba8f_cw.png"
+          },
+          "tts": {
+            "_step": "逐段TTS生成",
+            "_task_id": "tts_single_segment_gen",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "success": true,
+            "audio_url": "https://anim-res.youku.com/yk/ai-animation/animate_audio/2026-04-24/177701155868846128dad273/177701155868846128dad273_cw.mp3",
+            "duration": 4.266667,
+            "text": "只有我自己知道，我心里早已掀起狂喜。",
+            "emotion": "开心"
+          },
+          "merged": {
+            "_step": "逐段音视频合并",
+            "_task_id": "merge_single_segment_av",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "success": true,
+            "merged_video_url": "https://anim-res.youku.com/yk/ai-animation/animate_video/narration_scene_1_d332c8d7_ebdae7c4/merged_seg_011.mp4",
+            "duration": 4.266667
+          }
+        },
+        {
+          "segment_index": 11,
+          "narration_text": "我正愁没有完美的办法脱身。",
+          "emotion": "中性",
+          "speed": 1.0,
+          "keyframe": {
+            "_step": "关键帧图片生成",
+            "_task_id": "grid_gen_and_crop_task | keyframe_image_gen_task",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "image_url": "https://anim-res.youku.com/yk/ai-animation/animate_image/2026-04-24/17770115577802714321568f/17770115577802714321568f_cw.png",
+            "source": "grid",
+            "prompt": "Vertical 9:16 aspect ratio, full vertical composition, tall framing, over the shoulder shot from protagonist looking at Gu Yan, protagonist's shoulder blurred in foreground, Gu Yan sitting arrogantly across the luxurious mahogany dining table, holding a small glowing object, wearing a high-end tailored suit, intricate decorative screen in background, shallow depth of field, moody cinematic lighting, no horizontal, no landscape, no 16:9, no text, no letters, no words, no subtitles, no watermark, no logo, clean image"
+          },
+          "video": {
+            "_step": "逐段视频生成",
+            "_task_id": "bailian_wan22_video_task",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "success": true,
+            "video_url": "https://anim-res.youku.com/yk/ai-animation/animate_video/2026-04-24/177701117805838913a53cd7/177701117805838913a53cd7.mp4",
+            "duration": 5.0,
+            "video_prompt": "过肩镜头，固定机位架设于主角侧后方，主角肩膀虚化占据画面前景左侧边缘，焦点越过餐桌拉向对面远端，浅景深将空间纵深感拉满，装饰屏风在顾炎身后形成框中框构图，主角肩膀在前景保持静止微沉，画面焦点落于对面的顾炎——顾炎斜靠椅背，姿态慵懒傲慢，单手托腮，另一手轻描淡写地把玩手腕上那块刻着顾家徽记的限量腕表，偶尔抬眼扫视全场，唇角挂着居高临下的浅笑",
+            "src_image_url": "https://anim-res.youku.com/yk/ai-animation/animate_image/2026-04-24/17770115577802714321568f/17770115577802714321568f_cw.png"
+          },
+          "tts": {
+            "_step": "逐段TTS生成",
+            "_task_id": "tts_single_segment_gen",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "success": true,
+            "audio_url": "https://anim-res.youku.com/yk/ai-animation/animate_audio/2026-04-24/1777011558579527b16600eb/1777011558579527b16600eb_cw.mp3",
+            "duration": 2.5,
+            "text": "我正愁没有完美的办法脱身。",
+            "emotion": "中性"
+          },
+          "merged": {
+            "_step": "逐段音视频合并",
+            "_task_id": "merge_single_segment_av",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "success": true,
+            "merged_video_url": "https://anim-res.youku.com/yk/ai-animation/animate_video/narration_scene_1_d332c8d7_ebdae7c4/merged_seg_012.mp4",
+            "duration": 2.5
+          }
+        },
+        {
+          "segment_index": 12,
+          "narration_text": "现在，他亲手把这个价值连城的\"证据\"——送到了我的面前！",
+          "emotion": "惊讶",
+          "speed": 1.2,
+          "keyframe": {
+            "_step": "关键帧图片生成",
+            "_task_id": "grid_gen_and_crop_task | keyframe_image_gen_task",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "image_url": "https://anim-res.youku.com/yk/ai-animation/animate_image/2026-04-24/17770115587635494d4b40e1/17770115587635494d4b40e1_cw.png",
+            "source": "grid",
+            "prompt": "Vertical 9:16 aspect ratio, full vertical composition, tall framing, close up, Gu Yan's hand wearing an expensive watch sliding an ornate metal-accented document box across a highly polished wooden dining table, dynamic motion blur on the hand, warm chandelier lighting reflecting off the table surface, high detail texture, cinematic tension, no horizontal, no landscape, no 16:9, no text, no letters, no words, no subtitles, no watermark, no logo, clean image"
+          },
+          "video": {
+            "_step": "逐段视频生成",
+            "_task_id": "bailian_wan22_video_task",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "success": true,
+            "video_url": "https://anim-res.youku.com/yk/ai-animation/animate_video/2026-04-24/1777011209714718f93352ca/1777011209714718f93352ca.mp4",
+            "duration": 5.0,
+            "video_prompt": "侧面平视特写，镜头低位架于餐桌桌面高度，贴近桌面平视拍摄，随顾炎手部推送动作做极细微跟焦前移，光洁桌面的暖黄反射光在镜头前景形成流动光斑，顾炎戴着刻有顾家徽记限量腕表的手腕入画，五指张开将腕表扣在桌面上用力向前一推，动作干脆强势，腕表沿抛光木质桌面向主角方向滑行，袖口奢华面料在灯光下微微闪动，手指收回时流露出不屑的随意感",
+            "src_image_url": "https://anim-res.youku.com/yk/ai-animation/animate_image/2026-04-24/17770115587635494d4b40e1/17770115587635494d4b40e1_cw.png"
+          },
+          "tts": {
+            "_step": "逐段TTS生成",
+            "_task_id": "tts_single_segment_gen",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "success": true,
+            "audio_url": "https://anim-res.youku.com/yk/ai-animation/animate_audio/2026-04-24/17770115590123234b7ea915/17770115590123234b7ea915_cw.mp3",
+            "duration": 4.133333,
+            "text": "现在，他亲手把这个价值连城的\"证据\"——送到了我的面前！",
+            "emotion": "惊讶"
+          },
+          "merged": {
+            "_step": "逐段音视频合并",
+            "_task_id": "merge_single_segment_av",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "success": true,
+            "merged_video_url": "https://anim-res.youku.com/yk/ai-animation/animate_video/narration_scene_1_d332c8d7_ebdae7c4/merged_seg_013.mp4",
+            "duration": 4.133333
+          }
+        },
+        {
+          "segment_index": 13,
+          "narration_text": "一个疯狂的计划，瞬间成型。",
+          "emotion": "生动",
+          "speed": 1.1,
+          "keyframe": {
+            "_step": "关键帧图片生成",
+            "_task_id": "grid_gen_and_crop_task | keyframe_image_gen_task",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "image_url": "https://anim-res.youku.com/yk/ai-animation/animate_image/2026-04-24/1777011559337467776c69d2/1777011559337467776c69d2_cw.png",
+            "source": "grid",
+            "prompt": "Vertical 9:16 aspect ratio, full vertical composition, tall framing, macro shot of protagonist's eye, pupil slightly dilating, reflection of an ornate box visible on the wet surface of the eye, calculating and sharp gaze, high detail iris texture, cinematic cold lighting contrasting with the warm reflection, dramatic micro-expression, no horizontal, no landscape, no 16:9, no text, no letters, no words, no subtitles, no watermark, no logo, clean image"
+          },
+          "video": {
+            "_step": "逐段视频生成",
+            "_task_id": "bailian_wan22_video_task",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "success": true,
+            "video_url": "https://anim-res.youku.com/yk/ai-animation/animate_video/2026-04-24/17770113117764788052c643/17770113117764788052c643.mp4",
+            "duration": 5.0,
+            "video_prompt": "微距正面固定机位，镜头极近距离锁定主角单眼，画面充满整个瞳孔与虹膜细节，眼球湿润表面作为反射介质，在焦外形成奶油般的光晕，主角眼球在微距镜头下微微一颤，瞳孔骤然放大，眼球湿润表面清晰倒映出桌面腕表的轮廓光斑，眼睫毛纹丝不动，目光深处涌现出猎手锁定猎物般的精准算计，整个眼神在零点几秒内完成从隐忍到决断的切换",
+            "src_image_url": "https://anim-res.youku.com/yk/ai-animation/animate_image/2026-04-24/1777011559337467776c69d2/1777011559337467776c69d2_cw.png"
+          },
+          "tts": {
+            "_step": "逐段TTS生成",
+            "_task_id": "tts_single_segment_gen",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "success": true,
+            "audio_url": "https://anim-res.youku.com/yk/ai-animation/animate_audio/2026-04-24/1777011559760148193d5121/1777011559760148193d5121_cw.mp3",
+            "duration": 2.533333,
+            "text": "一个疯狂的计划，瞬间成型。",
+            "emotion": "生动"
+          },
+          "merged": {
+            "_step": "逐段音视频合并",
+            "_task_id": "merge_single_segment_av",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "success": true,
+            "merged_video_url": "https://anim-res.youku.com/yk/ai-animation/animate_video/narration_scene_1_d332c8d7_ebdae7c4/merged_seg_014.mp4",
+            "duration": 2.533333
+          }
+        },
+        {
+          "segment_index": 14,
+          "narration_text": "……",
+          "emotion": "中性",
+          "speed": 1.0,
+          "keyframe": {
+            "_step": "关键帧图片生成",
+            "_task_id": "grid_gen_and_crop_task | keyframe_image_gen_task",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "image_url": "https://anim-res.youku.com/yk/ai-animation/animate_image/2026-04-24/177701156011611548b87182/177701156011611548b87182_cw.png",
+            "source": "grid",
+            "prompt": "Vertical 9:16 aspect ratio, full vertical composition, tall framing, wide shot, strict symmetrical composition, side view of the long dining table, protagonist and Gu Yan sitting frozen at opposite ends, an ornate box in the center, heavy suffocating silence, surrounding guests and banquet hall hidden in deep shadows, a single dramatic top light illuminating the table, high contrast chiaroscuro, cinematic stillness, no horizontal, no landscape, no 16:9, no text, no letters, no words, no subtitles, no watermark, no logo, clean image"
+          },
+          "video": {
+            "_step": "逐段视频生成",
+            "_task_id": "bailian_wan22_video_task",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "success": true,
+            "video_url": "https://anim-res.youku.com/yk/ai-animation/animate_video/2026-04-24/1777011233587285f68608b2/1777011233587285f68608b2.mp4",
+            "duration": 5.0,
+            "video_prompt": "餐桌侧面正中广角固定机位，严格水平对称构图，镜头完全静止，不做任何运动，单束顶光如舞台追光从正上方垂直打下，周围环境压入深重阴影，主角与顾炎同时凝固在各自座位上，两人形成对称的沉默雕塑，主角端坐于一端，脊背挺直却气若游丝；顾炎坐于另一端，笑容悬停在脸上尚未消散，腕表静置于桌面正中被顶光照亮，整个画面凝滞如被按下暂停键，空气压迫感极强",
+            "src_image_url": "https://anim-res.youku.com/yk/ai-animation/animate_image/2026-04-24/177701156011611548b87182/177701156011611548b87182_cw.png"
+          },
+          "tts": {
+            "_step": "逐段TTS生成",
+            "_task_id": "tts_single_segment_gen",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "success": true,
+            "audio_url": "https://anim-res.youku.com/yk/ai-animation/animate_audio/2026-04-24/1777011559718441985437cc/1777011559718441985437cc_cw.mp3",
+            "duration": 0.1,
+            "text": "……",
+            "emotion": "中性"
+          },
+          "merged": {
+            "_step": "逐段音视频合并",
+            "_task_id": "merge_single_segment_av",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "success": true,
+            "merged_video_url": "https://anim-res.youku.com/yk/ai-animation/animate_video/narration_scene_1_d332c8d7_ebdae7c4/merged_seg_015.mp4",
+            "duration": 0.1
+          }
+        },
+        {
+          "segment_index": 15,
+          "narration_text": "顾炎的笑容僵在脸上。",
+          "emotion": "惊讶",
+          "speed": 1.2,
+          "keyframe": {
+            "_step": "关键帧图片生成",
+            "_task_id": "grid_gen_and_crop_task | keyframe_image_gen_task",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "image_url": "https://anim-res.youku.com/yk/ai-animation/animate_image/2026-04-24/1777011560763880c83b22a6/1777011560763880c83b22a6_cw.png",
+            "source": "grid",
+            "prompt": "Vertical 9:16 aspect ratio, full vertical composition, tall framing, close up of Gu Yan's face, an arrogant smile unnaturally freezing on his lips, eyes showing sudden uncertainty and confusion, luxurious suit collar details, lighting shifting from warm to slightly cold and harsh, high detail skin texture, cinematic tension, no horizontal, no landscape, no 16:9, no text, no letters, no words, no subtitles, no watermark, no logo, clean image"
+          },
+          "video": {
+            "_step": "逐段视频生成",
+            "_task_id": "bailian_wan22_video_task",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "success": true,
+            "video_url": "https://anim-res.youku.com/yk/ai-animation/animate_video/2026-04-24/17770112773970349d714395/17770112773970349d714395.mp4",
+            "duration": 5.0,
+            "video_prompt": "主角主观视角平视特写，固定机位模拟主角目光直视顾炎面部，镜头轻微呼吸式微颤模拟注视状态，光线色温在顾炎面部随情绪变化从暖黄微转冷白，顾炎脸上原本游刃有余的得意笑容在肌肉层面出现异样——嘴角弧度僵在半途无法继续上扬，也无法自然收回，悬停成一个不自然的表情，眼睑轻微一跳，瞳孔收缩，下意识地想用视线压制对方却找不到着力点",
+            "src_image_url": "https://anim-res.youku.com/yk/ai-animation/animate_image/2026-04-24/1777011560763880c83b22a6/1777011560763880c83b22a6_cw.png"
+          },
+          "tts": {
+            "_step": "逐段TTS生成",
+            "_task_id": "tts_single_segment_gen",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "success": true,
+            "audio_url": "https://anim-res.youku.com/yk/ai-animation/animate_audio/2026-04-24/17770115610503217d3f3a7a/17770115610503217d3f3a7a_cw.mp3",
+            "duration": 2.033333,
+            "text": "顾炎的笑容僵在脸上。",
+            "emotion": "惊讶"
+          },
+          "merged": {
+            "_step": "逐段音视频合并",
+            "_task_id": "merge_single_segment_av",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "success": true,
+            "merged_video_url": "https://anim-res.youku.com/yk/ai-animation/animate_video/narration_scene_1_d332c8d7_ebdae7c4/merged_seg_016.mp4",
+            "duration": 2.033333
+          }
+        },
+        {
+          "segment_index": 16,
+          "narration_text": "我的沉默，比任何反驳都让他难堪。",
+          "emotion": "中性",
+          "speed": 1.0,
+          "keyframe": {
+            "_step": "关键帧图片生成",
+            "_task_id": "grid_gen_and_crop_task | keyframe_image_gen_task",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "image_url": "https://anim-res.youku.com/yk/ai-animation/animate_image/2026-04-24/177701156118943685eaa8b7/177701156118943685eaa8b7_cw.png",
+            "source": "grid",
+            "prompt": "Vertical 9:16 aspect ratio, full vertical composition, tall framing, over the shoulder shot from Gu Yan looking at the protagonist, low angle, Gu Yan's shoulder slightly tense in the foreground, protagonist sitting perfectly still in the shadows like a statue, cold and emotionless expression, dominating aura, blurred dark banquet hall background, tense cinematic lighting, no horizontal, no landscape, no 16:9, no text, no letters, no words, no subtitles, no watermark, no logo, clean image"
+          },
+          "video": {
+            "_step": "逐段视频生成",
+            "_task_id": "bailian_wan22_video_task",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "success": true,
+            "video_url": "https://anim-res.youku.com/yk/ai-animation/animate_video/2026-04-24/177701126661653506135b67/177701126661653506135b67.mp4",
+            "duration": 5.0,
+            "video_prompt": "过肩低角度仰拍，机位架于顾炎侧后方低位，镜头仰角朝向对面主角，顾炎肩膀在前景略微入画，利用低机位与仰角共同强化画面对面主角的心理压制感，顾炎前景肩膀传递出细微的紧绷张力，画面主体为对面仰视视角下的主角——主角端坐于阴影深处，双手自然置于桌面，身体一毫米不动，面部表情平静如湖面，眼神不偏不倚直视顾炎，既无愤怒也无恐惧，仅以沉默本身作为最重的武器",
+            "src_image_url": "https://anim-res.youku.com/yk/ai-animation/animate_image/2026-04-24/177701156118943685eaa8b7/177701156118943685eaa8b7_cw.png"
+          },
+          "tts": {
+            "_step": "逐段TTS生成",
+            "_task_id": "tts_single_segment_gen",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "success": true,
+            "audio_url": "https://anim-res.youku.com/yk/ai-animation/animate_audio/2026-04-24/1777011562407649b87b5534/1777011562407649b87b5534_cw.mp3",
+            "duration": 3.766667,
+            "text": "我的沉默，比任何反驳都让他难堪。",
+            "emotion": "中性"
+          },
+          "merged": {
+            "_step": "逐段音视频合并",
+            "_task_id": "merge_single_segment_av",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "success": true,
+            "merged_video_url": "https://anim-res.youku.com/yk/ai-animation/animate_video/narration_scene_1_d332c8d7_ebdae7c4/merged_seg_017.mp4",
+            "duration": 3.766667
+          }
+        },
+        {
+          "segment_index": 17,
+          "narration_text": "他脸上的肌肉抽动了一下。",
+          "emotion": "生气",
+          "speed": 1.15,
+          "keyframe": {
+            "_step": "关键帧图片生成",
+            "_task_id": "grid_gen_and_crop_task | keyframe_image_gen_task",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "image_url": "https://anim-res.youku.com/yk/ai-animation/animate_image/2026-04-24/17770115618706543d30a264/17770115618706543d30a264_cw.png",
+            "source": "grid",
+            "prompt": "Vertical 9:16 aspect ratio, full vertical composition, tall framing, extreme close up of Gu Yan's jawline and cheek, tight facial muscles visibly twitching, masseter muscle flexing, a single drop of cold sweat rolling down his temple, skin texture and pores highly detailed, pitch black background, sharp dramatic side lighting cutting the facial contours, psychological breakdown, no horizontal, no landscape, no 16:9, no text, no letters, no words, no subtitles, no watermark, no logo, clean image"
+          },
+          "video": {
+            "_step": "逐段视频生成",
+            "_task_id": "bailian_wan22_video_task",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "success": true,
+            "video_url": "https://anim-res.youku.com/yk/ai-animation/animate_video/2026-04-24/17770113027501817bee9aa4/17770113027501817bee9aa4.mp4",
+            "duration": 5.0,
+            "video_prompt": "侧方极度特写微距，镜头贴近顾炎侧脸下颌线区域，锐利的侧光从单侧切入，在面部骨骼轮廓处形成刀锋般的光影分割线，背景完全化入纯黑，顾炎下颌咬肌在极特写下可见明显的非自主抽搐，腮部皮肤随肌肉收缩产生细微形变，一滴冷汗从鬓角发际线悄然渗出缓缓下滑，颈部喉结微微一动，他在用尽全力维持面部的最后一道防线",
+            "src_image_url": "https://anim-res.youku.com/yk/ai-animation/animate_image/2026-04-24/17770115618706543d30a264/17770115618706543d30a264_cw.png"
+          },
+          "tts": {
+            "_step": "逐段TTS生成",
+            "_task_id": "tts_single_segment_gen",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "success": true,
+            "audio_url": "https://anim-res.youku.com/yk/ai-animation/animate_audio/2026-04-24/17770115629936556e355da5/17770115629936556e355da5_cw.mp3",
+            "duration": 2.8,
+            "text": "他脸上的肌肉抽动了一下。",
+            "emotion": "生气"
+          },
+          "merged": {
+            "_step": "逐段音视频合并",
+            "_task_id": "merge_single_segment_av",
+            "_dag_id": "yk_narration_scene_prod_dag",
+            "success": true,
+            "merged_video_url": "https://anim-res.youku.com/yk/ai-animation/animate_video/narration_scene_1_d332c8d7_ebdae7c4/merged_seg_018.mp4",
+            "duration": 2.8
+          }
+        }
+      ],
+      "scene_concat": {
+        "_step": "场次视频拼接",
+        "_task_id": "concat_scene_video",
+        "_dag_id": "yk_narration_scene_prod_dag",
+        "success": true,
+        "scene_video_url": "https://anim-res.youku.com/yk/ai-animation/animate_video/narration_scene_1_d332c8d7_ebdae7c4/scene_video.mp4",
+        "duration": 60.06569
+      }
+    }
+  ],
+  "final_concat": {
+    "_step": "最终视频拼接",
+    "_task_id": "concatenate_scenes",
+    "_dag_id": "yk_narration_final_process_dag",
+    "success": true,
+    "error_enum": "",
+    "error_detail": "",
+    "final_video_url": "https://anim-res.youku.com/yk/ai-animation/animate_video/narration_scene_1_d332c8d7_ebdae7c4/scene_video.mp4",
+    "duration": 60.06569,
+    "scene_count": 1
+  }
+}

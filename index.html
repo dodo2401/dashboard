@@ -1,0 +1,2284 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JSON 流程可视化面板</title>
+<meta name="description" content="上传或远程加载 AI 动画流水线 node_outputs.json，在线查看成片、原始 JSON、旁白、资产、关键帧和视频结果。">
+<style>
+:root{
+  --bg:#eef6f7;
+  --panel:#ffffff;
+  --panel-soft:#f5fbfb;
+  --line:#c9dcdd;
+  --text:#132327;
+  --muted:#66777b;
+  --brand:#0f766e;
+  --brand-2:#2563eb;
+  --accent:#7c3aed;
+  --warn:#b45309;
+  --shadow:0 12px 34px rgba(19, 35, 39, .08);
+  --radius:12px;
+}
+body[data-theme="blue"]{
+  --bg:#edf4ff;
+  --panel:#ffffff;
+  --panel-soft:#f5f8ff;
+  --line:#cbd8ee;
+  --text:#132033;
+  --muted:#657187;
+  --brand:#2563eb;
+  --brand-2:#0891b2;
+  --accent:#14b8a6;
+}
+body[data-theme="dark"]{
+  --bg:#030712;
+  --panel:#070c16;
+  --panel-soft:#0b1424;
+  --line:rgba(96,165,250,.28);
+  --text:#f7fbff;
+  --muted:#a9b8d6;
+  --brand:#60a5fa;
+  --brand-2:#38bdf8;
+  --accent:#93c5fd;
+  --surface:#09111f;
+  --surface-2:#0f1c31;
+  --chip:rgba(37,99,235,.18);
+  --code-bg:#02050b;
+  --code-text:#e9f5ff;
+  --glow-a:rgba(96,165,250,.18);
+  --glow-b:rgba(56,189,248,.10);
+  --grid-a:rgba(96,165,250,.035);
+  --grid-b:rgba(56,189,248,.026);
+  --shadow:0 20px 52px rgba(0,0,0,.48);
+}
+body[data-theme="dark-violet"]{
+  --bg:#020617;
+  --panel:#06101f;
+  --panel-soft:#0a1930;
+  --line:rgba(59,130,246,.30);
+  --text:#f4f8ff;
+  --muted:#aebdda;
+  --brand:#3b82f6;
+  --brand-2:#7dd3fc;
+  --accent:#bfdbfe;
+  --surface:#081426;
+  --surface-2:#0e223d;
+  --chip:rgba(30,64,175,.22);
+  --code-bg:#020713;
+  --code-text:#eaf3ff;
+  --glow-a:rgba(59,130,246,.18);
+  --glow-b:rgba(125,211,252,.10);
+  --grid-a:rgba(59,130,246,.035);
+  --grid-b:rgba(125,211,252,.025);
+  --shadow:0 22px 58px rgba(0,0,0,.5);
+}
+body[data-theme="dark-amber"]{
+  --bg:#04080f;
+  --panel:#080f1b;
+  --panel-soft:#0e1726;
+  --line:rgba(14,165,233,.26);
+  --text:#f6fbff;
+  --muted:#a8b7cc;
+  --brand:#0ea5e9;
+  --brand-2:#60a5fa;
+  --accent:#bae6fd;
+  --surface:#0a1220;
+  --surface-2:#101d2e;
+  --chip:rgba(2,132,199,.18);
+  --code-bg:#02060c;
+  --code-text:#e5f7ff;
+  --glow-a:rgba(14,165,233,.16);
+  --glow-b:rgba(96,165,250,.10);
+  --grid-a:rgba(14,165,233,.035);
+  --grid-b:rgba(96,165,250,.024);
+  --shadow:0 22px 58px rgba(0,0,0,.5);
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  color:var(--text);
+  background:
+    linear-gradient(90deg, rgba(15,118,110,.08) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(37,99,235,.06) 1px, transparent 1px),
+    linear-gradient(180deg, color-mix(in srgb, var(--panel) 72%, var(--bg)) 0%, var(--bg) 100%);
+  background-size:42px 42px,42px 42px,auto;
+  min-height:100vh;
+}
+body[data-theme^="dark"]{
+  background:
+    radial-gradient(circle at 16% 8%, var(--glow-a), transparent 30%),
+    radial-gradient(circle at 84% 4%, var(--glow-b), transparent 28%),
+    radial-gradient(circle at 64% 42%, color-mix(in srgb, var(--brand-2) 12%, transparent), transparent 34%),
+    linear-gradient(90deg, var(--grid-a) 1px, transparent 1px),
+    linear-gradient(180deg, var(--grid-b) 1px, transparent 1px),
+    linear-gradient(135deg, color-mix(in srgb, var(--panel) 46%, #050713) 0%, var(--bg) 56%, #03040a 100%);
+  background-size:auto,auto,auto,42px 42px,42px 42px,auto;
+}
+.page{max-width:1480px;margin:0 auto;padding:18px 18px 64px}
+.hero{
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  padding:14px;
+  position:relative;
+  overflow:hidden;
+}
+.hero h1{margin:0;font-size:20px;line-height:1.2}
+.hero p{margin:8px 0 0;font-size:12px;color:var(--muted);line-height:1.6}
+.toolbar{
+  margin-top:0;
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+.btn,.file-label{
+  appearance:none;
+  border:none;
+  border-radius:8px;
+  padding:11px 14px;
+  font-size:13px;
+  font-weight:700;
+  cursor:pointer;
+  transition:box-shadow .16s ease, background .16s ease, border-color .16s ease;
+}
+.btn:hover,.file-label:hover{box-shadow:0 8px 20px rgba(31,42,36,.09)}
+.btn.primary,.file-label{
+  background:var(--brand);
+  color:#fff;
+  box-shadow:none;
+}
+body[data-theme^="dark"] .btn.primary,
+body[data-theme^="dark"] .file-label,
+body[data-theme^="dark"] .nav-link.active,
+body[data-theme^="dark"] .frame-group-index{
+  color:#020817;
+}
+body[data-theme^="dark"] .hero,
+body[data-theme^="dark"] .stat,
+body[data-theme^="dark"] .panel{
+  background:linear-gradient(145deg, rgba(8,15,28,.94) 0%, rgba(3,7,18,.96) 100%);
+  border-color:rgba(96,165,250,.22);
+  box-shadow:0 26px 70px rgba(0,0,0,.42), inset 0 1px 0 rgba(255,255,255,.035);
+}
+body[data-theme^="dark"] .panel{
+  border-top-color:rgba(96,165,250,.42);
+}
+body[data-theme^="dark"] .panel-head,
+body[data-theme^="dark"] .prompt-modal-head{
+  background:linear-gradient(90deg, rgba(37,99,235,.18), rgba(8,15,28,.42));
+  border-bottom-color:rgba(255,255,255,.06);
+}
+body[data-theme^="dark"] .asset-card,
+body[data-theme^="dark"] .frame,
+body[data-theme^="dark"] .preview-card,
+body[data-theme^="dark"] .group-asset,
+body[data-theme^="dark"] .segment,
+body[data-theme^="dark"] .toggle-block,
+body[data-theme^="dark"] .final-pane,
+body[data-theme^="dark"] .raw-json-pane,
+body[data-theme^="dark"] .group-prompt{
+  background:rgba(15,23,42,.46);
+  border-color:rgba(255,255,255,.055);
+}
+body[data-theme^="dark"] .frame-group{
+  background:linear-gradient(145deg, rgba(15,23,42,.78), rgba(3,7,18,.82));
+  border-color:rgba(96,165,250,.22);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.035);
+}
+body[data-theme^="dark"] .frame-group-head{
+  border-bottom-color:rgba(255,255,255,.07);
+}
+.btn.secondary{
+  background:color-mix(in srgb, var(--panel-soft) 88%, var(--warn));
+  color:var(--warn);
+  border:1px solid #ecd8bd;
+}
+.btn.ghost{
+  background:var(--panel-soft);
+  color:var(--text);
+  border:1px solid var(--line);
+}
+input[type="file"]{display:none}
+.status{
+  margin-top:12px;
+  font-size:13px;
+  color:var(--muted);
+}
+.source-row{
+  margin-top:0;
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:center;
+  flex:1;
+}
+.url-input{
+  flex:1;
+  min-width:280px;
+  border:1px solid var(--line);
+  background:var(--panel);
+  border-radius:8px;
+  padding:11px 12px;
+  font:inherit;
+  color:var(--text);
+}
+.url-input:focus{outline:2px solid rgba(15,118,110,.18);border-color:var(--brand)}
+.load-shell{
+  display:grid;
+  grid-template-columns:auto minmax(300px,1fr);
+  gap:14px;
+  align-items:center;
+}
+.theme-switch{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+}
+.theme-dot{
+  width:28px;
+  height:28px;
+  border:1px solid var(--line);
+  border-radius:999px;
+  cursor:pointer;
+  background:linear-gradient(135deg,var(--dot-a),var(--dot-b));
+}
+.theme-dot.active{outline:2px solid color-mix(in srgb, var(--brand) 48%, transparent);outline-offset:2px}
+.theme-dot[data-theme-value="blue"]{--dot-a:#2563eb;--dot-b:#14b8a6}
+.theme-dot[data-theme-value="dark"]{--dot-a:#030712;--dot-b:#60a5fa}
+.theme-dot[data-theme-value="dark-violet"]{--dot-a:#020617;--dot-b:#3b82f6}
+.theme-dot[data-theme-value="dark-amber"]{--dot-a:#04080f;--dot-b:#0ea5e9}
+.summary{
+  display:grid;
+  grid-template-columns:repeat(5, minmax(0,1fr));
+  gap:10px;
+  margin:14px 0;
+}
+.stat{
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:12px;
+  box-shadow:none;
+}
+.stat .value{font-size:24px;font-weight:800}
+.stat .label{font-size:12px;color:var(--muted);margin-top:4px}
+.section-nav{
+  position:sticky;
+  top:0;
+  z-index:20;
+  display:flex;
+  gap:8px;
+  overflow-x:auto;
+  padding:10px 0 12px;
+  background:linear-gradient(180deg, color-mix(in srgb, var(--bg) 92%, var(--panel)) 0%, color-mix(in srgb, var(--bg) 78%, transparent) 100%);
+  backdrop-filter:blur(10px);
+}
+.nav-link{
+  flex:0 0 auto;
+  border:1px solid var(--line);
+  background:var(--panel);
+  color:var(--text);
+  border-radius:999px;
+  padding:8px 12px;
+  font-size:12px;
+  font-weight:700;
+  cursor:pointer;
+}
+.nav-link:hover{border-color:var(--brand);color:var(--brand)}
+.nav-link.active{background:var(--brand);border-color:var(--brand);color:#fff}
+.layout{display:block}
+.column{display:flex;flex-direction:column;gap:18px}
+.panel{
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  overflow:hidden;
+  scroll-margin-top:66px;
+}
+.panel-head{
+  padding:14px 16px;
+  border-bottom:1px solid var(--line);
+  display:flex;
+  justify-content:space-between;
+  gap:16px;
+  align-items:center;
+  background:var(--panel-soft);
+}
+.panel-head h2{margin:0;font-size:16px}
+.panel-head span{font-size:12px;color:var(--muted)}
+.panel-body{padding:16px}
+.section-note{
+  margin:0 0 14px;
+  font-size:13px;
+  color:var(--muted);
+  line-height:1.6;
+}
+.kv-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:12px;
+}
+.kv{
+  padding:14px;
+  border-radius:16px;
+  background:var(--panel-soft);
+  border:1px solid rgba(139,104,60,.08);
+}
+.kv .k{font-size:12px;color:var(--muted)}
+.kv .v{margin-top:6px;font-size:15px;font-weight:700;word-break:break-word}
+.toggle-block{
+  border:1px solid var(--line);
+  border-radius:8px;
+  overflow:hidden;
+  background:var(--panel);
+}
+.toggle-head{
+  width:100%;
+  background:none;
+  border:none;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:11px 12px;
+  cursor:pointer;
+  color:var(--text);
+  font:inherit;
+  font-weight:700;
+  font-size:13px;
+}
+.toggle-head small{font-size:12px;color:var(--muted);font-weight:500}
+.toggle-content{
+  display:none;
+  padding:0 12px 12px;
+}
+.toggle-block.open .toggle-content{display:block}
+.toggle-block.open .chev{transform:rotate(90deg)}
+.chev{transition:transform .18s ease;color:var(--brand)}
+.json-view,.prompt-box,.url-list{
+  margin:0;
+  padding:12px;
+  border-radius:8px;
+  background:var(--code-bg, #17211c);
+  color:var(--code-text, #eef6ef);
+  font-size:12px;
+  line-height:1.7;
+  white-space:pre-wrap;
+  word-break:break-word;
+  overflow:auto;
+}
+.segments{display:flex;flex-direction:column;gap:8px}
+.segment{
+  padding:10px 12px;
+  border-radius:8px;
+  border:1px solid var(--line);
+  background:var(--panel);
+}
+.segment-top{
+  display:flex;
+  gap:10px;
+  align-items:center;
+}
+.segment-index{
+  min-width:30px;
+  height:30px;
+  border-radius:8px;
+  background:var(--chip, #e8f5f2);
+  color:var(--brand);
+  display:grid;
+  place-items:center;
+  font-weight:800;
+}
+.segment-text{flex:1;line-height:1.55;font-size:14px}
+.segment-meta{display:none}
+.tag{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:4px 8px;
+  border-radius:999px;
+  font-size:12px;
+  background:var(--chip, #eef3ef);
+  color:var(--muted);
+}
+.asset-grid{
+  display:grid;
+  grid-template-columns:repeat(6,minmax(128px,1fr));
+  gap:14px;
+  overflow-x:auto;
+  padding-bottom:4px;
+}
+.asset-section{
+  margin-bottom:18px;
+}
+.asset-section:last-child{margin-bottom:0}
+.asset-section-head{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  align-items:center;
+  margin:0 0 10px;
+  padding:0 2px;
+}
+.asset-section-head h3{
+  margin:0;
+  font-size:14px;
+}
+.asset-section-head span{
+  color:var(--muted);
+  font-size:12px;
+}
+.asset-card{
+  border:1px solid var(--line);
+  border-radius:10px;
+  overflow:hidden;
+  background:var(--panel);
+}
+.asset-cover{
+  aspect-ratio:16/10;
+  min-height:150px;
+  max-height:240px;
+  background:var(--surface-2, #edf2ee);
+  display:grid;
+  place-items:center;
+  color:var(--muted);
+}
+.asset-cover img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  display:block;
+  cursor:zoom-in;
+}
+.asset-body{padding:9px}
+.asset-title{font-size:13px;font-weight:800;margin:0 0 6px;line-height:1.35}
+.asset-meta{font-size:12px;color:var(--muted);line-height:1.6}
+.links{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:10px;
+}
+a.link{
+  display:inline-block;
+  padding:6px 9px;
+  border-radius:999px;
+  background:var(--chip, #e8f5f2);
+  color:var(--brand);
+  text-decoration:none;
+  font-size:12px;
+  font-weight:700;
+}
+.asset-action{
+  border:none;
+  display:inline-block;
+  padding:6px 9px;
+  border-radius:999px;
+  background:var(--chip, #e8f5f2);
+  color:var(--brand);
+  font-size:12px;
+  font-weight:700;
+  cursor:pointer;
+}
+.asset-action:hover,a.link:hover{filter:brightness(.96)}
+.preview-assets-toggle{
+  margin-top:18px;
+  border-color:color-mix(in srgb, var(--brand) 38%, var(--line));
+  background:linear-gradient(135deg, color-mix(in srgb, var(--brand) 12%, var(--panel-soft)), var(--panel));
+  box-shadow:0 12px 30px rgba(15,118,110,.08);
+}
+.preview-assets-toggle > .toggle-head{
+  padding:15px 16px;
+  color:var(--brand);
+  font-size:14px;
+}
+.preview-assets-toggle > .toggle-head small{
+  color:var(--text);
+}
+.collapse-preview-btn{
+  width:100%;
+  margin:0 0 14px;
+  border:1px solid color-mix(in srgb, var(--brand) 34%, var(--line));
+  border-radius:10px;
+  background:var(--panel-soft);
+  color:var(--brand);
+  padding:11px 14px;
+  font-weight:800;
+  cursor:pointer;
+  text-align:center;
+}
+.frames-grid{
+  display:grid;
+  grid-template-columns:repeat(9,minmax(clamp(84px, 9vw, 132px),1fr));
+  gap:10px;
+  overflow-x:auto;
+  padding-bottom:4px;
+}
+.frame{
+  border:1px solid var(--line);
+  border-radius:10px;
+  overflow:hidden;
+  background:var(--panel);
+}
+.frame-shot{
+  aspect-ratio:9/16;
+  background:color-mix(in srgb, var(--panel-soft) 72%, var(--line));
+  max-height:240px;
+}
+.frame-shot img,.frame-shot video{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+.frame-shot img{cursor:zoom-in}
+.frame-body{padding:8px}
+.frame-title{
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+  align-items:center;
+  margin-bottom:8px;
+}
+.frame-title strong{font-size:14px}
+.frame-title span{font-size:12px;color:var(--muted)}
+.prompt-drawer .toggle-content{display:none}
+.media-list{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.video-meta{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  align-items:flex-start;
+  margin-bottom:8px;
+}
+.video-meta strong{
+  font-size:13px;
+  line-height:1.35;
+}
+.video-meta .links{
+  margin-top:0;
+  justify-content:flex-end;
+}
+.video-url-chip{
+  display:none;
+  margin-top:6px;
+  font-size:11px;
+  color:var(--muted);
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.preview-grid{
+  display:grid;
+  grid-template-columns:repeat(6,minmax(clamp(132px, 14vw, 190px),1fr));
+  gap:14px;
+  overflow-x:auto;
+  padding-bottom:4px;
+}
+.preview-card{
+  padding:9px;
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:var(--panel);
+}
+.preview-head{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  align-items:center;
+  margin-bottom:10px;
+}
+.preview-head strong{
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.preview-type{
+  font-size:12px;
+  color:var(--brand);
+  background:var(--chip, #e8f5f2);
+  border-radius:999px;
+  padding:4px 9px;
+  font-weight:700;
+}
+.preview-thumb{
+  width:100%;
+  aspect-ratio:1/1;
+  max-height:190px;
+  border-radius:8px;
+  overflow:hidden;
+  background:var(--surface-2, #edf2ee);
+}
+.preview-thumb img,.preview-thumb video{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+.preview-thumb img{cursor:zoom-in}
+.preview-thumb audio{
+  width:100%;
+}
+.embedded-grid{
+  display:grid;
+  grid-template-columns:repeat(9,minmax(clamp(84px, 9vw, 132px),1fr));
+  gap:10px;
+  overflow-x:auto;
+  padding-bottom:4px;
+  margin-top:14px;
+}
+.frame-group{
+  margin-bottom:22px;
+  border:1px solid color-mix(in srgb, var(--brand) 20%, var(--line));
+  border-radius:12px;
+  background:color-mix(in srgb, var(--panel) 86%, var(--panel-soft));
+  padding:12px;
+}
+.frame-group-head{
+  display:flex;
+  justify-content:space-between;
+  gap:14px;
+  align-items:center;
+  padding:2px 2px 10px;
+  border-bottom:1px solid var(--line);
+  margin-bottom:12px;
+}
+.frame-group-title{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.frame-group-index{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:30px;
+  height:30px;
+  border-radius:8px;
+  background:var(--brand);
+  color:#fff;
+  font-size:13px;
+  font-weight:800;
+}
+.frame-group-title h3{
+  margin:0;
+  font-size:15px;
+}
+.frame-group-title span{
+  display:block;
+  margin-top:2px;
+  font-size:12px;
+  color:var(--muted);
+}
+.group-meta{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+}
+.group-control{
+  margin-bottom:12px;
+  background:color-mix(in srgb, var(--panel-soft) 72%, var(--panel));
+  border-color:color-mix(in srgb, var(--brand) 20%, var(--line));
+}
+.group-control .toggle-head{
+  background:color-mix(in srgb, var(--brand) 8%, transparent);
+}
+.group-prompt{
+  margin-top:10px;
+  margin-bottom:0;
+  border:1px solid var(--line);
+  border-radius:8px;
+  background:var(--panel);
+  padding:12px;
+}
+.group-prompt h3{
+  margin:0 0 8px;
+  font-size:14px;
+}
+.group-assets{
+  display:grid;
+  grid-template-columns:repeat(9,minmax(clamp(76px, 8vw, 112px),1fr));
+  gap:10px;
+  overflow-x:auto;
+  padding-bottom:4px;
+  margin:10px 0 12px;
+}
+.group-asset{
+  border:1px solid var(--line);
+  border-radius:10px;
+  overflow:hidden;
+  background:var(--panel);
+  cursor:pointer;
+  transition:transform .18s ease, box-shadow .18s ease;
+}
+.group-asset:hover{
+  transform:translateY(-2px);
+  box-shadow:0 14px 28px rgba(84,52,18,.12);
+}
+.group-asset-thumb{
+  aspect-ratio:1/1;
+  max-height:108px;
+  background:var(--surface-2, #edf2ee);
+}
+.group-asset-thumb img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+  cursor:zoom-in;
+}
+.group-asset-body{
+  padding:8px;
+}
+.group-asset-body strong{
+  display:block;
+  font-size:13px;
+  line-height:1.4;
+}
+.group-asset-body span{
+  display:block;
+  font-size:11px;
+  color:var(--muted);
+  margin-top:4px;
+}
+.lightbox{
+  position:fixed;
+  inset:0;
+  background:rgba(15,23,18,.72);
+  backdrop-filter:blur(6px);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:28px;
+  z-index:1000;
+}
+.lightbox.open{display:flex}
+.lightbox-inner{
+  width:min(100%, 1080px);
+  max-height:88vh;
+  background:var(--panel);
+  border-radius:12px;
+  overflow:hidden;
+  box-shadow:0 24px 60px rgba(0,0,0,.28);
+  border:1px solid rgba(255,255,255,.28);
+}
+.lightbox-media{
+  background:#060b10;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:320px;
+}
+.lightbox-media img{
+  width:100%;
+  max-height:72vh;
+  object-fit:contain;
+  display:block;
+}
+.lightbox-meta{
+  padding:16px 18px 20px;
+}
+.lightbox-meta strong{
+  display:block;
+  font-size:16px;
+}
+.lightbox-meta span{
+  display:block;
+  margin-top:6px;
+  font-size:12px;
+  color:var(--muted);
+}
+.lightbox-close{
+  position:absolute;
+  top:18px;
+  right:18px;
+  width:40px;
+  height:40px;
+  border:none;
+  border-radius:999px;
+  background:var(--panel);
+  border:1px solid var(--line);
+  color:var(--text);
+  font-size:20px;
+  cursor:pointer;
+  box-shadow:0 10px 24px rgba(0,0,0,.12);
+}
+.prompt-modal{
+  position:fixed;
+  inset:0;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:28px;
+  background:rgba(8,13,18,.68);
+  backdrop-filter:blur(6px);
+  z-index:1100;
+}
+.prompt-modal.open{display:flex}
+.prompt-modal-inner{
+  width:min(1280px, 100%);
+  max-height:86vh;
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:12px;
+  box-shadow:0 24px 70px rgba(0,0,0,.28);
+  overflow:hidden;
+}
+.prompt-modal-head{
+  display:flex;
+  justify-content:space-between;
+  gap:16px;
+  align-items:center;
+  padding:14px 16px;
+  background:var(--panel-soft);
+  border-bottom:1px solid var(--line);
+}
+.prompt-modal-head strong{font-size:15px}
+.prompt-modal-head span{font-size:12px;color:var(--muted)}
+.prompt-modal-body{
+  padding:16px;
+  max-height:calc(86vh - 62px);
+  overflow:auto;
+}
+.prompt-modal-body .prompt-box{
+  font-size:13px;
+  line-height:1.8;
+}
+.prompt-close{
+  width:34px;
+  height:34px;
+  border-radius:999px;
+  border:1px solid var(--line);
+  background:var(--panel);
+  color:var(--text);
+  cursor:pointer;
+  font-size:18px;
+}
+.media-card{
+  padding:14px;
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:var(--panel);
+}
+.media-card h3{
+  margin:0 0 8px;
+  font-size:14px;
+}
+.media-card video,.media-card audio{
+  width:100%;
+  margin-top:10px;
+}
+.final-json-grid{
+  display:grid;
+  grid-template-columns:minmax(280px,.9fr) minmax(360px,1.1fr);
+  gap:14px;
+  align-items:stretch;
+}
+.final-pane,.raw-json-pane{
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:var(--panel-soft);
+  padding:12px;
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+}
+.final-pane-head,.raw-json-head{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  align-items:center;
+  margin-bottom:10px;
+}
+.final-pane-head h3,.raw-json-head h3{
+  margin:0;
+  font-size:14px;
+}
+.final-pane-head span,.raw-json-head span{
+  color:var(--muted);
+  font-size:12px;
+}
+.raw-json-pane .json-view{
+  flex:1;
+  max-height:min(62vh, 680px);
+  min-height:360px;
+}
+.hero-video-wrap{
+  width:100%;
+  flex:1;
+  margin:0 auto;
+  border-radius:10px;
+  overflow:hidden;
+  background:#060b10;
+  border:1px solid var(--line);
+  box-shadow:0 14px 34px rgba(31,42,36,.12);
+}
+.hero-video-wrap video{
+  width:100%;
+  height:100%;
+  min-height:360px;
+  max-height:min(62vh, 680px);
+  display:block;
+  object-fit:contain;
+  background:#060b10;
+}
+.empty{
+  padding:26px;
+  text-align:center;
+  color:var(--muted);
+  border:1px dashed var(--line);
+  border-radius:10px;
+  background:var(--panel-soft);
+}
+.sticky{
+  position:sticky;
+  top:18px;
+}
+.mono{font-family:"SFMono-Regular","Menlo","Consolas",monospace}
+@media (max-width:1180px){
+  .summary{grid-template-columns:repeat(3, minmax(0,1fr))}
+  .sticky{position:static}
+  .load-shell{grid-template-columns:1fr}
+  .theme-switch{justify-content:flex-start}
+  .final-json-grid{grid-template-columns:1fr}
+}
+@media (max-width:720px){
+  .page{padding:18px 12px 48px}
+  .hero{padding:20px}
+  .hero h1{font-size:28px}
+  .summary{grid-template-columns:repeat(2, minmax(0,1fr))}
+  .frames-grid,.asset-grid,.preview-grid,.embedded-grid{grid-template-columns:repeat(3, minmax(108px,1fr))}
+  .group-assets{grid-template-columns:repeat(3, minmax(92px,1fr))}
+  .frame-shot{max-height:220px}
+  .prompt-drawer .toggle-content{
+    position:static;
+    width:auto;
+    max-height:320px;
+    padding:0 12px 12px;
+  }
+}
+@media (max-width:520px){
+  .summary{grid-template-columns:1fr}
+  .frames-grid,.asset-grid,.preview-grid,.embedded-grid{grid-template-columns:repeat(2, minmax(108px,1fr))}
+  .group-assets{grid-template-columns:repeat(2, minmax(92px,1fr))}
+}
+</style>
+</head>
+<body>
+<div class="page">
+  <section class="hero">
+    <div class="load-shell">
+      <div>
+        <h1>AI 动画流水线面板</h1>
+        <p>远程加载 JSON URL，或上传本地 JSON 文件，即可在线审阅成片、资产、关键帧和视频结果。</p>
+      </div>
+      <div class="source-row">
+        <input class="url-input" id="remoteUrlInput" type="text" placeholder="粘贴远程 JSON URL">
+        <button class="btn primary" id="loadRemoteBtn" type="button">加载</button>
+        <button class="btn ghost" id="copyShareBtn" type="button">复制分享链接</button>
+        <label class="file-label" for="fileInput">上传 JSON</label>
+        <input id="fileInput" type="file" accept=".json,.gz,application/json">
+      </div>
+    </div>
+    <div class="status" id="statusText">等待加载 JSON。外部用户可直接打开本页并粘贴远程 URL，或上传本地 JSON。</div>
+  </section>
+
+  <section class="summary" id="summary"></section>
+  <nav class="section-nav" id="sectionNav" aria-label="模块导航"></nav>
+
+  <section class="layout">
+    <div class="column" id="mainColumn"></div>
+  </section>
+</div>
+<div class="lightbox" id="assetLightbox" aria-hidden="true">
+  <button class="lightbox-close" id="lightboxCloseBtn" type="button" aria-label="关闭预览">×</button>
+  <div class="lightbox-inner">
+    <div class="lightbox-media">
+      <img id="lightboxImage" src="" alt="">
+    </div>
+    <div class="lightbox-meta">
+      <strong id="lightboxTitle"></strong>
+      <span id="lightboxType"></span>
+    </div>
+  </div>
+</div>
+<div class="prompt-modal" id="promptModal" aria-hidden="true">
+  <div class="prompt-modal-inner">
+    <div class="prompt-modal-head">
+      <div>
+        <strong id="promptModalTitle">Prompt</strong>
+        <span id="promptModalSub"></span>
+      </div>
+      <button class="prompt-close" id="promptCloseBtn" type="button" aria-label="关闭 Prompt">×</button>
+    </div>
+    <div class="prompt-modal-body">
+      <pre class="prompt-box" id="promptModalText"></pre>
+    </div>
+  </div>
+</div>
+
+<script>
+const summaryEl = document.getElementById("summary");
+const sectionNavEl = document.getElementById("sectionNav");
+const mainColumnEl = document.getElementById("mainColumn");
+const statusTextEl = document.getElementById("statusText");
+const fileInputEl = document.getElementById("fileInput");
+const remoteUrlInputEl = document.getElementById("remoteUrlInput");
+const loadRemoteBtnEl = document.getElementById("loadRemoteBtn");
+const copyShareBtnEl = document.getElementById("copyShareBtn");
+const themeDotEls = document.querySelectorAll(".theme-dot");
+const assetLightboxEl = document.getElementById("assetLightbox");
+const lightboxImageEl = document.getElementById("lightboxImage");
+const lightboxTitleEl = document.getElementById("lightboxTitle");
+const lightboxTypeEl = document.getElementById("lightboxType");
+const lightboxCloseBtnEl = document.getElementById("lightboxCloseBtn");
+const promptModalEl = document.getElementById("promptModal");
+const promptModalTitleEl = document.getElementById("promptModalTitle");
+const promptModalSubEl = document.getElementById("promptModalSub");
+const promptModalTextEl = document.getElementById("promptModalText");
+const promptCloseBtnEl = document.getElementById("promptCloseBtn");
+
+let lastParsed = null;
+let lastSourceName = "未命名";
+
+function applyTheme(theme) {
+  document.body.dataset.theme = theme;
+  themeDotEls.forEach((button) => {
+    button.classList.toggle("active", button.dataset.themeValue === theme);
+  });
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
+function safeJson(value, space = 2) {
+  try {
+    return JSON.stringify(value, null, space);
+  } catch {
+    return String(value);
+  }
+}
+
+function shortText(value, fallback = "未识别") {
+  if (value === null || value === undefined || value === "") {
+    return fallback;
+  }
+  return String(value);
+}
+
+function isUrl(value) {
+  return typeof value === "string" && /^https?:\/\//i.test(value);
+}
+
+function unique(values) {
+  return [...new Set(values.filter(Boolean))];
+}
+
+function detectAssetType(url) {
+  const cleanUrl = String(url || "").split("?")[0].toLowerCase();
+  if (/\.(png|jpg|jpeg|webp|gif|bmp|svg)$/.test(cleanUrl)) return "image";
+  if (/\.(mp4|mov|m4v|webm)$/.test(cleanUrl)) return "video";
+  if (/\.(mp3|wav|m4a|aac|ogg)$/.test(cleanUrl)) return "audio";
+  return "link";
+}
+
+function assetSortRank(asset) {
+  const label = `${asset.type || ""}${asset.label || ""}`;
+  if (label.includes("角色")) return 10;
+  if (label.includes("场景")) return 20;
+  if (label.includes("道具")) return 25;
+  if (label.includes("关键帧")) return 30;
+  if ((asset.type || "") === "video" || label.includes("视频") || label.includes("成片")) return 40;
+  if ((asset.type || "") === "audio" || label.includes("音频")) return 50;
+  if ((asset.type || "") === "image") return 60;
+  return 90;
+}
+
+function sortedAssets(items) {
+  return [...(items || [])].sort((a, b) => (
+    assetSortRank(a) - assetSortRank(b)
+    || String(a.name || a.title || "").localeCompare(String(b.name || b.title || ""), "zh-Hans-CN")
+  ));
+}
+
+function groupAssetItems(items, groups) {
+  return groups.map((group) => ({
+    ...group,
+    items: (items || []).filter(group.match)
+  })).filter((group) => group.items.length);
+}
+
+function filenameFromUrl(url, fallback = "asset") {
+  try {
+    const parsed = new URL(url);
+    return decodeURIComponent(parsed.pathname.split("/").filter(Boolean).pop() || fallback);
+  } catch {
+    return fallback;
+  }
+}
+
+function cleanVideoTitle(title) {
+  const cleaned = String(title || "")
+    .replace(/\d+/g, "")
+    .replace(/[_-]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  return cleaned || "镜头视频";
+}
+
+function firstUrlByType(urls, type) {
+  return (urls || []).find((url) => detectAssetType(url) === type) || "";
+}
+
+function normalizeAssetName(value) {
+  return String(value || "").trim().toLowerCase();
+}
+
+function pickMappedImage(name, mapLike) {
+  if (!name || !mapLike) return "";
+  const entries = mapLike instanceof Map ? [...mapLike.entries()] : Object.entries(mapLike);
+  const target = normalizeAssetName(name);
+  for (const [key, url] of entries) {
+    if (normalizeAssetName(key) === target && url) return url;
+  }
+  for (const [key, url] of entries) {
+    const normalizedKey = normalizeAssetName(key);
+    if ((normalizedKey.startsWith(target) || target.startsWith(normalizedKey)) && url) {
+      return url;
+    }
+  }
+  return "";
+}
+
+function countCharacters(text) {
+  return String(text || "").replace(/\s+/g, "").length;
+}
+
+function flattenStrings(value, acc = []) {
+  if (typeof value === "string") {
+    acc.push(value);
+    return acc;
+  }
+  if (Array.isArray(value)) {
+    value.forEach((item) => flattenStrings(item, acc));
+    return acc;
+  }
+  if (value && typeof value === "object") {
+    Object.values(value).forEach((item) => flattenStrings(item, acc));
+  }
+  return acc;
+}
+
+function collectUrls(value, acc = []) {
+  if (isUrl(value)) {
+    acc.push(value);
+    return acc;
+  }
+  if (Array.isArray(value)) {
+    value.forEach((item) => collectUrls(item, acc));
+    return acc;
+  }
+  if (value && typeof value === "object") {
+    Object.values(value).forEach((item) => collectUrls(item, acc));
+  }
+  return acc;
+}
+
+function pickFirst(obj, paths) {
+  for (const path of paths) {
+    const parts = path.split(".");
+    let current = obj;
+    let ok = true;
+    for (const part of parts) {
+      if (current && Object.prototype.hasOwnProperty.call(current, part)) {
+        current = current[part];
+      } else {
+        ok = false;
+        break;
+      }
+    }
+    if (ok && current !== undefined && current !== null && current !== "") {
+      return current;
+    }
+  }
+  return undefined;
+}
+
+function normalizeNarrationSegments(data) {
+  const raw = pickFirst(data, [
+    "node_outputs.N02.result.narration_segments",
+    "steps.narration_split.narration_segments",
+    "narration_segments",
+    "narration",
+    "scenes.0.narration_split.narration_segments"
+  ]);
+
+  if (!raw) {
+    const segments = pickFirst(data, ["scenes"]) || [];
+    return segments.flatMap((scene) => {
+      const sceneSegments = scene?.segments || [];
+      return sceneSegments.map((segment, index) => ({
+        index: segment.segment_index ?? index,
+        text: shortText(segment.narration_text || segment.text || segment.content || ""),
+        raw: segment
+      })).filter((item) => item.text !== "未识别");
+    });
+  }
+
+  if (Array.isArray(raw)) {
+    return raw.map((item, index) => {
+      if (typeof item === "string") {
+        return { index, text: item, raw: item };
+      }
+      const text = pickFirst(item, ["原文内容", "text", "content", "narration_text", "sentence", "旁白"]);
+      return {
+        index: item.segment_index ?? item.index ?? index,
+        text: shortText(text || safeJson(item)),
+        raw: item
+      };
+    });
+  }
+  return [{ index: 0, text: shortText(raw), raw }];
+}
+
+function normalizeAssets(data) {
+  const assets = [];
+
+  const characters = pickFirst(data, [
+    "node_outputs.N01.result.characters",
+    "steps.asset_prompt.characters",
+    "steps.asset_prompt.character_assets"
+  ]) || [];
+  const characterImages = pickFirst(data, [
+    "node_outputs.N03.result.character_images",
+    "steps.asset_image.character_images"
+  ]) || [];
+  const charImageMap = new Map(characterImages.map((item) => [item.character_name, item.image_url]));
+
+  characters.forEach((item, index) => {
+    const urls = unique(collectUrls(item).concat(charImageMap.get(item.name) || []));
+    assets.push({
+      type: "角色",
+      name: item.name || item.character_name || `角色 ${index + 1}`,
+      prompt: item.costumes?.map((c) => c.prompt).filter(Boolean).join("\n\n") || item.prompt || item.voice_prompt || "",
+      manifest: item,
+      image: pickMappedImage(item.name || item.character_name, charImageMap) || item.image_url || firstUrlByType(urls, "image") || "",
+      urls
+    });
+  });
+
+  const scenes = pickFirst(data, [
+    "node_outputs.N01.result.scenes",
+    "steps.asset_prompt.scenes",
+    "steps.asset_prompt.scene_assets"
+  ]) || [];
+  const sceneImages = pickFirst(data, [
+    "node_outputs.N03.result.scene_images",
+    "steps.asset_image.scene_images"
+  ]) || [];
+  const sceneImageMap = new Map(sceneImages.map((item) => [item.scene_name, item.image_url]));
+
+  scenes.forEach((item, index) => {
+    const urls = unique(collectUrls(item).concat(sceneImageMap.get(item.scene_name) || []));
+    assets.push({
+      type: "场景",
+      name: item.scene_name || item.name || `场景 ${index + 1}`,
+      prompt: item.states?.map((state) => state.prompt).filter(Boolean).join("\n\n") || item.prompt || "",
+      manifest: item,
+      image: pickMappedImage(item.scene_name || item.name, sceneImageMap) || item.image_url || firstUrlByType(urls, "image") || "",
+      urls
+    });
+  });
+
+  const props = pickFirst(data, [
+    "node_outputs.N01.result.props_asset_library",
+    "steps.asset_prompt.props_asset_library"
+  ]) || [];
+
+  props.forEach((item, index) => {
+    const urls = unique(collectUrls(item));
+    assets.push({
+      type: "道具",
+      name: item["道具名称"] || item.name || `道具 ${index + 1}`,
+      prompt: item["状态列表"]?.map((state) => state["生图提示词"]).filter(Boolean).join("\n\n") || item.prompt || "",
+      manifest: item,
+      image: pickFirst(item, ["image_url", "图片", "图片链接", "asset_image_url", "cover_image_url"]) || firstUrlByType(urls, "image") || "",
+      urls
+    });
+  });
+
+  if (!assets.length) {
+    const rawAssets = pickFirst(data, ["assets", "asset_list", "materials"]) || [];
+    rawAssets.forEach((item, index) => {
+      assets.push({
+        type: item.type || "资产",
+        name: item.name || item.title || `资产 ${index + 1}`,
+        prompt: item.prompt || item.description || "",
+        manifest: item,
+        image: item.image_url || item.url || "",
+        urls: unique(collectUrls(item))
+      });
+    });
+  }
+
+  return assets;
+}
+
+function normalizeFrames(data) {
+  const frames = [];
+  const scenesForSegments = pickFirst(data, ["scenes"]) || [];
+
+  const keyframeImages = pickFirst(data, [
+    "node_outputs.N05.result.keyframe_images"
+  ]) || [];
+  const keyframeUrlMap = new Map(keyframeImages.map((item) => [item.segment_index, item.image_url]));
+
+  const videoSegments = pickFirst(data, [
+    "node_outputs.N06.result.video_segments"
+  ]) || [];
+  const videoMap = new Map(videoSegments.map((item, index) => [item.segment_index ?? index, item]));
+
+  const ttsResults = pickFirst(data, [
+    "node_outputs.N07.result.tts_results"
+  ]) || [];
+  const audioMap = new Map(ttsResults.map((item, index) => [item.segment_index ?? index, item]));
+
+  const videoPrompts = pickFirst(data, [
+    "node_outputs.N08.result.video_prompts"
+  ]) || [];
+  const videoPromptMap = new Map(videoPrompts.map((item, index) => [item.segment_index ?? index, item.video_prompt || item.prompt]));
+
+  const segmentMap = new Map();
+  scenesForSegments.forEach((scene) => {
+    (scene.segments || []).forEach((segment, idx) => {
+      const segmentIndex = segment.segment_index ?? idx;
+      segmentMap.set(segmentIndex, segment);
+    });
+  });
+
+  const groups = pickFirst(data, [
+    "node_outputs.N04.result.prompt_groups",
+    "scenes.0.keyframe_prompts.prompt_groups"
+  ]) || [];
+
+  if (groups.length) {
+    let runningIndex = 0;
+    groups.forEach((group, groupIndex) => {
+      const promptText = group.grid_prompt || "";
+      let parsedPrompt = {};
+      const jsonStart = promptText.indexOf("{");
+      if (jsonStart >= 0) {
+        try {
+          parsedPrompt = JSON.parse(promptText.slice(jsonStart));
+        } catch {}
+      }
+      const shots = parsedPrompt.s || group.shots || [];
+      const groupAssets = (group.ref_image_mapping || []).map((item) => ({
+        name: item.name || "",
+        type: item.type || "asset",
+        url: item.url || ""
+      }));
+      shots.forEach((shot, shotIndex) => {
+        const segmentIndex = runningIndex;
+        const segment = segmentMap.get(segmentIndex) || {};
+        frames.push({
+          segmentIndex,
+          groupIndex,
+          orderInGroup: shotIndex + 1,
+          title: shot.id || `镜头 ${segmentIndex + 1}`,
+          groupPrompt: promptText,
+          arc: shot.arc || "",
+          narration: shot.src || segment.narration_text || "",
+          cam: shot.cam || "",
+          imageUrl: keyframeUrlMap.get(segmentIndex) || pickFirst(segment, ["keyframe.image_url", "image_url"]) || shot.image_url || "",
+          keyframePrompt: shot.prompt || pickFirst(segment, ["keyframe.prompt", "prompt"]) || "",
+          videoPrompt: videoPromptMap.get(segmentIndex) || pickFirst(segment, ["video.video_prompt", "video_prompt"]) || "",
+          spatial: shot.spatial || "",
+          visual: shot.vis || "",
+          check: shot.check || "",
+          videoUrl: videoMap.get(segmentIndex)?.video_url || pickFirst(segment, ["video.video_url", "video_url"]) || "",
+          audioUrl: audioMap.get(segmentIndex)?.audio_url || pickFirst(segment, ["tts.audio_url", "audio_url"]) || "",
+          groupAssets,
+          raw: segment && Object.keys(segment).length ? { shot, segment } : shot
+        });
+        runningIndex += 1;
+      });
+    });
+  }
+
+  if (!frames.length) {
+    scenesForSegments.forEach((scene, sceneIndex) => {
+      (scene.segments || []).forEach((segment, segmentIndex) => {
+        frames.push({
+          segmentIndex: segment.segment_index ?? segmentIndex,
+          groupIndex: sceneIndex,
+          orderInGroup: segmentIndex + 1,
+          title: `镜头 ${segment.segment_index ?? segmentIndex + 1}`,
+          groupPrompt: pickFirst(scene, ["keyframe_prompts.prompt_groups.0.grid_prompt"]) || "",
+          arc: "",
+          narration: segment.narration_text || "",
+          cam: "",
+          imageUrl: pickFirst(segment, ["keyframe.image_url", "image_url"]) || "",
+          keyframePrompt: pickFirst(segment, ["keyframe.prompt", "prompt"]) || "",
+          videoPrompt: pickFirst(segment, ["video.video_prompt", "video_prompt"]) || "",
+          spatial: pickFirst(scene, ["video_prompt_map.video_prompt_map." + String(segment.segment_index ?? segmentIndex)]) || "",
+          visual: segment.visual || "",
+          check: segment.check || "",
+          videoUrl: pickFirst(segment, ["video.video_url", "video_url"]) || "",
+          audioUrl: pickFirst(segment, ["tts.audio_url", "audio_url"]) || "",
+          groupAssets: [],
+          raw: segment
+        });
+      });
+    });
+  }
+
+  const fallbackFrames = pickFirst(data, ["keyframes", "frames"]) || [];
+  if (!frames.length && Array.isArray(fallbackFrames)) {
+    fallbackFrames.forEach((frame, index) => {
+        frames.push({
+          segmentIndex: frame.segment_index ?? index,
+          groupIndex: Math.floor(index / 9),
+          orderInGroup: (index % 9) + 1,
+          title: frame.title || `镜头 ${index + 1}`,
+          groupPrompt: frame.group_prompt || "",
+          arc: frame.arc || "",
+          narration: frame.narration || frame.text || "",
+          cam: frame.cam || "",
+          imageUrl: frame.image_url || frame.url || "",
+          keyframePrompt: frame.keyframe_prompt || frame.prompt || "",
+        videoPrompt: frame.video_prompt || "",
+        spatial: frame.spatial || "",
+        visual: frame.visual || "",
+        check: frame.check || "",
+        videoUrl: frame.video_url || "",
+        audioUrl: frame.audio_url || "",
+        groupAssets: frame.group_assets || [],
+        raw: frame
+      });
+    });
+  }
+
+  return frames;
+}
+
+function normalizeMedia(data, frames) {
+  const finalVideoUrl = pickFirst(data, [
+    "node_outputs.N09.result.final_video_url",
+    "final_concat.final_video_url",
+    "final_video_url"
+  ]) || "";
+  const finalDuration = pickFirst(data, [
+    "node_outputs.N09.result.duration",
+    "final_concat.duration",
+    "duration"
+  ]) || "";
+
+  const items = frames.filter((frame) => frame.videoUrl || frame.audioUrl).map((frame) => ({
+    title: frame.title,
+    narration: frame.narration,
+    videoUrl: frame.videoUrl,
+    audioUrl: frame.audioUrl
+  }));
+
+  return {
+    finalVideoUrl,
+    finalDuration,
+    items
+  };
+}
+
+function normalizePreviewAssets(data, parsedAssets, frames, media) {
+  const items = [];
+
+  parsedAssets.forEach((asset) => {
+    if (asset.image) {
+      items.push({
+        type: "image",
+        label: `${asset.type}资产图`,
+        title: asset.name,
+        url: asset.image
+      });
+    }
+  });
+
+  frames.forEach((frame) => {
+    if (frame.imageUrl) {
+      items.push({
+        type: "image",
+        label: "关键帧图片",
+        title: frame.title,
+        url: frame.imageUrl
+      });
+    }
+    if (frame.videoUrl) {
+      items.push({
+        type: "video",
+        label: "镜头视频",
+        title: frame.title,
+        url: frame.videoUrl
+      });
+    }
+    if (frame.audioUrl) {
+      items.push({
+        type: "audio",
+        label: "镜头音频",
+        title: frame.title,
+        url: frame.audioUrl
+      });
+    }
+  });
+
+  if (media.finalVideoUrl) {
+    items.unshift({
+      type: "video",
+      label: "最终成片",
+      title: "最终剪辑视频",
+      url: media.finalVideoUrl
+    });
+  }
+
+  unique(collectUrls(data)).forEach((url) => {
+    items.push({
+      type: detectAssetType(url),
+      label: "原始网址",
+      title: url.split("/").pop() || url,
+      url
+    });
+  });
+
+  const deduped = [];
+  const seen = new Set();
+  for (const item of items) {
+    const key = `${item.type}|${item.url}`;
+    if (item.url && !seen.has(key)) {
+      seen.add(key);
+      deduped.push(item);
+    }
+  }
+  return sortedAssets(deduped);
+}
+
+function parsePipelineJson(data) {
+  const rawTextSource = pickFirst(data, [
+    "original_text",
+    "source_text",
+    "global_config.original_text",
+    "article.content",
+    "text"
+  ]) || flattenStrings(pickFirst(data, ["node_outputs.N02.input", "global_config"]) || {}).join("\n");
+
+  const narrationSegments = normalizeNarrationSegments(data);
+  const assets = sortedAssets(normalizeAssets(data));
+  const frames = normalizeFrames(data);
+  const media = normalizeMedia(data, frames);
+  const urls = unique(collectUrls(data));
+  const previewAssets = normalizePreviewAssets(data, assets, frames, media);
+
+  return {
+    title: pickFirst(data, ["title", "global_config.title", "story_title", "name", "run_id", "dag_id"]) || "未命名项目",
+    rawText: rawTextSource || narrationSegments.map((item) => item.text).join(""),
+    rawCharacterCount: countCharacters(rawTextSource || narrationSegments.map((item) => item.text).join("")),
+    narrationSegments,
+    assets,
+    frames,
+    media,
+    urls,
+    previewAssets,
+    raw: data
+  };
+}
+
+function renderStats(parsed) {
+  const stats = [
+    ["旁白段数", parsed.narrationSegments.length],
+    ["资产数量", parsed.assets.length],
+    ["关键帧组", new Set(parsed.frames.map((item) => item.groupIndex ?? 0)).size],
+    ["视频结果", parsed.media.items.length],
+    ["可预览资产", parsed.previewAssets.length]
+  ];
+  summaryEl.innerHTML = stats.map(([label, value]) => `
+    <div class="stat">
+      <div class="value">${escapeHtml(value)}</div>
+      <div class="label">${escapeHtml(label)}</div>
+    </div>
+  `).join("");
+}
+
+function renderSectionNav() {
+  const items = [
+    ["finalVideo", "成片/JSON"],
+    ["narrationPanel", "旁白"],
+    ["assetsPanel", "全部资产"],
+    ["framesPanel", "关键帧"],
+    ["videosPanel", "视频"]
+  ];
+  sectionNavEl.innerHTML = items.map(([id, label]) => `
+    <button class="nav-link" type="button" data-target="${id}">${escapeHtml(label)}</button>
+  `).join("");
+}
+
+function renderNarration(parsed) {
+  const raw = parsed.narrationSegments.map((item) => item.raw);
+  return `
+    <section class="panel" id="narrationPanel">
+      <div class="panel-head">
+        <div>
+          <h2>1. 旁白切分</h2>
+          <span>${escapeHtml(parsed.narrationSegments.length)} 段</span>
+        </div>
+        <span>原始输出字段</span>
+      </div>
+      <div class="panel-body">
+        <pre class="json-view">${escapeHtml(safeJson(raw))}</pre>
+      </div>
+    </section>
+  `;
+}
+
+function renderAssetSections(groups, renderer, emptyText) {
+  return groups.length ? groups.map((group) => `
+    <section class="asset-section">
+      <div class="asset-section-head">
+        <h3>${escapeHtml(group.title)}</h3>
+        <span>${escapeHtml(group.items.length)} 个</span>
+      </div>
+      <div class="${escapeHtml(group.gridClass || "asset-grid")}">${group.items.map(renderer).join("")}</div>
+    </section>
+  `).join("") : `<div class="empty">${escapeHtml(emptyText)}</div>`;
+}
+
+function renderAssets(parsed) {
+  const coreGroups = groupAssetItems(parsed.assets, [
+    { title: "核心角色", match: (asset) => asset.type === "角色" },
+    { title: "核心场景", match: (asset) => asset.type === "场景" },
+    { title: "核心道具", match: (asset) => asset.type === "道具" },
+    { title: "其他核心资产", match: (asset) => !["角色", "场景", "道具"].includes(asset.type) }
+  ]);
+  const previewGroups = groupAssetItems(parsed.previewAssets, [
+    { title: "角色资产图", gridClass: "preview-grid", match: (asset) => asset.label.includes("角色") },
+    { title: "场景资产图", gridClass: "preview-grid", match: (asset) => asset.label.includes("场景") },
+    { title: "道具资产图", gridClass: "preview-grid", match: (asset) => asset.label.includes("道具") },
+    { title: "关键帧", gridClass: "preview-grid", match: (asset) => asset.label.includes("关键帧") },
+    { title: "视频", gridClass: "preview-grid", match: (asset) => asset.type === "video" || asset.label.includes("视频") || asset.label.includes("成片") },
+    { title: "音频", gridClass: "preview-grid", match: (asset) => asset.type === "audio" || asset.label.includes("音频") },
+    { title: "其他链接", gridClass: "preview-grid", match: (asset) => assetSortRank(asset) >= 60 && asset.type !== "audio" && asset.type !== "video" }
+  ]);
+  const cards = renderAssetSections(coreGroups, (asset) => `
+      <article class="asset-card">
+        <div class="asset-cover">${asset.image ? `<img src="${escapeHtml(asset.image)}" alt="${escapeHtml(asset.name)}" loading="lazy">` : "<span>暂无资产图</span>"}</div>
+        <div class="asset-body">
+          <p class="asset-title">${escapeHtml(asset.name)}</p>
+          <div class="asset-meta">${escapeHtml(asset.type)}</div>
+          <div class="links">
+            ${asset.image ? `
+              <a class="link asset-download-link" href="${escapeHtml(asset.image)}" download="${escapeHtml(filenameFromUrl(asset.image, asset.name || "asset"))}" target="_blank" rel="noreferrer">下载</a>
+            ` : ""}
+            <button class="btn ghost prompt-open" type="button" data-title="资产提示词" data-subtitle="${escapeHtml(asset.name)}" data-prompt="${escapeHtml(asset.prompt || "未识别到提示词")}">提示词</button>
+            <button class="btn ghost prompt-open" type="button" data-title="资产 JSON 清单" data-subtitle="${escapeHtml(asset.name)}" data-prompt="${escapeHtml(safeJson(asset.manifest))}">JSON</button>
+          </div>
+        </div>
+      </article>
+    `, "还没有识别到角色、场景或道具资产。");
+  const previewCards = renderAssetSections(previewGroups, renderPreviewAssetCard, "还没有识别到可预览资产。");
+
+  return `
+    <section class="panel" id="assetsPanel">
+      <div class="panel-head">
+        <div>
+          <h2>2. 全部资产</h2>
+          <span>角色、场景、道具与可预览素材统一展示</span>
+        </div>
+        <span>${escapeHtml(parsed.assets.length)} 个核心资产 / ${escapeHtml(parsed.previewAssets.length)} 个可预览资产</span>
+      </div>
+      <div class="panel-body">
+        ${cards}
+        <div class="toggle-block preview-assets-toggle">
+          <button class="toggle-head" type="button">
+            <span>查看可预览资产库</span>
+            <small>${escapeHtml(parsed.previewAssets.length)} 个图片 / 视频 / 音频 / 链接</small>
+            <span class="chev">▶</span>
+          </button>
+          <div class="toggle-content">
+            <button class="collapse-preview-btn" type="button">收起可预览资产库</button>
+            ${previewCards}
+          </div>
+        </div>
+      </div>
+    </section>
+  `;
+}
+
+function renderGroupAssets(frames, parsed) {
+  const explicitAssets = frames.flatMap((frame) => frame.groupAssets || []);
+  const dedupedExplicit = [];
+  const seen = new Set();
+  explicitAssets.forEach((item) => {
+    const key = `${item.type}|${item.name}|${item.url}`;
+    if (item.url && !seen.has(key)) {
+      seen.add(key);
+      dedupedExplicit.push(item);
+    }
+  });
+  const sceneFallback = (parsed.assets || [])
+    .filter((asset) => asset.type === "场景" && asset.image)
+    .map((asset) => ({ name: asset.name, type: "scene", url: asset.image }));
+  const allGroupAssets = [...dedupedExplicit];
+  sceneFallback.forEach((item) => {
+    const key = `${item.type}|${item.name}|${item.url}`;
+    if (!seen.has(key)) {
+      seen.add(key);
+      allGroupAssets.push(item);
+    }
+  });
+  return allGroupAssets.length ? `
+    <div class="group-assets">
+      ${allGroupAssets.map((item) => `
+        <article class="group-asset" data-url="${escapeHtml(item.url)}" data-title="${escapeHtml(item.name || "未命名资产")}" data-type-label="${escapeHtml(item.type === "character" ? "角色资产" : item.type === "scene" ? "场景资产" : "关联资产")}">
+          <div class="group-asset-thumb"><img src="${escapeHtml(item.url)}" alt="${escapeHtml(item.name)}" loading="lazy"></div>
+          <div class="group-asset-body">
+            <strong>${escapeHtml(item.name || "未命名资产")}</strong>
+            <span>${escapeHtml(item.type === "character" ? "角色资产" : item.type === "scene" ? "场景资产" : "关联资产")}</span>
+          </div>
+        </article>
+      `).join("")}
+    </div>
+  ` : "";
+}
+
+function renderFrames(parsed) {
+  const groups = new Map();
+  parsed.frames.forEach((frame) => {
+    const key = frame.groupIndex ?? 0;
+    if (!groups.has(key)) {
+      groups.set(key, []);
+    }
+    groups.get(key).push(frame);
+  });
+
+  if (!parsed.frames.length) {
+    return `
+      <section class="panel">
+        <div class="panel-head"><div><h2>3. 关键帧</h2><span>九宫格展示</span></div></div>
+        <div class="panel-body"><div class="empty">还没有识别到关键帧数据。</div></div>
+      </section>
+    `;
+  }
+
+  const html = [...groups.entries()].map(([groupIndex, frames]) => `
+    <section class="frame-group">
+      <div class="frame-group-head">
+        <div class="frame-group-title">
+          <span class="frame-group-index">${escapeHtml(Number(groupIndex) + 1)}</span>
+          <div>
+            <h3>关键帧组 ${escapeHtml(Number(groupIndex) + 1)}</h3>
+            <span>${escapeHtml(frames.length)} 张关键帧</span>
+          </div>
+        </div>
+        <div class="group-meta">
+          <span class="tag">图 ${frames.filter((frame) => frame.imageUrl).length}/${frames.length}</span>
+          <span class="tag">视频 ${frames.filter((frame) => frame.videoUrl).length}/${frames.length}</span>
+          <span class="tag">音频 ${frames.filter((frame) => frame.audioUrl).length}/${frames.length}</span>
+        </div>
+      </div>
+      <div class="toggle-block group-control">
+        <button class="toggle-head" type="button">
+          <span>展开本组提示词与关联资产</span>
+          <small>包含角色/场景输入资产</small>
+          <span class="chev">▶</span>
+        </button>
+        <div class="toggle-content">
+          ${renderGroupAssets(frames, parsed)}
+          <div class="group-prompt">
+            <h3>整体提示词</h3>
+            <pre class="prompt-box">${escapeHtml(frames[0]?.groupPrompt || "未识别到打组整体提示词")}</pre>
+            <div class="links">
+              <span class="tag">关键帧图 ${frames.filter((frame) => frame.imageUrl).length}/${frames.length}</span>
+              <span class="tag">镜头视频 ${frames.filter((frame) => frame.videoUrl).length}/${frames.length}</span>
+              <span class="tag">镜头音频 ${frames.filter((frame) => frame.audioUrl).length}/${frames.length}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="frames-grid">
+        ${frames.map((frame) => `
+          <article class="frame">
+            <div class="frame-shot">
+              ${frame.imageUrl ? `<img src="${escapeHtml(frame.imageUrl)}" alt="${escapeHtml(frame.title)}" loading="lazy">` : ""}
+            </div>
+            <div class="frame-body">
+              <div class="toggle-block prompt-drawer">
+                <button class="toggle-head prompt-open" type="button" data-title="关键帧 Prompt" data-subtitle="${escapeHtml(frame.title)}" data-prompt="${escapeHtml(
+`prompt: ${frame.keyframePrompt || "未识别"}
+
+arc: ${frame.arc || "未识别"}
+src: ${frame.narration || "未识别"}
+cam: ${frame.cam || "未识别"}
+spatial: ${frame.spatial || "未识别"}
+vis: ${frame.visual || "未识别"}
+check: ${frame.check || "未识别"}`)}"><span>关键帧 Prompt</span><span class="chev">↗</span></button>
+                <div class="toggle-content">
+                  <pre class="prompt-box">${escapeHtml(
+`prompt: ${frame.keyframePrompt || "未识别"}
+
+arc: ${frame.arc || "未识别"}
+src: ${frame.narration || "未识别"}
+cam: ${frame.cam || "未识别"}
+spatial: ${frame.spatial || "未识别"}
+vis: ${frame.visual || "未识别"}
+check: ${frame.check || "未识别"}`)}</pre>
+                </div>
+              </div>
+            </div>
+          </article>
+        `).join("")}
+      </div>
+    </section>
+  `).join("");
+
+  return `
+    <section class="panel" id="framesPanel">
+      <div class="panel-head">
+        <div>
+          <h2>3. 关键帧</h2>
+          <span>按照 9 宫格方式排列展示</span>
+        </div>
+        <span>${escapeHtml(parsed.frames.length)} 张</span>
+      </div>
+      <div class="panel-body">${html}</div>
+    </section>
+  `;
+}
+
+function renderMedia(parsed) {
+  const groups = new Map();
+  parsed.frames.forEach((frame) => {
+    const key = frame.groupIndex ?? 0;
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(frame);
+  });
+
+  const list = parsed.frames.length
+    ? [...groups.entries()].map(([groupIndex, frames]) => `
+      <div style="margin-bottom:18px">
+        <div class="panel-head" style="padding:0 0 10px;border:none">
+          <div><h2 style="font-size:16px;margin:0">视频结果</h2><span>视频片段</span></div>
+        </div>
+        <div class="frames-grid">
+          ${frames.map((frame) => `
+            <article class="frame">
+              <div class="frame-shot">
+              ${frame.videoUrl ? `<video controls preload="metadata" src="${escapeHtml(frame.videoUrl)}"></video>` : frame.imageUrl ? `<img src="${escapeHtml(frame.imageUrl)}" alt="${escapeHtml(frame.title)}" loading="lazy">` : ""}
+            </div>
+            <div class="frame-body">
+              <div class="video-meta">
+                <div>
+                  <strong>${escapeHtml(cleanVideoTitle(frame.title))}</strong>
+                </div>
+                <div class="links">
+                  ${frame.videoUrl ? `
+                    <a class="link asset-download-link" href="${escapeHtml(frame.videoUrl)}" download="${escapeHtml(filenameFromUrl(frame.videoUrl, frame.title || "video.mp4"))}" target="_blank" rel="noreferrer">下载</a>
+                  ` : ""}
+                </div>
+              </div>
+              <div class="toggle-block prompt-drawer">
+                  <button class="toggle-head prompt-open" type="button" data-title="视频 Prompt" data-subtitle="${escapeHtml(frame.title)}" data-prompt="${escapeHtml(frame.videoPrompt || "未识别")}"><span>视频 Prompt</span><span class="chev">↗</span></button>
+                  <div class="toggle-content"><pre class="prompt-box">${escapeHtml(frame.videoPrompt || "未识别")}</pre></div>
+                </div>
+              </div>
+            </article>
+          `).join("")}
+        </div>
+      </div>
+    `).join("")
+    : '<div class="empty">还没有识别到视频结果。</div>';
+
+  return `
+    <section class="panel" id="videosPanel">
+      <div class="panel-head">
+        <div>
+          <h2>视频结果</h2>
+          <span>可播放片段</span>
+        </div>
+        <span>剪辑片段</span>
+      </div>
+      <div class="panel-body">
+        <div class="media-list">${list}</div>
+      </div>
+    </section>
+  `;
+}
+
+function renderTopFinalVideo(parsed) {
+  return `
+    <section class="panel" id="finalVideo">
+      <div class="panel-head">
+        <div>
+          <h2>成片与原始 JSON</h2>
+          <span>最终视频和源数据并列审阅</span>
+        </div>
+        <span>${escapeHtml(parsed.title)}</span>
+      </div>
+      <div class="panel-body">
+        <div class="final-json-grid">
+          <div class="final-pane">
+            <div class="final-pane-head">
+              <h3>最终剪辑视频</h3>
+              <span>${parsed.media.finalDuration ? `${escapeHtml(parsed.media.finalDuration)}s` : "时长未识别"}</span>
+            </div>
+            ${parsed.media.finalVideoUrl ? `
+              <div class="hero-video-wrap">
+                <video controls preload="metadata" src="${escapeHtml(parsed.media.finalVideoUrl)}"></video>
+              </div>
+            ` : '<div class="empty">还没有识别到最终剪辑视频。</div>'}
+          </div>
+          <div class="raw-json-pane">
+            <div class="raw-json-head">
+              <h3>原始 JSON</h3>
+              <button class="btn ghost prompt-open" type="button" data-title="原始 JSON" data-subtitle="${escapeHtml(lastSourceName)}" data-prompt="${escapeHtml(safeJson(parsed.raw))}">放大查看</button>
+            </div>
+            <pre class="json-view">${escapeHtml(safeJson(parsed.raw))}</pre>
+          </div>
+        </div>
+      </div>
+    </section>
+  `;
+}
+
+function renderPreviewAssetCard(item) {
+  const filename = filenameFromUrl(item.url, item.title || "asset");
+  const actionHtml = `
+    <div class="links">
+      <a class="link asset-download-link" href="${escapeHtml(item.url)}" download="${escapeHtml(filename)}" target="_blank" rel="noreferrer">下载</a>
+    </div>
+  `;
+  let mediaHtml = actionHtml;
+  if (item.type === "image") {
+    mediaHtml = `<div class="preview-thumb"><img src="${escapeHtml(item.url)}" alt="${escapeHtml(item.title)}" loading="lazy"></div>${actionHtml}`;
+  } else if (item.type === "video") {
+    mediaHtml = `<div class="preview-thumb"><video controls preload="metadata" src="${escapeHtml(item.url)}"></video></div>${actionHtml}`;
+  } else if (item.type === "audio") {
+    mediaHtml = `<div class="preview-thumb"><audio controls preload="metadata" src="${escapeHtml(item.url)}"></audio></div>${actionHtml}`;
+  }
+  return `
+    <article class="preview-card">
+      <div class="preview-head">
+        <strong>${escapeHtml(item.title)}</strong>
+        <span class="preview-type">${escapeHtml(item.label)}</span>
+      </div>
+      ${mediaHtml}
+    </article>
+  `;
+}
+
+function openAssetLightbox(url, title, type) {
+  lightboxImageEl.src = url;
+  lightboxImageEl.alt = title || "资产预览";
+  lightboxTitleEl.textContent = title || "资产预览";
+  lightboxTypeEl.textContent = type || "";
+  assetLightboxEl.classList.add("open");
+  assetLightboxEl.setAttribute("aria-hidden", "false");
+}
+
+function openPromptModal(title, subtitle, prompt) {
+  promptModalTitleEl.textContent = title || "Prompt";
+  promptModalSubEl.textContent = subtitle || "";
+  promptModalTextEl.textContent = prompt || "未识别";
+  promptModalEl.classList.add("open");
+  promptModalEl.setAttribute("aria-hidden", "false");
+}
+
+function closePromptModal() {
+  promptModalEl.classList.remove("open");
+  promptModalEl.setAttribute("aria-hidden", "true");
+  promptModalTextEl.textContent = "";
+}
+
+function closeAssetLightbox() {
+  assetLightboxEl.classList.remove("open");
+  assetLightboxEl.setAttribute("aria-hidden", "true");
+  lightboxImageEl.src = "";
+  lightboxImageEl.alt = "";
+}
+
+function renderAll(parsed) {
+  renderStats(parsed);
+  renderSectionNav();
+  mainColumnEl.innerHTML = [
+    renderTopFinalVideo(parsed),
+    renderNarration(parsed),
+    renderAssets(parsed),
+    renderFrames(parsed),
+    renderMedia(parsed)
+  ].join("");
+
+  document.querySelectorAll(".toggle-head").forEach((button) => {
+    if (button.classList.contains("prompt-open")) return;
+    button.addEventListener("click", () => {
+      button.parentElement.classList.toggle("open");
+    });
+  });
+
+  document.querySelectorAll(".collapse-preview-btn").forEach((button) => {
+    button.addEventListener("click", () => {
+      const block = button.closest(".preview-assets-toggle");
+      block?.classList.remove("open");
+      block?.scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+  });
+
+  document.querySelectorAll(".prompt-open").forEach((button) => {
+    button.addEventListener("click", () => {
+      openPromptModal(button.dataset.title, button.dataset.subtitle, button.dataset.prompt);
+    });
+  });
+
+  document.querySelectorAll(".asset-download-link").forEach((link) => {
+    link.addEventListener("click", (event) => {
+      event.preventDefault();
+      downloadAssetToLocal(link.href, link.getAttribute("download"));
+    });
+  });
+
+  document.querySelectorAll(".nav-link").forEach((button) => {
+    button.addEventListener("click", () => {
+      document.getElementById(button.dataset.target)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  });
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      document.querySelectorAll(".nav-link").forEach((button) => {
+        button.classList.toggle("active", button.dataset.target === entry.target.id);
+      });
+    });
+  }, { rootMargin: "-20% 0px -65% 0px", threshold: 0.01 });
+  ["finalVideo", "narrationPanel", "assetsPanel", "framesPanel", "videosPanel"].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) observer.observe(el);
+  });
+
+  document.querySelectorAll(".group-asset").forEach((card) => {
+    card.addEventListener("click", () => {
+      openAssetLightbox(card.dataset.url, card.dataset.title, card.dataset.typeLabel);
+    });
+  });
+
+  mainColumnEl.querySelectorAll("img").forEach((image) => {
+    if (image.closest(".group-asset")) return;
+    image.addEventListener("click", (event) => {
+      event.stopPropagation();
+      openAssetLightbox(image.currentSrc || image.src, image.alt || "图片预览", "图片预览");
+    });
+  });
+}
+
+function updateStatus(message) {
+  statusTextEl.textContent = message;
+}
+
+function triggerBrowserDownload(url, filename) {
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = filename || "asset";
+  anchor.rel = "noreferrer";
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+}
+
+async function downloadAssetToLocal(url, filename) {
+  if (!url) return;
+  const safeName = filename || filenameFromUrl(url, "asset");
+  updateStatus(`正在下载资产：${safeName}`);
+  try {
+    const response = await fetch(url, { mode: "cors" });
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+    const blob = await response.blob();
+    const objectUrl = URL.createObjectURL(blob);
+    triggerBrowserDownload(objectUrl, safeName);
+    URL.revokeObjectURL(objectUrl);
+    updateStatus(`已触发本地下载：${safeName}`);
+  } catch (error) {
+    console.warn("直接下载失败，回退到资源链接", error);
+    updateStatus(`该远程资源未允许直接读取，已改为打开资源链接：${safeName}`);
+    triggerBrowserDownload(url, safeName);
+  }
+}
+
+function downloadText(filename, content, type = "text/plain;charset=utf-8") {
+  const blob = new Blob([content], { type });
+  const url = URL.createObjectURL(blob);
+  triggerBrowserDownload(url, filename);
+  URL.revokeObjectURL(url);
+}
+
+async function parseFile(file) {
+  const buffer = await file.arrayBuffer();
+  const bytes = new Uint8Array(buffer);
+  let text = "";
+
+  if (file.name.endsWith(".gz")) {
+    if ("DecompressionStream" in window) {
+      const ds = new DecompressionStream("gzip");
+      const stream = new Blob([bytes]).stream().pipeThrough(ds);
+      text = await new Response(stream).text();
+    } else {
+      throw new Error("当前浏览器不支持解压 .gz，请先上传 .json 文件。");
+    }
+  } else {
+    text = new TextDecoder("utf-8").decode(bytes);
+  }
+
+  return JSON.parse(text);
+}
+
+async function loadDataObject(data, sourceName) {
+  lastSourceName = sourceName;
+  const parsed = parsePipelineJson(data);
+  lastParsed = parsed;
+  renderAll(parsed);
+  updateStatus(`已解析 ${sourceName}，共识别 ${parsed.urls.length} 个网址。你可以继续切换 URL 或上传新的 JSON。`);
+}
+
+async function loadJsonFromUrl(url) {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`加载失败：HTTP ${response.status}`);
+  }
+  return response.json();
+}
+
+async function handleFile(file) {
+  try {
+    updateStatus(`正在解析 ${file.name}...`);
+    const data = await parseFile(file);
+    await loadDataObject(data, file.name);
+  } catch (error) {
+    console.error(error);
+    updateStatus(`解析失败：${error.message}`);
+  }
+}
+
+fileInputEl.addEventListener("change", (event) => {
+  const [file] = event.target.files || [];
+  if (file) {
+    handleFile(file);
+  }
+});
+
+loadRemoteBtnEl.addEventListener("click", async () => {
+  const url = remoteUrlInputEl.value.trim();
+  if (!url) {
+    updateStatus("请先输入远程 JSON URL。");
+    return;
+  }
+  try {
+    updateStatus(`正在加载远程 URL：${url}`);
+    const data = await loadJsonFromUrl(url);
+    const nextUrl = new URL(window.location.href);
+    nextUrl.searchParams.set("src", url);
+    window.history.replaceState({}, "", nextUrl.toString());
+    await loadDataObject(data, url);
+  } catch (error) {
+    console.error(error);
+    updateStatus(`远程 URL 加载失败：${error.message}。如果是浏览器跨域限制，请先下载 JSON，再用“上传 JSON”导入。`);
+  }
+});
+
+copyShareBtnEl.addEventListener("click", async () => {
+  const url = remoteUrlInputEl.value.trim() || new URLSearchParams(window.location.search).get("src") || "";
+  if (!url) {
+    updateStatus("请先加载一个远程 JSON URL，再复制分享链接。上传的本地文件无法生成远程分享链接。");
+    return;
+  }
+  const shareUrl = new URL(window.location.href);
+  shareUrl.searchParams.set("src", url);
+  try {
+    await navigator.clipboard.writeText(shareUrl.toString());
+    updateStatus("已复制分享链接。外部用户打开该链接后会自动加载同一个 JSON。");
+  } catch {
+    updateStatus(`分享链接：${shareUrl.toString()}`);
+  }
+});
+
+remoteUrlInputEl.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    loadRemoteBtnEl.click();
+  }
+});
+
+themeDotEls.forEach((button) => {
+  button.addEventListener("click", () => {
+    applyTheme(button.dataset.themeValue);
+  });
+});
+
+applyTheme("blue");
+
+const initialRemote = new URLSearchParams(window.location.search).get("src");
+if (initialRemote) {
+  remoteUrlInputEl.value = initialRemote;
+  loadRemoteBtnEl.click();
+}
+
+summaryEl.innerHTML = `
+  <div class="stat"><div class="value">0</div><div class="label">旁白段数</div></div>
+  <div class="stat"><div class="value">0</div><div class="label">资产数量</div></div>
+  <div class="stat"><div class="value">0</div><div class="label">关键帧组</div></div>
+  <div class="stat"><div class="value">0</div><div class="label">视频结果</div></div>
+  <div class="stat"><div class="value">0</div><div class="label">可预览资产</div></div>
+`;
+
+mainColumnEl.innerHTML = `
+  <section class="panel">
+    <div class="panel-head"><div><h2>准备就绪</h2><span>上传后自动渲染</span></div></div>
+    <div class="panel-body">
+      <div class="empty">面板已经搭好。你把参考 JSON 发来后，我们可以继续把字段映射从“通用抽取”收紧成“精确字段版”。</div>
+    </div>
+  </section>
+`;
+
+lightboxCloseBtnEl.addEventListener("click", closeAssetLightbox);
+promptCloseBtnEl.addEventListener("click", closePromptModal);
+assetLightboxEl.addEventListener("click", (event) => {
+  if (event.target === assetLightboxEl) {
+    closeAssetLightbox();
+  }
+});
+promptModalEl.addEventListener("click", (event) => {
+  if (event.target === promptModalEl) {
+    closePromptModal();
+  }
+});
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && assetLightboxEl.classList.contains("open")) {
+    closeAssetLightbox();
+  }
+  if (event.key === "Escape" && promptModalEl.classList.contains("open")) {
+    closePromptModal();
+  }
+});
+</script>
+</body>
+</html>
