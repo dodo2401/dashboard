@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JSON 流程可视化面板</title>
+<title>L3-lab自动化流水线</title>
 <meta name="description" content="上传或远程加载 AI 动画流水线 node_outputs.json，在线查看成片、原始 JSON、旁白、资产、关键帧和视频结果。">
 <style>
 :root{
@@ -379,6 +379,60 @@ input[type="file"]{display:none}
   border:1px solid var(--line);
   background:var(--panel);
 }
+.episode-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:10px;
+  margin-bottom:14px;
+}
+.episode-card{
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:var(--panel-soft);
+  padding:12px;
+}
+.episode-card strong{
+  display:block;
+  font-size:14px;
+  margin-bottom:6px;
+}
+.episode-card span{
+  display:block;
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.6;
+}
+.narration-scene{
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:var(--panel);
+  padding:12px;
+  margin-bottom:12px;
+}
+.narration-scene-head{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  align-items:center;
+  margin-bottom:10px;
+}
+.narration-scene-head h3{
+  margin:0;
+  font-size:14px;
+}
+.narration-list{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+.narration-item{
+  padding:8px 10px;
+  border-radius:8px;
+  background:var(--panel-soft);
+  color:var(--text);
+  font-size:13px;
+  line-height:1.55;
+}
 .segment-top{
   display:flex;
   gap:10px;
@@ -440,9 +494,6 @@ input[type="file"]{display:none}
   background:var(--panel);
 }
 .asset-cover{
-  aspect-ratio:16/10;
-  min-height:150px;
-  max-height:240px;
   background:var(--surface-2, #edf2ee);
   display:grid;
   place-items:center;
@@ -450,8 +501,9 @@ input[type="file"]{display:none}
 }
 .asset-cover img{
   width:100%;
-  height:100%;
-  object-fit:contain;
+  height:auto;
+  max-height:none;
+  object-fit:initial;
   display:block;
   cursor:zoom-in;
 }
@@ -980,7 +1032,7 @@ a.link{
   <section class="hero">
     <div class="load-shell">
       <div>
-        <h1>AI 动画流水线面板</h1>
+        <h1>L3-lab自动化流水线</h1>
         <p>远程加载 JSON URL，或上传本地 JSON 文件，即可在线审阅成片、资产、关键帧和视频结果。</p>
       </div>
       <div class="source-row">
@@ -1167,6 +1219,34 @@ function pickMappedImage(name, mapLike) {
   return "";
 }
 
+function resolveGroupAssetUrl(item, assets) {
+  if (item.url) return item.url;
+  const candidates = assets || [];
+  const target = normalizeAssetName(item.name);
+  const mapped = candidates.find((asset) => {
+    const assetName = normalizeAssetName(asset.name);
+    return asset.image && (
+      assetName === target
+      || assetName.startsWith(target)
+      || target.startsWith(assetName)
+      || assetName.includes(target)
+      || target.includes(assetName)
+    );
+  });
+  return mapped?.image || "";
+}
+
+function inferGroupAssetsFromPrompt(promptText, assets) {
+  const text = String(promptText || "");
+  return (assets || [])
+    .filter((asset) => asset.image && asset.name && text.includes(asset.name.split("_")[0]))
+    .map((asset) => ({
+      name: asset.name,
+      type: asset.type === "角色" ? "character" : asset.type === "场景" ? "scene" : "asset",
+      url: asset.image
+    }));
+}
+
 function countCharacters(text) {
   return String(text || "").replace(/\s+/g, "").length;
 }
@@ -1222,6 +1302,24 @@ function pickFirst(obj, paths) {
 }
 
 function normalizeNarrationSegments(data) {
+  const scenes = pickFirst(data, ["scenes"]) || [];
+  if (Array.isArray(scenes) && scenes.some((scene) => scene?.narration_split?.narration_segments?.length)) {
+    return scenes.flatMap((scene, sceneIndex) => {
+      const rawSegments = scene.narration_split?.narration_segments || [];
+      return rawSegments.map((item, index) => {
+        const text = typeof item === "string"
+          ? item
+          : pickFirst(item, ["原文内容", "text", "content", "narration_text", "sentence", "旁白"]);
+        return {
+          sceneIndex: scene.scene_index ?? sceneIndex + 1,
+          index,
+          text: shortText(text || safeJson(item)),
+          raw: item
+        };
+      });
+    });
+  }
+
   const raw = pickFirst(data, [
     "node_outputs.N02.result.narration_segments",
     "steps.narration_split.narration_segments",
@@ -1256,6 +1354,20 @@ function normalizeNarrationSegments(data) {
     });
   }
   return [{ index: 0, text: shortText(raw), raw }];
+}
+
+function normalizeEpisodes(data) {
+  const scenes = pickFirst(data, ["scenes"]) || [];
+  if (!Array.isArray(scenes)) return [];
+  return scenes.map((scene, index) => ({
+    sceneIndex: scene.scene_index ?? index + 1,
+    title: `分集 / 场景 ${scene.scene_index ?? index + 1}`,
+    duration: scene.scene_duration || "",
+    videoUrl: scene.scene_video_url || "",
+    narrationCount: scene.narration_split?.narration_segments?.length || 0,
+    segmentCount: scene.segments?.length || 0,
+    raw: scene.narration_split || {}
+  }));
 }
 
 function normalizeAssets(data) {
@@ -1341,6 +1453,51 @@ function normalizeAssets(data) {
   return assets;
 }
 
+function parsePromptJson(value) {
+  if (!value) return {};
+  if (typeof value === "object") return value;
+  const text = String(value);
+  const jsonStart = text.indexOf("{");
+  if (jsonStart < 0) return {};
+  try {
+    return JSON.parse(text.slice(jsonStart));
+  } catch {
+    return {};
+  }
+}
+
+function extractGroupShots(group) {
+  const parsedPrompt = parsePromptJson(group.grid_prompt);
+  let shots = Array.isArray(parsedPrompt.s) ? parsedPrompt.s : [];
+  if (!shots.length && Array.isArray(group.single_prompts)) {
+    shots = group.single_prompts.flatMap((item) => {
+      const parsed = parsePromptJson(item);
+      return Array.isArray(parsed.s) ? parsed.s : [];
+    });
+  }
+  if (!shots.length && Array.isArray(group.prompts)) {
+    shots = group.prompts.flatMap((item) => {
+      const parsed = parsePromptJson(item);
+      return Array.isArray(parsed.s) ? parsed.s : [];
+    });
+  }
+  if (!shots.length && Array.isArray(group.segment_indices)) {
+    shots = group.segment_indices.map((index) => ({ id: `镜头 ${Number(index) + 1}` }));
+  }
+  return shots;
+}
+
+function buildGroupPromptText(group) {
+  if (group.grid_prompt) return group.grid_prompt;
+  if (Array.isArray(group.single_prompts) && group.single_prompts.length) {
+    return safeJson(group.single_prompts);
+  }
+  if (Array.isArray(group.prompts) && group.prompts.length) {
+    return safeJson(group.prompts);
+  }
+  return "";
+}
+
 function normalizeFrames(data) {
   const frames = [];
   const scenesForSegments = pickFirst(data, ["scenes"]) || [];
@@ -1366,55 +1523,61 @@ function normalizeFrames(data) {
   const videoPromptMap = new Map(videoPrompts.map((item, index) => [item.segment_index ?? index, item.video_prompt || item.prompt]));
 
   const segmentMap = new Map();
-  scenesForSegments.forEach((scene) => {
+  scenesForSegments.forEach((scene, sceneIndex) => {
     (scene.segments || []).forEach((segment, idx) => {
       const segmentIndex = segment.segment_index ?? idx;
       segmentMap.set(segmentIndex, segment);
+      segmentMap.set(`${sceneIndex}:${segmentIndex}`, segment);
     });
   });
 
-  const groups = pickFirst(data, [
-    "node_outputs.N04.result.prompt_groups",
-    "scenes.0.keyframe_prompts.prompt_groups"
+  const nodePromptGroups = pickFirst(data, [
+    "node_outputs.N04.result.prompt_groups"
   ]) || [];
+  const scenePromptGroups = scenesForSegments.flatMap((scene, sceneIndex) => (
+    (scene.keyframe_prompts?.prompt_groups || []).map((group) => ({
+      group,
+      scene,
+      sceneIndex
+    }))
+  ));
+  const groups = nodePromptGroups.length
+    ? nodePromptGroups.map((group) => ({ group, scene: null, sceneIndex: null }))
+    : scenePromptGroups;
 
   if (groups.length) {
     let runningIndex = 0;
-    groups.forEach((group, groupIndex) => {
-      const promptText = group.grid_prompt || "";
-      let parsedPrompt = {};
-      const jsonStart = promptText.indexOf("{");
-      if (jsonStart >= 0) {
-        try {
-          parsedPrompt = JSON.parse(promptText.slice(jsonStart));
-        } catch {}
-      }
-      const shots = parsedPrompt.s || group.shots || [];
+    groups.forEach(({ group, scene, sceneIndex }, groupIndex) => {
+      const promptText = buildGroupPromptText(group);
+      const shots = extractGroupShots(group);
       const groupAssets = (group.ref_image_mapping || []).map((item) => ({
         name: item.name || "",
         type: item.type || "asset",
-        url: item.url || ""
+        url: item.url || item.image_url || item.ref_image_url || ""
       }));
       shots.forEach((shot, shotIndex) => {
-        const segmentIndex = runningIndex;
-        const segment = segmentMap.get(segmentIndex) || {};
+        const localSegmentIndex = group.segment_indices?.[shotIndex] ?? shot.segment_index ?? shotIndex;
+        const segmentIndex = scene ? runningIndex : localSegmentIndex;
+        const segment = scene
+          ? (scene.segments || []).find((item, index) => (item.segment_index ?? index) === localSegmentIndex) || {}
+          : segmentMap.get(localSegmentIndex) || {};
         frames.push({
           segmentIndex,
           groupIndex,
           orderInGroup: shotIndex + 1,
-          title: shot.id || `镜头 ${segmentIndex + 1}`,
+          title: shot.id || `镜头 ${Number(localSegmentIndex) + 1}`,
           groupPrompt: promptText,
           arc: shot.arc || "",
           narration: shot.src || segment.narration_text || "",
           cam: shot.cam || "",
-          imageUrl: keyframeUrlMap.get(segmentIndex) || pickFirst(segment, ["keyframe.image_url", "image_url"]) || shot.image_url || "",
+          imageUrl: pickFirst(segment, ["keyframe.image_url", "image_url"]) || keyframeUrlMap.get(localSegmentIndex) || shot.image_url || "",
           keyframePrompt: shot.prompt || pickFirst(segment, ["keyframe.prompt", "prompt"]) || "",
-          videoPrompt: videoPromptMap.get(segmentIndex) || pickFirst(segment, ["video.video_prompt", "video_prompt"]) || "",
+          videoPrompt: pickFirst(segment, ["video.video_prompt", "video_prompt"]) || videoPromptMap.get(localSegmentIndex) || "",
           spatial: shot.spatial || "",
           visual: shot.vis || "",
           check: shot.check || "",
-          videoUrl: videoMap.get(segmentIndex)?.video_url || pickFirst(segment, ["video.video_url", "video_url"]) || "",
-          audioUrl: audioMap.get(segmentIndex)?.audio_url || pickFirst(segment, ["tts.audio_url", "audio_url"]) || "",
+          videoUrl: pickFirst(segment, ["video.video_url", "video_url", "merged.merged_video_url"]) || videoMap.get(localSegmentIndex)?.video_url || "",
+          audioUrl: pickFirst(segment, ["tts.audio_url", "audio_url"]) || audioMap.get(localSegmentIndex)?.audio_url || "",
           groupAssets,
           raw: segment && Object.keys(segment).length ? { shot, segment } : shot
         });
@@ -1586,6 +1749,7 @@ function parsePipelineJson(data) {
   ]) || flattenStrings(pickFirst(data, ["node_outputs.N02.input", "global_config"]) || {}).join("\n");
 
   const narrationSegments = normalizeNarrationSegments(data);
+  const episodes = normalizeEpisodes(data);
   const assets = sortedAssets(normalizeAssets(data));
   const frames = normalizeFrames(data);
   const media = normalizeMedia(data, frames);
@@ -1596,6 +1760,7 @@ function parsePipelineJson(data) {
     title: pickFirst(data, ["title", "global_config.title", "story_title", "name", "run_id", "dag_id"]) || "未命名项目",
     rawText: rawTextSource || narrationSegments.map((item) => item.text).join(""),
     rawCharacterCount: countCharacters(rawTextSource || narrationSegments.map((item) => item.text).join("")),
+    episodes,
     narrationSegments,
     assets,
     frames,
@@ -1636,7 +1801,38 @@ function renderSectionNav() {
 }
 
 function renderNarration(parsed) {
-  const raw = parsed.narrationSegments.map((item) => item.raw);
+  const episodeCards = parsed.episodes?.length ? `
+    <div class="episode-grid">
+      ${parsed.episodes.map((episode) => `
+        <article class="episode-card">
+          <strong>${escapeHtml(episode.title)}</strong>
+          <span>旁白切分：${escapeHtml(episode.narrationCount)} 条</span>
+          <span>成片段落：${escapeHtml(episode.segmentCount)} 条</span>
+          <span>${episode.duration ? `时长：${escapeHtml(Number(episode.duration).toFixed(2))}s` : "时长未识别"}</span>
+        </article>
+      `).join("")}
+    </div>
+  ` : "";
+  const grouped = new Map();
+  parsed.narrationSegments.forEach((item) => {
+    const key = item.sceneIndex || 1;
+    if (!grouped.has(key)) grouped.set(key, []);
+    grouped.get(key).push(item);
+  });
+  const groupedHtml = parsed.episodes?.length ? [...grouped.entries()].map(([sceneIndex, items]) => `
+    <section class="narration-scene">
+      <div class="narration-scene-head">
+        <h3>分集 / 场景 ${escapeHtml(sceneIndex)}</h3>
+        <span class="tag">${escapeHtml(items.length)} 条旁白</span>
+      </div>
+      <div class="narration-list">
+        ${items.map((item) => `<div class="narration-item">${escapeHtml(item.text)}</div>`).join("")}
+      </div>
+    </section>
+  `).join("") : `<pre class="json-view">${escapeHtml(safeJson(parsed.narrationSegments.map((item) => item.raw)))}</pre>`;
+  const raw = parsed.episodes?.length
+    ? parsed.episodes.map((episode) => ({ scene_index: episode.sceneIndex, narration_split: episode.raw }))
+    : parsed.narrationSegments.map((item) => item.raw);
   return `
     <section class="panel" id="narrationPanel">
       <div class="panel-head">
@@ -1644,10 +1840,11 @@ function renderNarration(parsed) {
           <h2>1. 旁白切分</h2>
           <span>${escapeHtml(parsed.narrationSegments.length)} 段</span>
         </div>
-        <span>原始输出字段</span>
+        <button class="btn ghost prompt-open" type="button" data-title="旁白切分原始输出" data-subtitle="按分集 / 场景聚合" data-prompt="${escapeHtml(safeJson(raw))}">查看原始字段</button>
       </div>
       <div class="panel-body">
-        <pre class="json-view">${escapeHtml(safeJson(raw))}</pre>
+        ${episodeCards}
+        ${groupedHtml}
       </div>
     </section>
   `;
@@ -1731,17 +1928,19 @@ function renderGroupAssets(frames, parsed) {
   const dedupedExplicit = [];
   const seen = new Set();
   explicitAssets.forEach((item) => {
-    const key = `${item.type}|${item.name}|${item.url}`;
-    if (item.url && !seen.has(key)) {
+    const url = resolveGroupAssetUrl(item, parsed.assets);
+    const key = `${item.type}|${item.name}|${url}`;
+    if (url && !seen.has(key)) {
       seen.add(key);
-      dedupedExplicit.push(item);
+      dedupedExplicit.push({ ...item, url });
     }
   });
+  const inferredAssets = frames.flatMap((frame) => inferGroupAssetsFromPrompt(frame.groupPrompt || frame.keyframePrompt || "", parsed.assets));
   const sceneFallback = (parsed.assets || [])
     .filter((asset) => asset.type === "场景" && asset.image)
     .map((asset) => ({ name: asset.name, type: "scene", url: asset.image }));
   const allGroupAssets = [...dedupedExplicit];
-  sceneFallback.forEach((item) => {
+  [...inferredAssets, ...sceneFallback].forEach((item) => {
     const key = `${item.type}|${item.name}|${item.url}`;
     if (!seen.has(key)) {
       seen.add(key);
@@ -1759,6 +1958,20 @@ function renderGroupAssets(frames, parsed) {
           </div>
         </article>
       `).join("")}
+    </div>
+  ` : "";
+}
+
+function renderGroupContextAssets(frames, parsed) {
+  const html = renderGroupAssets(frames, parsed);
+  return html ? `
+    <div class="toggle-block group-control">
+      <button class="toggle-head" type="button">
+        <span>展开本组关联资产</span>
+        <small>角色 / 场景 / 道具</small>
+        <span class="chev">▶</span>
+      </button>
+      <div class="toggle-content">${html}</div>
     </div>
   ` : "";
 }
@@ -1881,6 +2094,7 @@ function renderMedia(parsed) {
         <div class="panel-head" style="padding:0 0 10px;border:none">
           <div><h2 style="font-size:16px;margin:0">视频结果</h2><span>视频片段</span></div>
         </div>
+        ${renderGroupContextAssets(frames, parsed)}
         <div class="frames-grid">
           ${frames.map((frame) => `
             <article class="frame">
@@ -2153,6 +2367,24 @@ async function parseFile(file) {
   return JSON.parse(text);
 }
 
+async function decodeJsonBuffer(buffer, sourceName = "JSON") {
+  const bytes = new Uint8Array(buffer);
+  let text = "";
+  const isGzip = bytes[0] === 0x1f && bytes[1] === 0x8b;
+  if (isGzip) {
+    if ("DecompressionStream" in window) {
+      const ds = new DecompressionStream("gzip");
+      const stream = new Blob([bytes]).stream().pipeThrough(ds);
+      text = await new Response(stream).text();
+    } else {
+      throw new Error(`当前浏览器不支持解压 gzip，请先下载 ${sourceName} 后解压为 .json 再上传。`);
+    }
+  } else {
+    text = new TextDecoder("utf-8").decode(bytes);
+  }
+  return JSON.parse(text);
+}
+
 async function loadDataObject(data, sourceName) {
   lastSourceName = sourceName;
   const parsed = parsePipelineJson(data);
@@ -2166,7 +2398,8 @@ async function loadJsonFromUrl(url) {
   if (!response.ok) {
     throw new Error(`加载失败：HTTP ${response.status}`);
   }
-  return response.json();
+  const buffer = await response.arrayBuffer();
+  return decodeJsonBuffer(buffer, url);
 }
 
 async function handleFile(file) {
