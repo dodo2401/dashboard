@@ -1301,6 +1301,66 @@ function pickFirst(obj, paths) {
   return undefined;
 }
 
+function isFinalProcessConf(data) {
+  return data && (
+    Array.isArray(data.scene_results)
+    || data.asset_prompt_result
+    || data.asset_image_result
+  );
+}
+
+async function enrichFinalProcessConf(data) {
+  if (!isFinalProcessConf(data)) return data;
+  const sourceScenes = Array.isArray(data.scene_results) ? data.scene_results : [];
+  const enrichedScenes = await Promise.all(sourceScenes.map(async (scene, index) => {
+    let debugData = null;
+    if (scene.debug_data_url) {
+      try {
+        debugData = await loadJsonFromUrl(scene.debug_data_url);
+      } catch (error) {
+        console.warn("debug_data_url 加载失败，使用 conf 内置瘦身数据", scene.debug_data_url, error);
+      }
+    }
+    const merged = {
+      ...scene,
+      ...(debugData || {})
+    };
+    return {
+      ...merged,
+      scene_index: merged.scene_index ?? index + 1,
+      scene_video_url: scene.scene_video_url || scene.scene_concat?.scene_video_url || merged.scene_concat?.scene_video_url || "",
+      scene_duration: scene.duration || scene.scene_concat?.duration || merged.scene_concat?.duration || "",
+      duration: scene.duration || merged.duration || merged.scene_concat?.duration || "",
+      segments: debugData?.segments_full || merged.segments_full || scene.segments || merged.segments || []
+    };
+  }));
+  const finalScene = enrichedScenes.find((scene) => scene.scene_video_url) || enrichedScenes[0] || {};
+  const totalSegments = enrichedScenes.reduce((sum, scene) => sum + (scene.segments?.length || scene.summary?.segment_count || 0), 0);
+  return {
+    ...data,
+    run_id: data.run_id || filenameFromUrl(location.href, "final_process_conf").replace(/\.json$/i, ""),
+    success: data.success ?? sourceScenes.every((scene) => scene.success !== false),
+    global_config: {
+      ...(data.global_config || {}),
+      voice_id: data.voice_id || data.global_config?.voice_id || "",
+      scene_count: enrichedScenes.length,
+      total_segments: totalSegments
+    },
+    steps: {
+      ...(data.steps || {}),
+      asset_prompt: data.steps?.asset_prompt || data.asset_prompt_result || {},
+      asset_image: data.steps?.asset_image || data.asset_image_result || {}
+    },
+    scenes: enrichedScenes,
+    final_concat: {
+      ...(data.final_concat || {}),
+      final_video_url: data.final_concat?.final_video_url || finalScene.scene_video_url || finalScene.scene_concat?.scene_video_url || "",
+      duration: data.final_concat?.duration || finalScene.scene_duration || finalScene.duration || finalScene.scene_concat?.duration || ""
+    },
+    final_video_url: data.final_video_url || finalScene.scene_video_url || finalScene.scene_concat?.scene_video_url || ""
+  };
+}
+
 function normalizeNarrationSegments(data) {
   const scenes = pickFirst(data, ["scenes"]) || [];
   if (Array.isArray(scenes) && scenes.some((scene) => scene?.narration_split?.narration_segments?.length)) {
@@ -2387,7 +2447,8 @@ async function decodeJsonBuffer(buffer, sourceName = "JSON") {
 
 async function loadDataObject(data, sourceName) {
   lastSourceName = sourceName;
-  const parsed = parsePipelineJson(data);
+  const normalizedData = await enrichFinalProcessConf(data);
+  const parsed = parsePipelineJson(normalizedData);
   lastParsed = parsed;
   renderAll(parsed);
   updateStatus(`已解析 ${sourceName}，共识别 ${parsed.urls.length} 个网址。你可以继续切换 URL 或上传新的 JSON。`);
