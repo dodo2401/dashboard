@@ -931,6 +931,44 @@ a.link{
   width:100%;
   margin-top:10px;
 }
+.scene-video-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+  gap:14px;
+  margin-bottom:18px;
+}
+.scene-video-card{
+  padding:12px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:var(--panel-soft);
+}
+.scene-video-card video{
+  width:100%;
+  aspect-ratio:16/9;
+  border-radius:10px;
+  background:#101820;
+  display:block;
+}
+.scene-video-head{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  align-items:flex-start;
+  margin:10px 0 0;
+}
+.scene-video-head strong{
+  font-size:13px;
+  line-height:1.35;
+}
+.scene-video-meta{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:6px;
+  color:var(--muted);
+  font-size:12px;
+}
 .final-json-grid{
   display:grid;
   grid-template-columns:minmax(280px,.9fr) minmax(360px,1.1fr);
@@ -1422,8 +1460,8 @@ function normalizeEpisodes(data) {
   return scenes.map((scene, index) => ({
     sceneIndex: scene.scene_index ?? index + 1,
     title: `分集 / 场景 ${scene.scene_index ?? index + 1}`,
-    duration: scene.scene_duration || "",
-    videoUrl: scene.scene_video_url || "",
+    duration: scene.scene_duration || scene.duration || scene.scene_concat?.duration || "",
+    videoUrl: scene.scene_video_url || scene.scene_concat?.scene_video_url || "",
     narrationCount: scene.narration_split?.narration_segments?.length || 0,
     segmentCount: scene.segments?.length || 0,
     raw: scene.narration_split || {}
@@ -1558,9 +1596,100 @@ function buildGroupPromptText(group) {
   return "";
 }
 
+function normalizeAssetRef(item) {
+  if (!item || typeof item !== "object") return null;
+  const url = item.url || item.image_url || item.ref_image_url || "";
+  const name = item.name || item.asset_name || item.character_name || item.scene_name || "";
+  return {
+    assetId: item.asset_id || item.character_id || item.scene_id || item.prop_id || "",
+    name,
+    type: item.type || item.asset_type || "asset",
+    role: item.role || "",
+    url,
+    confidence: item.binding_confidence || item.confidence || ""
+  };
+}
+
+function normalizeAssetRefList(items) {
+  return (Array.isArray(items) ? items : [])
+    .map(normalizeAssetRef)
+    .filter((item) => item && (item.url || item.name || item.assetId));
+}
+
+function uniqueBy(items, keyFn) {
+  const seen = new Set();
+  return (items || []).filter((item) => {
+    const key = keyFn(item);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function normalizeAssetBindings(data) {
+  const roots = [
+    pickFirst(data, ["steps.asset_binding", "asset_binding", "node_outputs.N04_asset_binding.result"])
+  ].filter(Boolean);
+
+  Object.values(data?.node_outputs || {}).forEach((node) => {
+    const result = node?.result || node;
+    if (result?.segment_asset_bindings || result?.group_ref_image_mapping) {
+      roots.push(result);
+    }
+  });
+
+  (pickFirst(data, ["scenes"]) || []).forEach((scene, sceneIndex) => {
+    const binding = scene?.asset_binding || scene?.asset_bindings;
+    if (binding) {
+      roots.push({
+        ...binding,
+        scene_index: scene.scene_index ?? sceneIndex + 1
+      });
+    }
+  });
+
+  const groupMap = new Map();
+  const segmentMap = new Map();
+  const reports = [];
+  const addMapItems = (map, key, items) => {
+    const refs = normalizeAssetRefList(items);
+    if (!refs.length) return;
+    map.set(key, uniqueBy([...(map.get(key) || []), ...refs], (item) => `${item.type}|${item.assetId}|${item.name}|${item.url}`));
+  };
+
+  roots.forEach((root) => {
+    const sceneIndex = root.scene_index ?? root.sceneIndex ?? "";
+    const groupIndex = root.group_index ?? root.groupIndex ?? "";
+    addMapItems(groupMap, `${sceneIndex}:${groupIndex}`, root.group_ref_image_mapping || root.ref_image_mapping);
+    addMapItems(groupMap, `${groupIndex}`, root.group_ref_image_mapping || root.ref_image_mapping);
+
+    (root.segment_asset_bindings || root.segment_bindings || []).forEach((binding) => {
+      const segmentIndex = binding.segment_index ?? binding.segmentIndex ?? binding.sentence_index ?? binding.index;
+      const bindingGroupIndex = binding.group_index ?? binding.groupIndex ?? groupIndex;
+      const refs = binding.ref_image_mapping || binding.segment_ref_image_mapping || [];
+      addMapItems(segmentMap, `${sceneIndex}:${bindingGroupIndex}:${segmentIndex}`, refs);
+      addMapItems(segmentMap, `${bindingGroupIndex}:${segmentIndex}`, refs);
+      addMapItems(segmentMap, `${segmentIndex}`, refs);
+    });
+
+    if (root.quality_report) reports.push(root.quality_report);
+  });
+
+  return { groupMap, segmentMap, reports };
+}
+
+function pickMappedRefs(map, keys) {
+  for (const key of keys) {
+    const items = map.get(String(key));
+    if (items?.length) return items;
+  }
+  return [];
+}
+
 function normalizeFrames(data) {
   const frames = [];
   const scenesForSegments = pickFirst(data, ["scenes"]) || [];
+  const assetBindings = normalizeAssetBindings(data);
 
   const keyframeImages = pickFirst(data, [
     "node_outputs.N05.result.keyframe_images"
@@ -1610,7 +1739,13 @@ function normalizeFrames(data) {
     groups.forEach(({ group, scene, sceneIndex }, groupIndex) => {
       const promptText = buildGroupPromptText(group);
       const shots = extractGroupShots(group);
-      const groupAssets = (group.ref_image_mapping || []).map((item) => ({
+      const groupAssets = normalizeAssetRefList(group.ref_image_mapping).concat(pickMappedRefs(assetBindings.groupMap, [
+        `${sceneIndex ?? ""}:${group.group_index ?? groupIndex}`,
+        `${sceneIndex ?? ""}:${groupIndex}`,
+        `${group.group_index ?? groupIndex}`,
+        `${groupIndex}`
+      ])).map((item) => ({
+        assetId: item.assetId || "",
         name: item.name || "",
         type: item.type || "asset",
         url: item.url || item.image_url || item.ref_image_url || ""
@@ -1621,6 +1756,14 @@ function normalizeFrames(data) {
         const segment = scene
           ? (scene.segments || []).find((item, index) => (item.segment_index ?? index) === localSegmentIndex) || {}
           : segmentMap.get(localSegmentIndex) || {};
+        const segmentAssets = pickMappedRefs(assetBindings.segmentMap, [
+          `${sceneIndex ?? ""}:${group.group_index ?? groupIndex}:${localSegmentIndex}`,
+          `${sceneIndex ?? ""}:${groupIndex}:${localSegmentIndex}`,
+          `${group.group_index ?? groupIndex}:${localSegmentIndex}`,
+          `${groupIndex}:${localSegmentIndex}`,
+          `${localSegmentIndex}`,
+          `${segmentIndex}`
+        ]);
         frames.push({
           segmentIndex,
           groupIndex,
@@ -1639,6 +1782,7 @@ function normalizeFrames(data) {
           videoUrl: pickFirst(segment, ["video.video_url", "video_url", "merged.merged_video_url"]) || videoMap.get(localSegmentIndex)?.video_url || "",
           audioUrl: pickFirst(segment, ["tts.audio_url", "audio_url"]) || audioMap.get(localSegmentIndex)?.audio_url || "",
           groupAssets,
+          segmentAssets,
           raw: segment && Object.keys(segment).length ? { shot, segment } : shot
         });
         runningIndex += 1;
@@ -1702,6 +1846,38 @@ function normalizeFrames(data) {
   return frames;
 }
 
+function normalizeSceneVideos(data) {
+  const candidates = [];
+  const sceneLists = [
+    pickFirst(data, ["scenes"]),
+    pickFirst(data, ["scene_results"]),
+    pickFirst(data, ["final_process.scene_results"])
+  ].filter(Array.isArray);
+
+  sceneLists.forEach((scenes) => {
+    scenes.forEach((scene, index) => {
+      const url = scene.scene_video_url || scene.scene_concat?.scene_video_url || scene.video_url || "";
+      if (!url) return;
+      const sceneIndex = scene.scene_index ?? scene.index ?? index + 1;
+      candidates.push({
+        title: `分集 / 场景 ${sceneIndex}`,
+        sceneIndex,
+        url,
+        duration: scene.scene_duration || scene.duration || scene.scene_concat?.duration || "",
+        segmentCount: scene.segments?.length || scene.summary?.segment_count || scene.narration_split?.narration_segments?.length || 0,
+        debugUrl: scene.debug_data_url || scene.debug_url || ""
+      });
+    });
+  });
+
+  const seen = new Set();
+  return candidates.filter((item) => {
+    if (seen.has(item.url)) return false;
+    seen.add(item.url);
+    return true;
+  }).sort((a, b) => Number(a.sceneIndex) - Number(b.sceneIndex));
+}
+
 function normalizeMedia(data, frames) {
   const finalVideoUrl = pickFirst(data, [
     "node_outputs.N09.result.final_video_url",
@@ -1720,10 +1896,12 @@ function normalizeMedia(data, frames) {
     videoUrl: frame.videoUrl,
     audioUrl: frame.audioUrl
   }));
+  const sceneVideos = normalizeSceneVideos(data);
 
   return {
     finalVideoUrl,
     finalDuration,
+    sceneVideos,
     items
   };
 }
@@ -1777,6 +1955,14 @@ function normalizePreviewAssets(data, parsedAssets, frames, media) {
       url: media.finalVideoUrl
     });
   }
+  (media.sceneVideos || []).forEach((video) => {
+    items.push({
+      type: "video",
+      label: "分集视频",
+      title: video.title,
+      url: video.url
+    });
+  });
 
   unique(collectUrls(data)).forEach((url) => {
     items.push({
@@ -1836,7 +2022,7 @@ function renderStats(parsed) {
     ["旁白段数", parsed.narrationSegments.length],
     ["资产数量", parsed.assets.length],
     ["关键帧组", new Set(parsed.frames.map((item) => item.groupIndex ?? 0)).size],
-    ["视频结果", parsed.media.items.length],
+    ["视频结果", parsed.media.items.length + (parsed.media.sceneVideos?.length || 0)],
     ["可预览资产", parsed.previewAssets.length]
   ];
   summaryEl.innerHTML = stats.map(([label, value]) => `
@@ -1984,7 +2170,10 @@ function renderAssets(parsed) {
 }
 
 function renderGroupAssets(frames, parsed) {
-  const explicitAssets = frames.flatMap((frame) => frame.groupAssets || []);
+  const explicitAssets = frames.flatMap((frame) => [
+    ...(frame.segmentAssets || []),
+    ...(frame.groupAssets || [])
+  ]);
   const dedupedExplicit = [];
   const seen = new Set();
   explicitAssets.forEach((item) => {
@@ -2147,6 +2336,32 @@ function renderMedia(parsed) {
     if (!groups.has(key)) groups.set(key, []);
     groups.get(key).push(frame);
   });
+  const sceneVideoList = parsed.media.sceneVideos?.length
+    ? `
+      <div class="panel-head" style="padding:0 0 10px;border:none">
+        <div><h2 style="font-size:16px;margin:0">分集视频</h2><span>${escapeHtml(parsed.media.sceneVideos.length)} 个场景成片</span></div>
+      </div>
+      <div class="scene-video-grid">
+        ${parsed.media.sceneVideos.map((video) => `
+          <article class="scene-video-card">
+            <video controls preload="metadata" src="${escapeHtml(video.url)}"></video>
+            <div class="scene-video-head">
+              <div>
+                <strong>${escapeHtml(video.title)}</strong>
+                <div class="scene-video-meta">
+                  ${video.duration ? `<span>${escapeHtml(Number.isFinite(Number(video.duration)) ? Number(video.duration).toFixed(1) : video.duration)}s</span>` : ""}
+                  ${video.segmentCount ? `<span>${escapeHtml(video.segmentCount)} 个镜头</span>` : ""}
+                </div>
+              </div>
+              <div class="links">
+                <a class="link asset-download-link" href="${escapeHtml(video.url)}" download="${escapeHtml(filenameFromUrl(video.url, `${video.title}.mp4`))}" target="_blank" rel="noreferrer">下载</a>
+              </div>
+            </div>
+          </article>
+        `).join("")}
+      </div>
+    `
+    : "";
 
   const list = parsed.frames.length
     ? [...groups.entries()].map(([groupIndex, frames]) => `
@@ -2189,11 +2404,12 @@ function renderMedia(parsed) {
       <div class="panel-head">
         <div>
           <h2>视频结果</h2>
-          <span>可播放片段</span>
+          <span>分集视频与镜头片段</span>
         </div>
-        <span>剪辑片段</span>
+        <span>${escapeHtml(parsed.media.sceneVideos?.length || 0)} 个分集 / ${escapeHtml(parsed.media.items.length)} 个镜头</span>
       </div>
       <div class="panel-body">
+        ${sceneVideoList}
         <div class="media-list">${list}</div>
       </div>
     </section>
