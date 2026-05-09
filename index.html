@@ -254,7 +254,7 @@ input[type="file"]{display:none}
 .theme-dot[data-theme-value="dark-amber"]{--dot-a:#04080f;--dot-b:#0ea5e9}
 .summary{
   display:grid;
-  grid-template-columns:repeat(5, minmax(0,1fr));
+  grid-template-columns:repeat(auto-fit, minmax(132px,1fr));
   gap:10px;
   margin:14px 0;
 }
@@ -566,8 +566,8 @@ a.link{
 }
 .frames-grid{
   display:grid;
-  grid-template-columns:repeat(9,minmax(clamp(84px, 9vw, 132px),1fr));
-  gap:10px;
+  grid-template-columns:repeat(9,minmax(clamp(104px, 10.4vw, 172px),1fr));
+  gap:12px;
   overflow-x:auto;
   padding-bottom:4px;
 }
@@ -580,7 +580,7 @@ a.link{
 .frame-shot{
   aspect-ratio:9/16;
   background:color-mix(in srgb, var(--panel-soft) 72%, var(--line));
-  max-height:240px;
+  max-height:340px;
 }
 .frame-shot img,.frame-shot video{
   width:100%;
@@ -589,7 +589,7 @@ a.link{
   display:block;
 }
 .frame-shot img{cursor:zoom-in}
-.frame-body{padding:8px}
+.frame-body{padding:6px}
 .frame-title{
   display:flex;
   justify-content:space-between;
@@ -599,6 +599,29 @@ a.link{
 }
 .frame-title strong{font-size:14px}
 .frame-title span{font-size:12px;color:var(--muted)}
+.prompt-drawer{
+  border:none;
+  background:transparent;
+}
+.prompt-drawer .toggle-head{
+  min-height:0;
+  justify-content:center;
+  gap:4px;
+  padding:7px 8px;
+  border:1px solid color-mix(in srgb, var(--brand) 24%, var(--line));
+  border-radius:999px;
+  background:color-mix(in srgb, var(--brand) 5%, var(--panel));
+  font-size:12px;
+  line-height:1;
+  text-align:center;
+}
+.prompt-drawer .toggle-head span:first-child{
+  font-size:12px;
+  white-space:nowrap;
+}
+.prompt-drawer .chev{
+  font-size:13px;
+}
 .prompt-drawer .toggle-content{display:none}
 .media-list{
   display:flex;
@@ -699,11 +722,11 @@ a.link{
 .frame-group-head{
   display:flex;
   justify-content:space-between;
-  gap:14px;
+  gap:10px;
   align-items:center;
-  padding:2px 2px 10px;
+  padding:0 2px 8px;
   border-bottom:1px solid var(--line);
-  margin-bottom:12px;
+  margin-bottom:10px;
 }
 .frame-group-title{
   display:flex;
@@ -739,12 +762,28 @@ a.link{
   justify-content:flex-end;
 }
 .group-control{
-  margin-bottom:12px;
-  background:color-mix(in srgb, var(--panel-soft) 72%, var(--panel));
-  border-color:color-mix(in srgb, var(--brand) 20%, var(--line));
+  margin:0;
+  border:none;
+  background:transparent;
 }
 .group-control .toggle-head{
-  background:color-mix(in srgb, var(--brand) 8%, transparent);
+  min-height:0;
+  width:auto;
+  gap:6px;
+  padding:7px 10px;
+  border:1px solid color-mix(in srgb, var(--brand) 28%, var(--line));
+  border-radius:999px;
+  background:color-mix(in srgb, var(--brand) 6%, var(--panel));
+  font-size:12px;
+  line-height:1;
+  white-space:nowrap;
+}
+.group-control .toggle-head span:first-child{
+  font-size:12px;
+  font-weight:800;
+}
+.group-control .chev{
+  font-size:13px;
 }
 .group-prompt{
   margin-top:10px;
@@ -907,6 +946,13 @@ a.link{
   font-size:13px;
   line-height:1.8;
 }
+.prompt-modal-body .group-assets{
+  grid-template-columns:repeat(6,minmax(120px,1fr));
+  margin:0 0 16px;
+}
+.prompt-modal-body .group-prompt{
+  margin-top:0;
+}
 .prompt-close{
   width:34px;
   height:34px;
@@ -968,6 +1014,39 @@ a.link{
   margin-top:6px;
   color:var(--muted);
   font-size:12px;
+}
+.export-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(min(420px,100%),1fr));
+  gap:14px;
+}
+.export-card{
+  padding:16px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:linear-gradient(145deg,var(--panel-soft),var(--panel));
+}
+.export-card h3{
+  margin:0 0 8px;
+  font-size:15px;
+}
+.export-card p{
+  margin:0 0 14px;
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.6;
+}
+.export-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+.export-actions .btn:disabled{
+  opacity:.45;
+  cursor:not-allowed;
+}
+.grid-image-summary{
+  margin-top:16px;
 }
 .final-json-grid{
   display:grid;
@@ -1042,6 +1121,7 @@ a.link{
   .load-shell{grid-template-columns:1fr}
   .theme-switch{justify-content:flex-start}
   .final-json-grid{grid-template-columns:1fr}
+  .export-grid{grid-template-columns:1fr}
 }
 @media (max-width:720px){
   .page{padding:18px 12px 48px}
@@ -1113,7 +1193,7 @@ a.link{
       <button class="prompt-close" id="promptCloseBtn" type="button" aria-label="关闭 Prompt">×</button>
     </div>
     <div class="prompt-modal-body">
-      <pre class="prompt-box" id="promptModalText"></pre>
+      <div class="prompt-box" id="promptModalText"></div>
     </div>
   </div>
 </div>
@@ -1189,11 +1269,17 @@ function detectAssetType(url) {
   return "link";
 }
 
+function isLikelyGridImage(path, url) {
+  const text = `${path || ""} ${url || ""}`;
+  return /(^|[._/\-\s])(grid|9grid|ninegrid|nine[-_\s]?grid|storyboard|contact[-_\s]?sheet|montage|tile|tiles|collage)([._/\-\s]|$)|grid_image|image_grid|output_grid|九宫格|九宫|宫格|拼图|合图|网格/i.test(text);
+}
+
 function assetSortRank(asset) {
   const label = `${asset.type || ""}${asset.label || ""}`;
   if (label.includes("角色")) return 10;
   if (label.includes("场景")) return 20;
   if (label.includes("道具")) return 25;
+  if (label.includes("九宫格")) return 28;
   if (label.includes("关键帧")) return 30;
   if ((asset.type || "") === "video" || label.includes("视频") || label.includes("成片")) return 40;
   if ((asset.type || "") === "audio" || label.includes("音频")) return 50;
@@ -1222,6 +1308,21 @@ function filenameFromUrl(url, fallback = "asset") {
   } catch {
     return fallback;
   }
+}
+
+function fileExtFromUrl(url, fallback = ".bin") {
+  const name = filenameFromUrl(url, "");
+  const match = name.match(/\.[a-z0-9]{2,8}$/i);
+  return match ? match[0] : fallback;
+}
+
+function sanitizeFilename(value, fallback = "asset") {
+  const safe = String(value || fallback)
+    .replace(/[\\/:*?"<>|]+/g, "_")
+    .replace(/\s+/g, "_")
+    .replace(/_+/g, "_")
+    .replace(/^_+|_+$/g, "");
+  return safe || fallback;
 }
 
 function cleanVideoTitle(title) {
@@ -1319,6 +1420,21 @@ function collectUrls(value, acc = []) {
   return acc;
 }
 
+function collectUrlEntries(value, path = [], acc = []) {
+  if (isUrl(value)) {
+    acc.push({ path: path.join("."), url: value });
+    return acc;
+  }
+  if (Array.isArray(value)) {
+    value.forEach((item, index) => collectUrlEntries(item, path.concat(index), acc));
+    return acc;
+  }
+  if (value && typeof value === "object") {
+    Object.entries(value).forEach(([key, item]) => collectUrlEntries(item, path.concat(key), acc));
+  }
+  return acc;
+}
+
 function pickFirst(obj, paths) {
   for (const path of paths) {
     const parts = path.split(".");
@@ -1397,6 +1513,52 @@ async function enrichFinalProcessConf(data) {
     },
     final_video_url: data.final_video_url || finalScene.scene_video_url || finalScene.scene_concat?.scene_video_url || ""
   };
+}
+
+function hasSlimSceneData(scene) {
+  const segments = scene?.segments || [];
+  const firstSegment = segments[0] || {};
+  const hasPromptGroups = Array.isArray(scene?.keyframe_prompts?.prompt_groups) && scene.keyframe_prompts.prompt_groups.length;
+  const hasSegmentPrompt = Boolean(firstSegment?.keyframe?.prompt || firstSegment?.video?.video_prompt || firstSegment?.narration_text);
+  return scene?.debug_data_url && (!hasPromptGroups || !hasSegmentPrompt);
+}
+
+async function enrichSceneDebugData(data) {
+  const scenes = pickFirst(data, ["scenes"]);
+  if (!Array.isArray(scenes) || !scenes.some(hasSlimSceneData)) return data;
+
+  const enrichedScenes = await Promise.all(scenes.map(async (scene, index) => {
+    if (!hasSlimSceneData(scene)) return scene;
+    try {
+      const debugData = await loadJsonFromUrl(scene.debug_data_url);
+      const segments = debugData?.segments_full || debugData?.segments || scene.segments || [];
+      return {
+        ...scene,
+        ...debugData,
+        scene_index: scene.scene_index ?? debugData?.scene_index ?? index + 1,
+        scene_video_url: scene.scene_video_url || debugData?.scene_video_url || debugData?.scene_concat?.scene_video_url || "",
+        scene_duration: scene.scene_duration || scene.duration || debugData?.scene_duration || debugData?.duration || "",
+        scene_concat: scene.scene_concat || debugData?.scene_concat || {},
+        debug_data_url: scene.debug_data_url,
+        summary: scene.summary || debugData?.summary || {},
+        segments,
+        segments_full: segments
+      };
+    } catch (error) {
+      console.warn("场景 debug_data_url 加载失败，保留瘦身数据", scene.debug_data_url, error);
+      return scene;
+    }
+  }));
+
+  return {
+    ...data,
+    scenes: enrichedScenes
+  };
+}
+
+async function enrichPipelineData(data) {
+  const finalProcessData = await enrichFinalProcessConf(data);
+  return enrichSceneDebugData(finalProcessData);
 }
 
 function normalizeNarrationSegments(data) {
@@ -1766,6 +1928,8 @@ function normalizeFrames(data) {
         ]);
         frames.push({
           segmentIndex,
+          sceneIndex: sceneIndex ?? null,
+          sceneGroupIndex: group.group_index ?? groupIndex,
           groupIndex,
           orderInGroup: shotIndex + 1,
           title: shot.id || `镜头 ${Number(localSegmentIndex) + 1}`,
@@ -1795,6 +1959,8 @@ function normalizeFrames(data) {
       (scene.segments || []).forEach((segment, segmentIndex) => {
         frames.push({
           segmentIndex: segment.segment_index ?? segmentIndex,
+          sceneIndex,
+          sceneGroupIndex: 0,
           groupIndex: sceneIndex,
           orderInGroup: segmentIndex + 1,
           title: `镜头 ${segment.segment_index ?? segmentIndex + 1}`,
@@ -1878,6 +2044,24 @@ function normalizeSceneVideos(data) {
   }).sort((a, b) => Number(a.sceneIndex) - Number(b.sceneIndex));
 }
 
+function normalizeGridImages(data) {
+  const seen = new Set();
+  return collectUrlEntries(data)
+    .filter((entry) => detectAssetType(entry.url) === "image" && isLikelyGridImage(entry.path, entry.url))
+    .filter((entry) => {
+      if (seen.has(entry.url)) return false;
+      seen.add(entry.url);
+      return true;
+    })
+    .map((entry, index) => ({
+      type: "image",
+      label: "九宫格图片",
+      title: `九宫格 ${index + 1}`,
+      url: entry.url,
+      path: entry.path
+    }));
+}
+
 function normalizeMedia(data, frames) {
   const finalVideoUrl = pickFirst(data, [
     "node_outputs.N09.result.final_video_url",
@@ -1906,7 +2090,7 @@ function normalizeMedia(data, frames) {
   };
 }
 
-function normalizePreviewAssets(data, parsedAssets, frames, media) {
+function normalizePreviewAssets(data, parsedAssets, frames, media, gridImages = []) {
   const items = [];
 
   parsedAssets.forEach((asset) => {
@@ -1963,6 +2147,9 @@ function normalizePreviewAssets(data, parsedAssets, frames, media) {
       url: video.url
     });
   });
+  gridImages.forEach((image) => {
+    items.push(image);
+  });
 
   unique(collectUrls(data)).forEach((url) => {
     items.push({
@@ -1998,9 +2185,10 @@ function parsePipelineJson(data) {
   const episodes = normalizeEpisodes(data);
   const assets = sortedAssets(normalizeAssets(data));
   const frames = normalizeFrames(data);
+  const gridImages = normalizeGridImages(data);
   const media = normalizeMedia(data, frames);
   const urls = unique(collectUrls(data));
-  const previewAssets = normalizePreviewAssets(data, assets, frames, media);
+  const previewAssets = normalizePreviewAssets(data, assets, frames, media, gridImages);
 
   return {
     title: pickFirst(data, ["title", "global_config.title", "story_title", "name", "run_id", "dag_id"]) || "未命名项目",
@@ -2010,6 +2198,7 @@ function parsePipelineJson(data) {
     narrationSegments,
     assets,
     frames,
+    gridImages,
     media,
     urls,
     previewAssets,
@@ -2023,6 +2212,7 @@ function renderStats(parsed) {
     ["资产数量", parsed.assets.length],
     ["关键帧组", new Set(parsed.frames.map((item) => item.groupIndex ?? 0)).size],
     ["视频结果", parsed.media.items.length + (parsed.media.sceneVideos?.length || 0)],
+    ["九宫格图", parsed.gridImages.length],
     ["可预览资产", parsed.previewAssets.length]
   ];
   summaryEl.innerHTML = stats.map(([label, value]) => `
@@ -2036,6 +2226,7 @@ function renderStats(parsed) {
 function renderSectionNav() {
   const items = [
     ["finalVideo", "成片/JSON"],
+    ["exportsPanel", "批量导出"],
     ["narrationPanel", "旁白"],
     ["assetsPanel", "全部资产"],
     ["framesPanel", "关键帧"],
@@ -2119,6 +2310,7 @@ function renderAssets(parsed) {
     { title: "角色资产图", gridClass: "preview-grid", match: (asset) => asset.label.includes("角色") },
     { title: "场景资产图", gridClass: "preview-grid", match: (asset) => asset.label.includes("场景") },
     { title: "道具资产图", gridClass: "preview-grid", match: (asset) => asset.label.includes("道具") },
+    { title: "九宫格图片", gridClass: "preview-grid", match: (asset) => asset.label.includes("九宫格") },
     { title: "关键帧", gridClass: "preview-grid", match: (asset) => asset.label.includes("关键帧") },
     { title: "视频", gridClass: "preview-grid", match: (asset) => asset.type === "video" || asset.label.includes("视频") || asset.label.includes("成片") },
     { title: "音频", gridClass: "preview-grid", match: (asset) => asset.type === "audio" || asset.label.includes("音频") },
@@ -2169,6 +2361,121 @@ function renderAssets(parsed) {
   `;
 }
 
+function sceneVideoLinkText(parsed) {
+  const rows = (parsed.media.sceneVideos || []).map((video, index) => [
+    `${index + 1}. ${video.title}`,
+    video.duration ? `时长：${Number.isFinite(Number(video.duration)) ? Number(video.duration).toFixed(1) : video.duration}s` : "时长：未识别",
+    video.segmentCount ? `镜头：${video.segmentCount}` : "镜头：未识别",
+    video.url
+  ].join("\n"));
+  return rows.length ? rows.join("\n\n") : "未识别到分集视频链接。";
+}
+
+function gridImageLinkText(parsed) {
+  const rows = (parsed.gridImages || []).map((image, index) => [
+    `${index + 1}. ${image.title || `九宫格 ${index + 1}`}`,
+    image.path ? `字段：${image.path}` : "",
+    image.url
+  ].filter(Boolean).join("\n"));
+  return rows.length ? rows.join("\n\n") : "未识别到九宫格图片链接。";
+}
+
+function roleSceneAssetItems(parsed) {
+  return (parsed.assets || [])
+    .filter((asset) => ["角色", "场景"].includes(asset.type) && asset.image)
+    .map((asset) => ({
+      title: asset.name,
+      label: `${asset.type}资产图`,
+      url: asset.image
+    }));
+}
+
+function totalDurationSeconds(parsed) {
+  const sceneSeconds = (parsed.media.sceneVideos || [])
+    .map((video) => Number(video.duration))
+    .filter((value) => Number.isFinite(value) && value > 0);
+  if (sceneSeconds.length) {
+    return sceneSeconds.reduce((sum, value) => sum + value, 0);
+  }
+  const finalSeconds = Number(parsed.media.finalDuration);
+  return Number.isFinite(finalSeconds) && finalSeconds > 0 ? finalSeconds : 0;
+}
+
+function currentJsonSource() {
+  return isUrl(lastSourceName) ? lastSourceName : (remoteUrlInputEl.value.trim() || lastSourceName || "未识别");
+}
+
+function currentTaskId(parsed) {
+  const source = currentJsonSource();
+  const fromJson = pickFirst(parsed.raw, ["run_id", "task_id", "global_config.task_id", "global_config.run_id", "dag_id"]);
+  if (fromJson) return fromJson;
+  try {
+    const parts = new URL(source).pathname.split("/").filter(Boolean);
+    return parts.find((part) => /narration_final_process/i.test(part)) || filenameFromUrl(source, "未识别");
+  } catch {
+    return "未识别";
+  }
+}
+
+function projectReadmeText(parsed) {
+  const episodeCount = parsed.media.sceneVideos?.length || parsed.episodes?.length || 0;
+  const minutes = totalDurationSeconds(parsed) / 60;
+  const videoSegmentCount = parsed.media.items.length;
+  return [
+    `项目：${parsed.title || "未命名项目"}`,
+    `任务ID：${currentTaskId(parsed)}`,
+    `JSON链接：${currentJsonSource()}`,
+    `全文${parsed.rawCharacterCount || 0}字，共${episodeCount}集，共${minutes ? minutes.toFixed(1) : 0}分钟，共${videoSegmentCount}个视频片段。`,
+    "",
+    `分集视频：${episodeCount}个`,
+    `角色/场景资产：${roleSceneAssetItems(parsed).length}个`,
+    `九宫格图片：${parsed.gridImages.length}张`,
+    `关键帧图片：${parsed.frames.length}张`,
+    `最终成片：${parsed.media.finalVideoUrl || "未识别"}`,
+    "",
+    `导出时间：${new Date().toLocaleString()}`
+    ,
+    "",
+    "分集视频链接：",
+    sceneVideoLinkText(parsed),
+    "",
+    "九宫格图片链接：",
+    gridImageLinkText(parsed)
+  ].join("\n");
+}
+
+function renderBulkExports(parsed) {
+  const sceneCount = parsed.media.sceneVideos?.length || 0;
+  const roleSceneItems = roleSceneAssetItems(parsed);
+  const gridCount = parsed.gridImages.length;
+  const canExport = sceneCount || roleSceneItems.length || gridCount;
+
+  return `
+    <section class="panel" id="exportsPanel">
+      <div class="panel-head">
+        <div>
+          <h2>批量导出</h2>
+          <span>一个 ZIP 汇总分集视频链接、角色/场景资产、九宫格图和项目说明</span>
+        </div>
+        <span>${escapeHtml(sceneCount)} 个分集 / ${escapeHtml(roleSceneItems.length)} 个角色场景资产 / ${escapeHtml(gridCount)} 张九宫格</span>
+      </div>
+      <div class="panel-body">
+        <div class="export-grid">
+          <article class="export-card">
+            <h3>完整导出包</h3>
+            <p>ZIP 内包含分集视频下载链接、角色/场景资产、九宫格图片，以及 JSON 链接、任务 ID、全文字数、集数、分钟数、视频片段数说明。</p>
+            <div class="export-actions">
+              <button class="btn primary bulk-export-btn" type="button" data-export="all-package" ${canExport ? "" : "disabled"}>下载完整导出包</button>
+              <button class="btn ghost prompt-open" type="button" data-title="分集视频链接清单" data-subtitle="${escapeHtml(parsed.title)}" data-prompt="${escapeHtml(sceneVideoLinkText(parsed))}" ${sceneCount ? "" : "disabled"}>查看链接</button>
+              <button class="btn ghost prompt-open" type="button" data-title="项目说明" data-subtitle="${escapeHtml(parsed.title)}" data-prompt="${escapeHtml(projectReadmeText(parsed))}">查看说明</button>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+  `;
+}
+
 function renderGroupAssets(frames, parsed) {
   const explicitAssets = frames.flatMap((frame) => [
     ...(frame.segmentAssets || []),
@@ -2189,7 +2496,8 @@ function renderGroupAssets(frames, parsed) {
     .filter((asset) => asset.type === "场景" && asset.image)
     .map((asset) => ({ name: asset.name, type: "scene", url: asset.image }));
   const allGroupAssets = [...dedupedExplicit];
-  [...inferredAssets, ...sceneFallback].forEach((item) => {
+  const supplementalAssets = dedupedExplicit.length || inferredAssets.length ? inferredAssets : sceneFallback;
+  supplementalAssets.forEach((item) => {
     const key = `${item.type}|${item.name}|${item.url}`;
     if (!seen.has(key)) {
       seen.add(key);
@@ -2225,6 +2533,34 @@ function renderGroupContextAssets(frames, parsed) {
   ` : "";
 }
 
+function frameSceneIndex(frames) {
+  const raw = frames.find((frame) => frame.sceneIndex !== undefined && frame.sceneIndex !== null)?.sceneIndex ?? 0;
+  const number = Number(raw);
+  return Number.isFinite(number) ? number : 0;
+}
+
+function frameSceneGroupIndex(frames, groupIndex) {
+  const raw = frames.find((frame) => frame.sceneGroupIndex !== undefined && frame.sceneGroupIndex !== null)?.sceneGroupIndex ?? groupIndex;
+  const number = Number(raw);
+  return Number.isFinite(number) ? number : Number(groupIndex) || 0;
+}
+
+function groupPromptModalHtml(frames, parsed) {
+  const assetsHtml = renderGroupAssets(frames, parsed);
+  return `
+    ${assetsHtml || '<div class="empty">本组没有识别到关联资产。</div>'}
+    <div class="group-prompt">
+      <h3>整体提示词</h3>
+      <pre class="prompt-box">${escapeHtml(frames[0]?.groupPrompt || "未识别到打组整体提示词")}</pre>
+      <div class="links">
+        <span class="tag">关键帧图 ${frames.filter((frame) => frame.imageUrl).length}/${frames.length}</span>
+        <span class="tag">镜头视频 ${frames.filter((frame) => frame.videoUrl).length}/${frames.length}</span>
+        <span class="tag">镜头音频 ${frames.filter((frame) => frame.audioUrl).length}/${frames.length}</span>
+      </div>
+    </div>
+  `;
+}
+
 function renderFrames(parsed) {
   const groups = new Map();
   parsed.frames.forEach((frame) => {
@@ -2244,39 +2580,23 @@ function renderFrames(parsed) {
     `;
   }
 
-  const html = [...groups.entries()].map(([groupIndex, frames]) => `
+  const html = [...groups.entries()].map(([groupIndex, frames]) => {
+    const sceneIndex = frameSceneIndex(frames);
+    const sceneGroupIndex = frameSceneGroupIndex(frames, groupIndex);
+    return `
     <section class="frame-group">
       <div class="frame-group-head">
         <div class="frame-group-title">
-          <span class="frame-group-index">${escapeHtml(Number(groupIndex) + 1)}</span>
+          <span class="frame-group-index">${escapeHtml(Number(sceneIndex) + 1)}</span>
           <div>
-            <h3>关键帧组 ${escapeHtml(Number(groupIndex) + 1)}</h3>
-            <span>${escapeHtml(frames.length)} 张关键帧</span>
+            <h3>第${escapeHtml(Number(sceneIndex) + 1)}集 组${escapeHtml(Number(sceneGroupIndex) + 1)}</h3>
           </div>
         </div>
-        <div class="group-meta">
-          <span class="tag">图 ${frames.filter((frame) => frame.imageUrl).length}/${frames.length}</span>
-          <span class="tag">视频 ${frames.filter((frame) => frame.videoUrl).length}/${frames.length}</span>
-          <span class="tag">音频 ${frames.filter((frame) => frame.audioUrl).length}/${frames.length}</span>
-        </div>
-      </div>
-      <div class="toggle-block group-control">
-        <button class="toggle-head" type="button">
-          <span>展开本组提示词与关联资产</span>
-          <small>包含角色/场景输入资产</small>
-          <span class="chev">▶</span>
-        </button>
-        <div class="toggle-content">
-          ${renderGroupAssets(frames, parsed)}
-          <div class="group-prompt">
-            <h3>整体提示词</h3>
-            <pre class="prompt-box">${escapeHtml(frames[0]?.groupPrompt || "未识别到打组整体提示词")}</pre>
-            <div class="links">
-              <span class="tag">关键帧图 ${frames.filter((frame) => frame.imageUrl).length}/${frames.length}</span>
-              <span class="tag">镜头视频 ${frames.filter((frame) => frame.videoUrl).length}/${frames.length}</span>
-              <span class="tag">镜头音频 ${frames.filter((frame) => frame.audioUrl).length}/${frames.length}</span>
-            </div>
-          </div>
+        <div class="group-control">
+          <button class="toggle-head prompt-open" type="button" data-title="第${escapeHtml(Number(sceneIndex) + 1)}集 组${escapeHtml(Number(sceneGroupIndex) + 1)}" data-subtitle="本组提示词与关联资产" data-prompt-html="${escapeHtml(groupPromptModalHtml(frames, parsed))}">
+            <span>提示词/资产</span>
+            <span class="chev">↗</span>
+          </button>
         </div>
       </div>
       <div class="frames-grid">
@@ -2295,7 +2615,7 @@ src: ${frame.narration || "未识别"}
 cam: ${frame.cam || "未识别"}
 spatial: ${frame.spatial || "未识别"}
 vis: ${frame.visual || "未识别"}
-check: ${frame.check || "未识别"}`)}"><span>关键帧 Prompt</span><span class="chev">↗</span></button>
+check: ${frame.check || "未识别"}`)}"><span>Prompt</span><span class="chev">↗</span></button>
                 <div class="toggle-content">
                   <pre class="prompt-box">${escapeHtml(
 `prompt: ${frame.keyframePrompt || "未识别"}
@@ -2313,7 +2633,8 @@ check: ${frame.check || "未识别"}`)}</pre>
         `).join("")}
       </div>
     </section>
-  `).join("");
+  `;
+  }).join("");
 
   return `
     <section class="panel" id="framesPanel">
@@ -2487,10 +2808,22 @@ function openAssetLightbox(url, title, type) {
   assetLightboxEl.setAttribute("aria-hidden", "false");
 }
 
-function openPromptModal(title, subtitle, prompt) {
+function openPromptModal(title, subtitle, prompt, html = "") {
   promptModalTitleEl.textContent = title || "Prompt";
   promptModalSubEl.textContent = subtitle || "";
-  promptModalTextEl.textContent = prompt || "未识别";
+  const modalContent = document.getElementById("promptModalText");
+  if (html) {
+    modalContent.className = "";
+    modalContent.innerHTML = html;
+    modalContent.querySelectorAll(".group-asset").forEach((card) => {
+      card.addEventListener("click", () => {
+        openAssetLightbox(card.dataset.url, card.dataset.title, card.dataset.typeLabel);
+      });
+    });
+  } else {
+    modalContent.className = "prompt-box";
+    modalContent.textContent = prompt || "未识别";
+  }
   promptModalEl.classList.add("open");
   promptModalEl.setAttribute("aria-hidden", "false");
 }
@@ -2498,7 +2831,9 @@ function openPromptModal(title, subtitle, prompt) {
 function closePromptModal() {
   promptModalEl.classList.remove("open");
   promptModalEl.setAttribute("aria-hidden", "true");
-  promptModalTextEl.textContent = "";
+  const modalContent = document.getElementById("promptModalText");
+  modalContent.className = "prompt-box";
+  modalContent.textContent = "";
 }
 
 function closeAssetLightbox() {
@@ -2513,6 +2848,7 @@ function renderAll(parsed) {
   renderSectionNav();
   mainColumnEl.innerHTML = [
     renderTopFinalVideo(parsed),
+    renderBulkExports(parsed),
     renderNarration(parsed),
     renderAssets(parsed),
     renderFrames(parsed),
@@ -2536,7 +2872,7 @@ function renderAll(parsed) {
 
   document.querySelectorAll(".prompt-open").forEach((button) => {
     button.addEventListener("click", () => {
-      openPromptModal(button.dataset.title, button.dataset.subtitle, button.dataset.prompt);
+      openPromptModal(button.dataset.title, button.dataset.subtitle, button.dataset.prompt, button.dataset.promptHtml || "");
     });
   });
 
@@ -2561,12 +2897,24 @@ function renderAll(parsed) {
       });
     });
   }, { rootMargin: "-20% 0px -65% 0px", threshold: 0.01 });
-  ["finalVideo", "narrationPanel", "assetsPanel", "framesPanel", "videosPanel"].forEach((id) => {
+  document.querySelectorAll(".bulk-export-btn").forEach((button) => {
+    button.addEventListener("click", () => {
+      handleBulkExport(button.dataset.export);
+    });
+  });
+
+  ["finalVideo", "exportsPanel", "narrationPanel", "assetsPanel", "framesPanel", "videosPanel"].forEach((id) => {
     const el = document.getElementById(id);
     if (el) observer.observe(el);
   });
 
   document.querySelectorAll(".group-asset").forEach((card) => {
+    card.addEventListener("click", () => {
+      openAssetLightbox(card.dataset.url, card.dataset.title, card.dataset.typeLabel);
+    });
+  });
+
+  promptModalEl.querySelectorAll(".group-asset").forEach((card) => {
     card.addEventListener("click", () => {
       openAssetLightbox(card.dataset.url, card.dataset.title, card.dataset.typeLabel);
     });
@@ -2623,6 +2971,243 @@ function downloadText(filename, content, type = "text/plain;charset=utf-8") {
   URL.revokeObjectURL(url);
 }
 
+function makeCrcTable() {
+  const table = new Uint32Array(256);
+  for (let i = 0; i < 256; i += 1) {
+    let c = i;
+    for (let j = 0; j < 8; j += 1) {
+      c = (c & 1) ? (0xedb88320 ^ (c >>> 1)) : (c >>> 1);
+    }
+    table[i] = c >>> 0;
+  }
+  return table;
+}
+
+const crcTable = makeCrcTable();
+
+function crc32(bytes) {
+  let crc = 0xffffffff;
+  for (let i = 0; i < bytes.length; i += 1) {
+    crc = crcTable[(crc ^ bytes[i]) & 0xff] ^ (crc >>> 8);
+  }
+  return (crc ^ 0xffffffff) >>> 0;
+}
+
+function writeUint16(view, offset, value) {
+  view.setUint16(offset, value, true);
+}
+
+function writeUint32(view, offset, value) {
+  view.setUint32(offset, value >>> 0, true);
+}
+
+function concatUint8(parts) {
+  const total = parts.reduce((sum, part) => sum + part.length, 0);
+  const out = new Uint8Array(total);
+  let offset = 0;
+  parts.forEach((part) => {
+    out.set(part, offset);
+    offset += part.length;
+  });
+  return out;
+}
+
+function createZipBlob(files) {
+  const encoder = new TextEncoder();
+  const localParts = [];
+  const centralParts = [];
+  let offset = 0;
+
+  files.forEach((file) => {
+    const nameBytes = encoder.encode(file.name);
+    const data = file.data instanceof Uint8Array ? file.data : new Uint8Array(file.data);
+    const crc = crc32(data);
+    const local = new Uint8Array(30 + nameBytes.length);
+    const localView = new DataView(local.buffer);
+    writeUint32(localView, 0, 0x04034b50);
+    writeUint16(localView, 4, 20);
+    writeUint16(localView, 6, 0x0800);
+    writeUint16(localView, 8, 0);
+    writeUint16(localView, 10, 0);
+    writeUint16(localView, 12, 0);
+    writeUint32(localView, 14, crc);
+    writeUint32(localView, 18, data.length);
+    writeUint32(localView, 22, data.length);
+    writeUint16(localView, 26, nameBytes.length);
+    writeUint16(localView, 28, 0);
+    local.set(nameBytes, 30);
+    localParts.push(local, data);
+
+    const central = new Uint8Array(46 + nameBytes.length);
+    const centralView = new DataView(central.buffer);
+    writeUint32(centralView, 0, 0x02014b50);
+    writeUint16(centralView, 4, 20);
+    writeUint16(centralView, 6, 20);
+    writeUint16(centralView, 8, 0x0800);
+    writeUint16(centralView, 10, 0);
+    writeUint16(centralView, 12, 0);
+    writeUint16(centralView, 14, 0);
+    writeUint32(centralView, 16, crc);
+    writeUint32(centralView, 20, data.length);
+    writeUint32(centralView, 24, data.length);
+    writeUint16(centralView, 28, nameBytes.length);
+    writeUint16(centralView, 30, 0);
+    writeUint16(centralView, 32, 0);
+    writeUint16(centralView, 34, 0);
+    writeUint16(centralView, 36, 0);
+    writeUint32(centralView, 38, 0);
+    writeUint32(centralView, 42, offset);
+    central.set(nameBytes, 46);
+    centralParts.push(central);
+
+    offset += local.length + data.length;
+  });
+
+  const centralSize = centralParts.reduce((sum, part) => sum + part.length, 0);
+  const end = new Uint8Array(22);
+  const endView = new DataView(end.buffer);
+  writeUint32(endView, 0, 0x06054b50);
+  writeUint16(endView, 8, files.length);
+  writeUint16(endView, 10, files.length);
+  writeUint32(endView, 12, centralSize);
+  writeUint32(endView, 16, offset);
+  writeUint16(endView, 20, 0);
+
+  return new Blob([concatUint8([...localParts, ...centralParts, end])], { type: "application/zip" });
+}
+
+function uniqueZipName(name, usedNames) {
+  let candidate = name;
+  const extMatch = candidate.match(/(\.[a-z0-9]{2,8})$/i);
+  const ext = extMatch ? extMatch[1] : "";
+  const base = ext ? candidate.slice(0, -ext.length) : candidate;
+  let suffix = 2;
+  while (usedNames.has(candidate)) {
+    candidate = `${base}_${suffix}${ext}`;
+    suffix += 1;
+  }
+  usedNames.add(candidate);
+  return candidate;
+}
+
+async function fetchAssetBytes(item, index, usedNames, folder = "") {
+  const response = await fetch(item.url, { mode: "cors" });
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  const ext = fileExtFromUrl(item.url, ".bin");
+  const base = sanitizeFilename(`${String(index + 1).padStart(2, "0")}_${item.label || "asset"}_${item.title || filenameFromUrl(item.url, "asset")}`);
+  const fileName = base.endsWith(ext) ? base : `${base}${ext}`;
+  const name = uniqueZipName(`${folder}${fileName}`, usedNames);
+  return {
+    name,
+    data: new Uint8Array(await response.arrayBuffer())
+  };
+}
+
+async function downloadZipFromItems(items, filename) {
+  if (!items.length) return;
+  updateStatus(`正在打包 ${items.length} 个素材...`);
+  const files = [];
+  const failed = [];
+  const usedNames = new Set();
+  for (let index = 0; index < items.length; index += 1) {
+    const item = items[index];
+    updateStatus(`正在打包 ${index + 1}/${items.length}：${item.title || filenameFromUrl(item.url)}`);
+    try {
+      files.push(await fetchAssetBytes(item, index, usedNames));
+    } catch (error) {
+      console.warn("素材读取失败", item.url, error);
+      failed.push(`${item.title || item.label || "asset"}\n${item.url}`);
+    }
+  }
+  if (failed.length) {
+    files.push({
+      name: "下载失败链接清单.txt",
+      data: new TextEncoder().encode(failed.join("\n\n"))
+    });
+  }
+  if (!files.length) {
+    updateStatus("远程素材未允许页面读取，无法生成压缩包。");
+    return;
+  }
+  const zip = createZipBlob(files);
+  const url = URL.createObjectURL(zip);
+  triggerBrowserDownload(url, filename);
+  URL.revokeObjectURL(url);
+  updateStatus(`已生成压缩包：${filename}`);
+}
+
+async function downloadFullExportPackage(parsed) {
+  const files = [
+    {
+      name: "分集视频下载链接.txt",
+      data: new TextEncoder().encode(sceneVideoLinkText(parsed))
+    },
+    {
+      name: "项目说明.txt",
+      data: new TextEncoder().encode(projectReadmeText(parsed))
+    }
+  ];
+  const items = roleSceneAssetItems(parsed);
+  const gridItems = parsed.gridImages || [];
+  const failed = [];
+  const usedNames = new Set(files.map((file) => file.name));
+
+  updateStatus(`正在生成完整导出包：${items.length} 个角色/场景资产，${gridItems.length} 张九宫格图片...`);
+  for (let index = 0; index < items.length; index += 1) {
+    const item = items[index];
+    updateStatus(`正在写入角色/场景资产 ${index + 1}/${items.length}：${item.title || filenameFromUrl(item.url)}`);
+    try {
+      files.push(await fetchAssetBytes(item, index, usedNames, "角色场景资产/"));
+    } catch (error) {
+      console.warn("角色/场景素材读取失败", item.url, error);
+      failed.push(`${item.title || item.label || "asset"}\n${item.url}`);
+    }
+  }
+  for (let index = 0; index < gridItems.length; index += 1) {
+    const item = gridItems[index];
+    updateStatus(`正在写入九宫格图片 ${index + 1}/${gridItems.length}：${item.title || filenameFromUrl(item.url)}`);
+    try {
+      files.push(await fetchAssetBytes(item, index, usedNames, "九宫格图片/"));
+    } catch (error) {
+      console.warn("九宫格图片读取失败", item.url, error);
+      failed.push(`${item.title || item.label || "grid"}\n${item.url}`);
+    }
+  }
+
+  if (failed.length) {
+    files.push({
+      name: "素材下载失败链接清单.txt",
+      data: new TextEncoder().encode(failed.join("\n\n"))
+    });
+  }
+
+  const zip = createZipBlob(files);
+  const url = URL.createObjectURL(zip);
+  triggerBrowserDownload(url, `${sanitizeFilename(parsed.title || "L3-lab导出包")}_完整导出包.zip`);
+  URL.revokeObjectURL(url);
+  updateStatus("已生成完整导出包。");
+}
+
+function handleBulkExport(kind) {
+  if (!lastParsed) return;
+  if (kind === "all-package") {
+    downloadFullExportPackage(lastParsed);
+    return;
+  }
+  if (kind === "scene-links") {
+    downloadText("分集视频下载链接.txt", sceneVideoLinkText(lastParsed));
+    updateStatus("已导出分集视频下载链接清单。");
+    return;
+  }
+  if (kind === "role-scene-zip") {
+    downloadZipFromItems(roleSceneAssetItems(lastParsed), "角色场景资产.zip");
+    return;
+  }
+  if (kind === "grid-zip") {
+    downloadZipFromItems(lastParsed.gridImages || [], "九宫格图片.zip");
+  }
+}
+
 async function parseFile(file) {
   const buffer = await file.arrayBuffer();
   const bytes = new Uint8Array(buffer);
@@ -2663,7 +3248,8 @@ async function decodeJsonBuffer(buffer, sourceName = "JSON") {
 
 async function loadDataObject(data, sourceName) {
   lastSourceName = sourceName;
-  const normalizedData = await enrichFinalProcessConf(data);
+  updateStatus(`正在补全 ${sourceName} 的场景调试数据与提示词...`);
+  const normalizedData = await enrichPipelineData(data);
   const parsed = parsePipelineJson(normalizedData);
   lastParsed = parsed;
   renderAll(parsed);
