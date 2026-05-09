@@ -253,7 +253,7 @@ input[type="file"]{display:none}
 .theme-dot[data-theme-value="dark-violet"]{--dot-a:#020617;--dot-b:#3b82f6}
 .theme-dot[data-theme-value="dark-amber"]{--dot-a:#04080f;--dot-b:#0ea5e9}
 .summary{
-  display:grid;
+  display:none;
   grid-template-columns:repeat(auto-fit, minmax(132px,1fr));
   gap:10px;
   margin:14px 0;
@@ -381,49 +381,68 @@ input[type="file"]{display:none}
 }
 .episode-grid{
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-  gap:10px;
-  margin-bottom:14px;
+  grid-template-columns:repeat(auto-fit,minmax(132px,1fr));
+  gap:8px;
+  margin-bottom:12px;
 }
 .episode-card{
   border:1px solid var(--line);
-  border-radius:10px;
+  border-radius:999px;
   background:var(--panel-soft);
-  padding:12px;
+  padding:8px 10px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  color:var(--text);
+  cursor:pointer;
+}
+.episode-card:hover{
+  border-color:color-mix(in srgb, var(--brand) 42%, var(--line));
+  background:color-mix(in srgb, var(--brand) 7%, var(--panel-soft));
 }
 .episode-card strong{
-  display:block;
-  font-size:14px;
-  margin-bottom:6px;
+  display:inline;
+  font-size:13px;
+  margin:0;
+  white-space:nowrap;
 }
 .episode-card span{
-  display:block;
+  display:inline;
   color:var(--muted);
   font-size:12px;
-  line-height:1.6;
+  line-height:1;
+  white-space:nowrap;
 }
 .narration-scene{
   border:1px solid var(--line);
   border-radius:10px;
   background:var(--panel);
-  padding:12px;
-  margin-bottom:12px;
+  margin-bottom:8px;
+  overflow:hidden;
 }
 .narration-scene-head{
   display:flex;
   justify-content:space-between;
   gap:12px;
   align-items:center;
-  margin-bottom:10px;
+  width:100%;
+  border:none;
+  background:var(--panel);
+  color:var(--text);
+  padding:10px 12px;
+  cursor:pointer;
+  text-align:left;
 }
 .narration-scene-head h3{
   margin:0;
-  font-size:14px;
+  font-size:13px;
 }
 .narration-list{
   display:flex;
   flex-direction:column;
   gap:6px;
+  padding:0 12px 12px;
 }
 .narration-item{
   padding:8px 10px;
@@ -508,7 +527,19 @@ input[type="file"]{display:none}
   cursor:zoom-in;
 }
 .asset-body{padding:9px}
-.asset-title{font-size:13px;font-weight:800;margin:0 0 6px;line-height:1.35}
+.asset-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+}
+.asset-title{font-size:13px;font-weight:800;margin:0;line-height:1.35}
+.asset-row .btn{
+  padding:5px 8px;
+  font-size:11px;
+  border-radius:999px;
+  flex:0 0 auto;
+}
 .asset-meta{font-size:12px;color:var(--muted);line-height:1.6}
 .links{
   display:flex;
@@ -566,10 +597,9 @@ a.link{
 }
 .frames-grid{
   display:grid;
-  grid-template-columns:repeat(9,minmax(clamp(104px, 10.4vw, 172px),1fr));
-  gap:12px;
-  overflow-x:auto;
-  padding-bottom:4px;
+  grid-template-columns:repeat(9,minmax(0,1fr));
+  gap:8px;
+  overflow:visible;
 }
 .frame{
   border:1px solid var(--line);
@@ -589,7 +619,7 @@ a.link{
   display:block;
 }
 .frame-shot img{cursor:zoom-in}
-.frame-body{padding:6px}
+.frame-body{padding:5px}
 .frame-title{
   display:flex;
   justify-content:space-between;
@@ -607,20 +637,20 @@ a.link{
   min-height:0;
   justify-content:center;
   gap:4px;
-  padding:7px 8px;
+  padding:6px 6px;
   border:1px solid color-mix(in srgb, var(--brand) 24%, var(--line));
   border-radius:999px;
   background:color-mix(in srgb, var(--brand) 5%, var(--panel));
-  font-size:12px;
+  font-size:11px;
   line-height:1;
   text-align:center;
 }
 .prompt-drawer .toggle-head span:first-child{
-  font-size:12px;
+  font-size:11px;
   white-space:nowrap;
 }
 .prompt-drawer .chev{
-  font-size:13px;
+  font-size:12px;
 }
 .prompt-drawer .toggle-content{display:none}
 .media-list{
@@ -704,6 +734,14 @@ a.link{
 .preview-thumb audio{
   width:100%;
 }
+.preview-placeholder{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:var(--muted);
+  font-size:13px;
+  font-weight:800;
+}
 .embedded-grid{
   display:grid;
   grid-template-columns:repeat(9,minmax(clamp(84px, 9vw, 132px),1fr));
@@ -712,12 +750,19 @@ a.link{
   padding-bottom:4px;
   margin-top:14px;
 }
-.frame-group{
+.episode-frame-group{
   margin-bottom:22px;
   border:1px solid color-mix(in srgb, var(--brand) 20%, var(--line));
   border-radius:12px;
   background:color-mix(in srgb, var(--panel) 86%, var(--panel-soft));
   padding:12px;
+}
+.frame-group{
+  margin-top:10px;
+}
+.frame-group + .frame-group{
+  border-top:1px solid var(--line);
+  padding-top:12px;
 }
 .frame-group-head{
   display:flex;
@@ -762,6 +807,10 @@ a.link{
   justify-content:flex-end;
 }
 .group-control{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+  gap:8px;
   margin:0;
   border:none;
   background:transparent;
@@ -1050,11 +1099,11 @@ a.link{
 }
 .final-json-grid{
   display:grid;
-  grid-template-columns:minmax(280px,.9fr) minmax(360px,1.1fr);
+  grid-template-columns:minmax(360px,1fr) minmax(220px,.42fr);
   gap:14px;
   align-items:stretch;
 }
-.final-pane,.raw-json-pane{
+.final-pane,.final-side-pane{
   border:1px solid var(--line);
   border-radius:10px;
   background:var(--panel-soft);
@@ -1063,25 +1112,58 @@ a.link{
   display:flex;
   flex-direction:column;
 }
-.final-pane-head,.raw-json-head{
+.final-pane-head,.final-side-head{
   display:flex;
   justify-content:space-between;
   gap:12px;
   align-items:center;
   margin-bottom:10px;
 }
-.final-pane-head h3,.raw-json-head h3{
+.final-pane-head h3,.final-side-head h3{
   margin:0;
   font-size:14px;
 }
-.final-pane-head span,.raw-json-head span{
+.final-pane-head span,.final-side-head span{
   color:var(--muted);
   font-size:12px;
 }
-.raw-json-pane .json-view{
-  flex:1;
-  max-height:min(62vh, 680px);
-  min-height:360px;
+.metric-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px;
+  margin-bottom:12px;
+}
+.metric-card{
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:var(--panel);
+  padding:10px;
+}
+.metric-card strong{
+  display:block;
+  font-size:22px;
+  line-height:1;
+  margin-bottom:6px;
+}
+.metric-card span{
+  color:var(--muted);
+  font-size:12px;
+}
+.raw-json-capsule{
+  width:100%;
+  justify-content:center;
+  border-radius:999px;
+}
+.side-actions{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  margin-top:auto;
+}
+.side-actions .btn{
+  width:100%;
+  justify-content:center;
+  border-radius:999px;
 }
 .hero-video-wrap{
   width:100%;
@@ -1128,7 +1210,8 @@ a.link{
   .hero{padding:20px}
   .hero h1{font-size:28px}
   .summary{grid-template-columns:repeat(2, minmax(0,1fr))}
-  .frames-grid,.asset-grid,.preview-grid,.embedded-grid{grid-template-columns:repeat(3, minmax(108px,1fr))}
+  .asset-grid,.preview-grid,.embedded-grid{grid-template-columns:repeat(3, minmax(108px,1fr))}
+  .frames-grid{grid-template-columns:repeat(3, minmax(0,1fr))}
   .group-assets{grid-template-columns:repeat(3, minmax(92px,1fr))}
   .frame-shot{max-height:220px}
   .prompt-drawer .toggle-content{
@@ -1140,7 +1223,8 @@ a.link{
 }
 @media (max-width:520px){
   .summary{grid-template-columns:1fr}
-  .frames-grid,.asset-grid,.preview-grid,.embedded-grid{grid-template-columns:repeat(2, minmax(108px,1fr))}
+  .asset-grid,.preview-grid,.embedded-grid{grid-template-columns:repeat(2, minmax(108px,1fr))}
+  .frames-grid{grid-template-columns:repeat(2, minmax(0,1fr))}
   .group-assets{grid-template-columns:repeat(2, minmax(92px,1fr))}
 }
 </style>
@@ -2207,30 +2291,39 @@ function parsePipelineJson(data) {
 }
 
 function renderStats(parsed) {
-  const stats = [
-    ["旁白段数", parsed.narrationSegments.length],
-    ["资产数量", parsed.assets.length],
+  summaryEl.innerHTML = "";
+}
+
+function metricItems(parsed) {
+  return [
+    ["旁白数", parsed.narrationSegments.length],
+    ["资产数", parsed.assets.length],
     ["关键帧组", new Set(parsed.frames.map((item) => item.groupIndex ?? 0)).size],
-    ["视频结果", parsed.media.items.length + (parsed.media.sceneVideos?.length || 0)],
     ["九宫格图", parsed.gridImages.length],
-    ["可预览资产", parsed.previewAssets.length]
+    ["视频数量", parsed.media.items.length + (parsed.media.sceneVideos?.length || 0)],
+    ["音频数量", parsed.frames.filter((frame) => frame.audioUrl).length]
   ];
-  summaryEl.innerHTML = stats.map(([label, value]) => `
-    <div class="stat">
-      <div class="value">${escapeHtml(value)}</div>
-      <div class="label">${escapeHtml(label)}</div>
+}
+
+function renderMetricRail(parsed) {
+  return `
+    <div class="metric-grid">
+      ${metricItems(parsed).map(([label, value]) => `
+        <article class="metric-card">
+          <strong>${escapeHtml(value)}</strong>
+          <span>${escapeHtml(label)}</span>
+        </article>
+      `).join("")}
     </div>
-  `).join("");
+  `;
 }
 
 function renderSectionNav() {
   const items = [
     ["finalVideo", "成片/JSON"],
-    ["exportsPanel", "批量导出"],
     ["narrationPanel", "旁白"],
     ["assetsPanel", "全部资产"],
-    ["framesPanel", "关键帧"],
-    ["videosPanel", "视频"]
+    ["framesPanel", "关键帧"]
   ];
   sectionNavEl.innerHTML = items.map(([id, label]) => `
     <button class="nav-link" type="button" data-target="${id}">${escapeHtml(label)}</button>
@@ -2238,35 +2331,28 @@ function renderSectionNav() {
 }
 
 function renderNarration(parsed) {
-  const episodeCards = parsed.episodes?.length ? `
-    <div class="episode-grid">
-      ${parsed.episodes.map((episode) => `
-        <article class="episode-card">
-          <strong>${escapeHtml(episode.title)}</strong>
-          <span>旁白切分：${escapeHtml(episode.narrationCount)} 条</span>
-          <span>成片段落：${escapeHtml(episode.segmentCount)} 条</span>
-          <span>${episode.duration ? `时长：${escapeHtml(Number(episode.duration).toFixed(2))}s` : "时长未识别"}</span>
-        </article>
-      `).join("")}
-    </div>
-  ` : "";
   const grouped = new Map();
   parsed.narrationSegments.forEach((item) => {
     const key = item.sceneIndex || 1;
     if (!grouped.has(key)) grouped.set(key, []);
     grouped.get(key).push(item);
   });
-  const groupedHtml = parsed.episodes?.length ? [...grouped.entries()].map(([sceneIndex, items]) => `
-    <section class="narration-scene">
-      <div class="narration-scene-head">
-        <h3>分集 / 场景 ${escapeHtml(sceneIndex)}</h3>
-        <span class="tag">${escapeHtml(items.length)} 条旁白</span>
-      </div>
-      <div class="narration-list">
-        ${items.map((item) => `<div class="narration-item">${escapeHtml(item.text)}</div>`).join("")}
-      </div>
-    </section>
-  `).join("") : `<pre class="json-view">${escapeHtml(safeJson(parsed.narrationSegments.map((item) => item.raw)))}</pre>`;
+  const narrationPrompt = (sceneIndex) => {
+    const items = grouped.get(sceneIndex) || [];
+    return items.map((item, index) => `${index + 1}. ${item.text}`).join("\n");
+  };
+  const episodeCards = parsed.episodes?.length ? `
+    <div class="episode-grid">
+      ${parsed.episodes.map((episode) => `
+        <button class="episode-card prompt-open" type="button" data-title="场景${escapeHtml(episode.sceneIndex)}旁白" data-subtitle="${escapeHtml(episode.narrationCount || episode.segmentCount)} 条 / ${episode.duration ? `${escapeHtml(Number(episode.duration).toFixed(0))}s` : "时长未识别"}" data-prompt="${escapeHtml(narrationPrompt(episode.sceneIndex))}">
+          <strong>场景${escapeHtml(episode.sceneIndex)}</strong>
+          <span>${escapeHtml(episode.narrationCount || episode.segmentCount)}条</span>
+          <span>${episode.duration ? `${escapeHtml(Number(episode.duration).toFixed(0))}s` : "时长未识别"}</span>
+        </button>
+      `).join("")}
+    </div>
+  ` : "";
+  const groupedHtml = parsed.episodes?.length ? "" : `<pre class="json-view">${escapeHtml(safeJson(parsed.narrationSegments.map((item) => item.raw)))}</pre>`;
   const raw = parsed.episodes?.length
     ? parsed.episodes.map((episode) => ({ scene_index: episode.sceneIndex, narration_split: episode.raw }))
     : parsed.narrationSegments.map((item) => item.raw);
@@ -2300,33 +2386,38 @@ function renderAssetSections(groups, renderer, emptyText) {
 }
 
 function renderAssets(parsed) {
+  const excludedAssetUrls = new Set([
+    ...parsed.frames.flatMap((frame) => [frame.imageUrl, frame.videoUrl, frame.audioUrl]),
+    ...(parsed.media.sceneVideos || []).map((video) => video.url),
+    parsed.media.finalVideoUrl
+  ].filter(Boolean));
+  const visiblePreviewAssets = (parsed.previewAssets || []).filter((asset) => (
+    !asset.label.includes("关键帧")
+    && asset.type !== "video"
+    && asset.type !== "audio"
+    && !asset.label.includes("视频")
+    && !asset.label.includes("音频")
+    && !excludedAssetUrls.has(asset.url)
+  ));
   const coreGroups = groupAssetItems(parsed.assets, [
     { title: "核心角色", match: (asset) => asset.type === "角色" },
     { title: "核心场景", match: (asset) => asset.type === "场景" },
     { title: "核心道具", match: (asset) => asset.type === "道具" },
     { title: "其他核心资产", match: (asset) => !["角色", "场景", "道具"].includes(asset.type) }
   ]);
-  const previewGroups = groupAssetItems(parsed.previewAssets, [
+  const previewGroups = groupAssetItems(visiblePreviewAssets, [
     { title: "角色资产图", gridClass: "preview-grid", match: (asset) => asset.label.includes("角色") },
     { title: "场景资产图", gridClass: "preview-grid", match: (asset) => asset.label.includes("场景") },
     { title: "道具资产图", gridClass: "preview-grid", match: (asset) => asset.label.includes("道具") },
     { title: "九宫格图片", gridClass: "preview-grid", match: (asset) => asset.label.includes("九宫格") },
-    { title: "关键帧", gridClass: "preview-grid", match: (asset) => asset.label.includes("关键帧") },
-    { title: "视频", gridClass: "preview-grid", match: (asset) => asset.type === "video" || asset.label.includes("视频") || asset.label.includes("成片") },
-    { title: "音频", gridClass: "preview-grid", match: (asset) => asset.type === "audio" || asset.label.includes("音频") },
     { title: "其他链接", gridClass: "preview-grid", match: (asset) => assetSortRank(asset) >= 60 && asset.type !== "audio" && asset.type !== "video" }
   ]);
   const cards = renderAssetSections(coreGroups, (asset) => `
       <article class="asset-card">
         <div class="asset-cover">${asset.image ? `<img src="${escapeHtml(asset.image)}" alt="${escapeHtml(asset.name)}" loading="lazy">` : "<span>暂无资产图</span>"}</div>
         <div class="asset-body">
-          <p class="asset-title">${escapeHtml(asset.name)}</p>
-          <div class="asset-meta">${escapeHtml(asset.type)}</div>
-          <div class="links">
-            ${asset.image ? `
-              <a class="link asset-download-link" href="${escapeHtml(asset.image)}" download="${escapeHtml(filenameFromUrl(asset.image, asset.name || "asset"))}" target="_blank" rel="noreferrer">下载</a>
-            ` : ""}
-            <button class="btn ghost prompt-open" type="button" data-title="资产提示词" data-subtitle="${escapeHtml(asset.name)}" data-prompt="${escapeHtml(asset.prompt || "未识别到提示词")}">提示词</button>
+          <div class="asset-row">
+            <p class="asset-title">${escapeHtml(asset.name)}</p>
             <button class="btn ghost prompt-open" type="button" data-title="资产 JSON 清单" data-subtitle="${escapeHtml(asset.name)}" data-prompt="${escapeHtml(safeJson(asset.manifest))}">JSON</button>
           </div>
         </div>
@@ -2341,14 +2432,14 @@ function renderAssets(parsed) {
           <h2>2. 全部资产</h2>
           <span>角色、场景、道具与可预览素材统一展示</span>
         </div>
-        <span>${escapeHtml(parsed.assets.length)} 个核心资产 / ${escapeHtml(parsed.previewAssets.length)} 个可预览资产</span>
+        <span>${escapeHtml(parsed.assets.length)} 个核心资产 / ${escapeHtml(visiblePreviewAssets.length)} 个可预览资产</span>
       </div>
       <div class="panel-body">
         ${cards}
         <div class="toggle-block preview-assets-toggle">
           <button class="toggle-head" type="button">
             <span>查看可预览资产库</span>
-            <small>${escapeHtml(parsed.previewAssets.length)} 个图片 / 视频 / 音频 / 链接</small>
+            <small>${escapeHtml(visiblePreviewAssets.length)} 个图片 / 链接</small>
             <span class="chev">▶</span>
           </button>
           <div class="toggle-content">
@@ -2390,6 +2481,23 @@ function roleSceneAssetItems(parsed) {
     }));
 }
 
+function roleSceneAssetLinkText(parsed) {
+  const rows = roleSceneAssetItems(parsed).map((asset, index) => [
+    `${index + 1}. ${asset.title || `资产 ${index + 1}`}`,
+    asset.label,
+    asset.url
+  ].filter(Boolean).join("\n"));
+  return rows.length ? rows.join("\n\n") : "未识别到角色/场景资产图片链接。";
+}
+
+function sceneVideoItems(parsed) {
+  return (parsed.media.sceneVideos || []).map((video, index) => ({
+    title: video.title || `分集视频 ${index + 1}`,
+    label: "分集视频",
+    url: video.url
+  })).filter((item) => item.url);
+}
+
 function totalDurationSeconds(parsed) {
   const sceneSeconds = (parsed.media.sceneVideos || [])
     .map((video) => Number(video.duration))
@@ -2405,25 +2513,11 @@ function currentJsonSource() {
   return isUrl(lastSourceName) ? lastSourceName : (remoteUrlInputEl.value.trim() || lastSourceName || "未识别");
 }
 
-function currentTaskId(parsed) {
-  const source = currentJsonSource();
-  const fromJson = pickFirst(parsed.raw, ["run_id", "task_id", "global_config.task_id", "global_config.run_id", "dag_id"]);
-  if (fromJson) return fromJson;
-  try {
-    const parts = new URL(source).pathname.split("/").filter(Boolean);
-    return parts.find((part) => /narration_final_process/i.test(part)) || filenameFromUrl(source, "未识别");
-  } catch {
-    return "未识别";
-  }
-}
-
 function projectReadmeText(parsed) {
   const episodeCount = parsed.media.sceneVideos?.length || parsed.episodes?.length || 0;
   const minutes = totalDurationSeconds(parsed) / 60;
   const videoSegmentCount = parsed.media.items.length;
   return [
-    `项目：${parsed.title || "未命名项目"}`,
-    `任务ID：${currentTaskId(parsed)}`,
     `JSON链接：${currentJsonSource()}`,
     `全文${parsed.rawCharacterCount || 0}字，共${episodeCount}集，共${minutes ? minutes.toFixed(1) : 0}分钟，共${videoSegmentCount}个视频片段。`,
     "",
@@ -2439,41 +2533,12 @@ function projectReadmeText(parsed) {
     "分集视频链接：",
     sceneVideoLinkText(parsed),
     "",
+    "角色/场景资产图片链接：",
+    roleSceneAssetLinkText(parsed),
+    "",
     "九宫格图片链接：",
     gridImageLinkText(parsed)
   ].join("\n");
-}
-
-function renderBulkExports(parsed) {
-  const sceneCount = parsed.media.sceneVideos?.length || 0;
-  const roleSceneItems = roleSceneAssetItems(parsed);
-  const gridCount = parsed.gridImages.length;
-  const canExport = sceneCount || roleSceneItems.length || gridCount;
-
-  return `
-    <section class="panel" id="exportsPanel">
-      <div class="panel-head">
-        <div>
-          <h2>批量导出</h2>
-          <span>一个 ZIP 汇总分集视频链接、角色/场景资产、九宫格图和项目说明</span>
-        </div>
-        <span>${escapeHtml(sceneCount)} 个分集 / ${escapeHtml(roleSceneItems.length)} 个角色场景资产 / ${escapeHtml(gridCount)} 张九宫格</span>
-      </div>
-      <div class="panel-body">
-        <div class="export-grid">
-          <article class="export-card">
-            <h3>完整导出包</h3>
-            <p>ZIP 内包含分集视频下载链接、角色/场景资产、九宫格图片，以及 JSON 链接、任务 ID、全文字数、集数、分钟数、视频片段数说明。</p>
-            <div class="export-actions">
-              <button class="btn primary bulk-export-btn" type="button" data-export="all-package" ${canExport ? "" : "disabled"}>下载完整导出包</button>
-              <button class="btn ghost prompt-open" type="button" data-title="分集视频链接清单" data-subtitle="${escapeHtml(parsed.title)}" data-prompt="${escapeHtml(sceneVideoLinkText(parsed))}" ${sceneCount ? "" : "disabled"}>查看链接</button>
-              <button class="btn ghost prompt-open" type="button" data-title="项目说明" data-subtitle="${escapeHtml(parsed.title)}" data-prompt="${escapeHtml(projectReadmeText(parsed))}">查看说明</button>
-            </div>
-          </article>
-        </div>
-      </div>
-    </section>
-  `;
 }
 
 function renderGroupAssets(frames, parsed) {
@@ -2580,34 +2645,23 @@ function renderFrames(parsed) {
     `;
   }
 
-  const html = [...groups.entries()].map(([groupIndex, frames]) => {
+  const groupedByScene = new Map();
+  [...groups.entries()].forEach(([groupIndex, frames]) => {
     const sceneIndex = frameSceneIndex(frames);
-    const sceneGroupIndex = frameSceneGroupIndex(frames, groupIndex);
-    return `
-    <section class="frame-group">
-      <div class="frame-group-head">
-        <div class="frame-group-title">
-          <span class="frame-group-index">${escapeHtml(Number(sceneIndex) + 1)}</span>
-          <div>
-            <h3>第${escapeHtml(Number(sceneIndex) + 1)}集 组${escapeHtml(Number(sceneGroupIndex) + 1)}</h3>
+    if (!groupedByScene.has(sceneIndex)) groupedByScene.set(sceneIndex, []);
+    groupedByScene.get(sceneIndex).push({ groupIndex, frames, sceneGroupIndex: frameSceneGroupIndex(frames, groupIndex) });
+  });
+
+  const renderFrameGrid = (frames) => `
+    <div class="frames-grid">
+      ${frames.map((frame) => `
+        <article class="frame">
+          <div class="frame-shot">
+            ${frame.imageUrl ? `<img src="${escapeHtml(frame.imageUrl)}" alt="${escapeHtml(frame.title)}" loading="lazy">` : ""}
           </div>
-        </div>
-        <div class="group-control">
-          <button class="toggle-head prompt-open" type="button" data-title="第${escapeHtml(Number(sceneIndex) + 1)}集 组${escapeHtml(Number(sceneGroupIndex) + 1)}" data-subtitle="本组提示词与关联资产" data-prompt-html="${escapeHtml(groupPromptModalHtml(frames, parsed))}">
-            <span>提示词/资产</span>
-            <span class="chev">↗</span>
-          </button>
-        </div>
-      </div>
-      <div class="frames-grid">
-        ${frames.map((frame) => `
-          <article class="frame">
-            <div class="frame-shot">
-              ${frame.imageUrl ? `<img src="${escapeHtml(frame.imageUrl)}" alt="${escapeHtml(frame.title)}" loading="lazy">` : ""}
-            </div>
-            <div class="frame-body">
-              <div class="toggle-block prompt-drawer">
-                <button class="toggle-head prompt-open" type="button" data-title="关键帧 Prompt" data-subtitle="${escapeHtml(frame.title)}" data-prompt="${escapeHtml(
+          <div class="frame-body">
+            <div class="toggle-block prompt-drawer">
+              <button class="toggle-head prompt-open" type="button" data-title="关键帧 Prompt" data-subtitle="${escapeHtml(frame.title)}" data-prompt="${escapeHtml(
 `prompt: ${frame.keyframePrompt || "未识别"}
 
 arc: ${frame.arc || "未识别"}
@@ -2616,8 +2670,8 @@ cam: ${frame.cam || "未识别"}
 spatial: ${frame.spatial || "未识别"}
 vis: ${frame.visual || "未识别"}
 check: ${frame.check || "未识别"}`)}"><span>Prompt</span><span class="chev">↗</span></button>
-                <div class="toggle-content">
-                  <pre class="prompt-box">${escapeHtml(
+              <div class="toggle-content">
+                <pre class="prompt-box">${escapeHtml(
 `prompt: ${frame.keyframePrompt || "未识别"}
 
 arc: ${frame.arc || "未识别"}
@@ -2626,15 +2680,37 @@ cam: ${frame.cam || "未识别"}
 spatial: ${frame.spatial || "未识别"}
 vis: ${frame.visual || "未识别"}
 check: ${frame.check || "未识别"}`)}</pre>
-                </div>
               </div>
             </div>
-          </article>
-        `).join("")}
-      </div>
-    </section>
+          </div>
+        </article>
+      `).join("")}
+    </div>
   `;
-  }).join("");
+
+  const html = [...groupedByScene.entries()].map(([sceneIndex, sceneGroups]) => `
+    <section class="episode-frame-group">
+      <div class="frame-group-head">
+        <div class="frame-group-title">
+          <span class="frame-group-index">${escapeHtml(Number(sceneIndex) + 1)}</span>
+          <div>
+            <h3>第${escapeHtml(Number(sceneIndex) + 1)}集 共${escapeHtml(sceneGroups.length)}组九宫格</h3>
+          </div>
+        </div>
+        <div class="group-control">
+          ${sceneGroups.map(({ frames, sceneGroupIndex }) => `
+            <button class="toggle-head prompt-open" type="button" data-title="第${escapeHtml(Number(sceneIndex) + 1)}集 组${escapeHtml(Number(sceneGroupIndex) + 1)}" data-subtitle="本组提示词与关联资产" data-prompt-html="${escapeHtml(groupPromptModalHtml(frames, parsed))}">
+              <span>组${escapeHtml(Number(sceneGroupIndex) + 1)} Prompt</span>
+              <span class="chev">↗</span>
+            </button>
+          `).join("")}
+        </div>
+      </div>
+      ${sceneGroups.map(({ frames }) => `
+        <div class="frame-group">${renderFrameGrid(frames)}</div>
+      `).join("")}
+    </section>
+  `).join("");
 
   return `
     <section class="panel" id="framesPanel">
@@ -2738,14 +2814,17 @@ function renderMedia(parsed) {
 }
 
 function renderTopFinalVideo(parsed) {
+  const sceneCount = parsed.media.sceneVideos?.length || 0;
+  const roleSceneItems = roleSceneAssetItems(parsed);
+  const gridCount = parsed.gridImages.length;
+  const canExport = sceneCount || roleSceneItems.length || gridCount;
   return `
     <section class="panel" id="finalVideo">
       <div class="panel-head">
         <div>
-          <h2>成片与原始 JSON</h2>
-          <span>最终视频和源数据并列审阅</span>
+          <h2>成片概览</h2>
+          <span>最终视频、关键统计与源数据入口</span>
         </div>
-        <span>${escapeHtml(parsed.title)}</span>
       </div>
       <div class="panel-body">
         <div class="final-json-grid">
@@ -2760,13 +2839,18 @@ function renderTopFinalVideo(parsed) {
               </div>
             ` : '<div class="empty">还没有识别到最终剪辑视频。</div>'}
           </div>
-          <div class="raw-json-pane">
-            <div class="raw-json-head">
-              <h3>原始 JSON</h3>
-              <button class="btn ghost prompt-open" type="button" data-title="原始 JSON" data-subtitle="${escapeHtml(lastSourceName)}" data-prompt="${escapeHtml(safeJson(parsed.raw))}">放大查看</button>
+          <aside class="final-side-pane">
+            <div class="final-side-head">
+              <h3>资产统计</h3>
+              <span>关键指标</span>
             </div>
-            <pre class="json-view">${escapeHtml(safeJson(parsed.raw))}</pre>
-          </div>
+            ${renderMetricRail(parsed)}
+            <div class="side-actions">
+              <button class="btn primary bulk-export-btn" type="button" data-export="all-package" ${canExport ? "" : "disabled"}>下载完整导出包</button>
+              <button class="btn ghost prompt-open" type="button" data-title="项目说明" data-subtitle="导出说明与资产链接" data-prompt="${escapeHtml(projectReadmeText(parsed))}">查看说明</button>
+              <button class="btn ghost prompt-open raw-json-capsule" type="button" data-title="原始 JSON" data-subtitle="${escapeHtml(lastSourceName)}" data-prompt="${escapeHtml(safeJson(parsed.raw))}">原始 JSON ↗</button>
+            </div>
+          </aside>
         </div>
       </div>
     </section>
@@ -2784,7 +2868,12 @@ function renderPreviewAssetCard(item) {
   if (item.type === "image") {
     mediaHtml = `<div class="preview-thumb"><img src="${escapeHtml(item.url)}" alt="${escapeHtml(item.title)}" loading="lazy"></div>${actionHtml}`;
   } else if (item.type === "video") {
-    mediaHtml = `<div class="preview-thumb"><video controls preload="metadata" src="${escapeHtml(item.url)}"></video></div>${actionHtml}`;
+    mediaHtml = `
+      <div class="preview-thumb preview-placeholder">
+        <span>视频链接</span>
+      </div>
+      ${actionHtml}
+    `;
   } else if (item.type === "audio") {
     mediaHtml = `<div class="preview-thumb"><audio controls preload="metadata" src="${escapeHtml(item.url)}"></audio></div>${actionHtml}`;
   }
@@ -2848,11 +2937,9 @@ function renderAll(parsed) {
   renderSectionNav();
   mainColumnEl.innerHTML = [
     renderTopFinalVideo(parsed),
-    renderBulkExports(parsed),
     renderNarration(parsed),
     renderAssets(parsed),
-    renderFrames(parsed),
-    renderMedia(parsed)
+    renderFrames(parsed)
   ].join("");
 
   document.querySelectorAll(".toggle-head").forEach((button) => {
@@ -2903,7 +2990,7 @@ function renderAll(parsed) {
     });
   });
 
-  ["finalVideo", "exportsPanel", "narrationPanel", "assetsPanel", "framesPanel", "videosPanel"].forEach((id) => {
+  ["finalVideo", "narrationPanel", "assetsPanel", "framesPanel"].forEach((id) => {
     const el = document.getElementById(id);
     if (el) observer.observe(el);
   });
@@ -3139,20 +3226,27 @@ async function downloadZipFromItems(items, filename) {
 async function downloadFullExportPackage(parsed) {
   const files = [
     {
-      name: "分集视频下载链接.txt",
-      data: new TextEncoder().encode(sceneVideoLinkText(parsed))
-    },
-    {
       name: "项目说明.txt",
       data: new TextEncoder().encode(projectReadmeText(parsed))
     }
   ];
   const items = roleSceneAssetItems(parsed);
+  const sceneVideos = sceneVideoItems(parsed);
   const gridItems = parsed.gridImages || [];
   const failed = [];
   const usedNames = new Set(files.map((file) => file.name));
 
-  updateStatus(`正在生成完整导出包：${items.length} 个角色/场景资产，${gridItems.length} 张九宫格图片...`);
+  updateStatus(`正在生成完整导出包：${sceneVideos.length} 个分集视频，${items.length} 个角色/场景资产，${gridItems.length} 张九宫格图片...`);
+  for (let index = 0; index < sceneVideos.length; index += 1) {
+    const item = sceneVideos[index];
+    updateStatus(`正在写入分集视频 ${index + 1}/${sceneVideos.length}：${item.title || filenameFromUrl(item.url)}`);
+    try {
+      files.push(await fetchAssetBytes(item, index, usedNames, "分集视频/"));
+    } catch (error) {
+      console.warn("分集视频读取失败", item.url, error);
+      failed.push(`${item.title || item.label || "scene_video"}\n${item.url}`);
+    }
+  }
   for (let index = 0; index < items.length; index += 1) {
     const item = items[index];
     updateStatus(`正在写入角色/场景资产 ${index + 1}/${items.length}：${item.title || filenameFromUrl(item.url)}`);
