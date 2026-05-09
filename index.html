@@ -1726,17 +1726,68 @@ function normalizeAssets(data) {
     "node_outputs.N03.result.character_images",
     "steps.asset_image.character_images"
   ]) || [];
-  const charImageMap = new Map(characterImages.map((item) => [item.character_name, item.image_url]));
+  const characterImageEntries = characterImages.map((item) => ({
+    characterName: item.character_name || item.name || "",
+    costumeName: item.costume_name || "",
+    image: pickFirst(item, ["image_url", "url", "asset_image_url", "cover_image_url"]) || firstUrlByType(collectUrls(item), "image") || "",
+    urls: unique(collectUrls(item)),
+    raw: item
+  })).filter((item) => item.image);
+  const charImageMap = new Map(characterImageEntries.map((item) => [item.costumeName || item.characterName, item.image]));
+  const pickCharacterImage = (characterName, costumeName) => {
+    const costumeTarget = normalizeAssetName(costumeName);
+    const characterTarget = normalizeAssetName(characterName);
+    const exactCostume = characterImageEntries.find((entry) => normalizeAssetName(entry.costumeName) === costumeTarget);
+    if (exactCostume?.image) return exactCostume.image;
+    const exactPair = characterImageEntries.find((entry) => (
+      normalizeAssetName(entry.characterName) === characterTarget
+      && normalizeAssetName(entry.costumeName).includes(costumeTarget)
+    ));
+    if (exactPair?.image) return exactPair.image;
+    const byCharacter = characterImageEntries.find((entry) => normalizeAssetName(entry.characterName) === characterTarget);
+    return byCharacter?.image || pickMappedImage(costumeName || characterName, charImageMap);
+  };
+  const characterImageUrls = (characterName, costumeName) => {
+    const costumeTarget = normalizeAssetName(costumeName);
+    const characterTarget = normalizeAssetName(characterName);
+    return unique(characterImageEntries
+      .filter((entry) => (
+        (costumeTarget && normalizeAssetName(entry.costumeName) === costumeTarget)
+        || (!costumeTarget && normalizeAssetName(entry.characterName) === characterTarget)
+      ))
+      .flatMap((entry) => entry.urls.length ? entry.urls : [entry.image]));
+  };
 
   characters.forEach((item, index) => {
-    const urls = unique(collectUrls(item).concat(charImageMap.get(item.name) || []));
+    const characterName = item.name || item.character_name || `角色 ${index + 1}`;
+    const costumes = Array.isArray(item.costumes) ? item.costumes : [];
+    if (costumes.length) {
+      costumes.forEach((costume, costumeIndex) => {
+        const costumeName = costume.costume_name || costume.name || `${characterName}_妆造${costumeIndex + 1}`;
+        const urls = unique(collectUrls(item).concat(collectUrls(costume), characterImageUrls(characterName, costumeName)));
+        const image = pickCharacterImage(characterName, costumeName) || item.image_url || firstUrlByType(urls, "image") || "";
+        assets.push({
+          type: "角色",
+          name: costumeName,
+          prompt: costume.prompt || item.prompt || item.voice_prompt || "",
+          manifest: { ...item, costume, character_name: characterName, costume_name: costumeName },
+          image,
+          urls,
+          characterName,
+          costumeName
+        });
+      });
+      return;
+    }
+    const urls = unique(collectUrls(item).concat(characterImageUrls(characterName, "")));
     assets.push({
       type: "角色",
-      name: item.name || item.character_name || `角色 ${index + 1}`,
-      prompt: item.costumes?.map((c) => c.prompt).filter(Boolean).join("\n\n") || item.prompt || item.voice_prompt || "",
+      name: characterName,
+      prompt: item.prompt || item.voice_prompt || "",
       manifest: item,
-      image: pickMappedImage(item.name || item.character_name, charImageMap) || item.image_url || firstUrlByType(urls, "image") || "",
-      urls
+      image: pickCharacterImage(characterName, "") || item.image_url || firstUrlByType(urls, "image") || "",
+      urls,
+      characterName
     });
   });
 
@@ -1749,17 +1800,67 @@ function normalizeAssets(data) {
     "node_outputs.N03.result.scene_images",
     "steps.asset_image.scene_images"
   ]) || [];
-  const sceneImageMap = new Map(sceneImages.map((item) => [item.scene_name, item.image_url]));
+  const sceneImageEntries = sceneImages.map((item) => ({
+    sceneName: item.scene_name || item.name || "",
+    image: pickFirst(item, ["image_url", "url", "asset_image_url", "cover_image_url"]) || firstUrlByType(collectUrls(item), "image") || "",
+    urls: unique(collectUrls(item)),
+    raw: item
+  })).filter((item) => item.image);
+  const sceneImageMap = new Map(sceneImageEntries.map((item) => [item.sceneName, item.image]));
+  const pickSceneImage = (sceneName, stateName) => {
+    const stateTarget = normalizeAssetName(stateName);
+    const sceneTarget = normalizeAssetName(sceneName);
+    const exactState = sceneImageEntries.find((entry) => normalizeAssetName(entry.sceneName) === stateTarget);
+    if (exactState?.image) return exactState.image;
+    const stateUnderScene = sceneImageEntries.find((entry) => (
+      normalizeAssetName(entry.sceneName).startsWith(sceneTarget)
+      && normalizeAssetName(entry.sceneName).includes(stateTarget)
+    ));
+    if (stateUnderScene?.image) return stateUnderScene.image;
+    const byScene = sceneImageEntries.find((entry) => normalizeAssetName(entry.sceneName).startsWith(sceneTarget));
+    return byScene?.image || pickMappedImage(stateName || sceneName, sceneImageMap);
+  };
+  const sceneImageUrls = (sceneName, stateName) => {
+    const stateTarget = normalizeAssetName(stateName);
+    const sceneTarget = normalizeAssetName(sceneName);
+    return unique(sceneImageEntries
+      .filter((entry) => (
+        (stateTarget && normalizeAssetName(entry.sceneName) === stateTarget)
+        || (!stateTarget && normalizeAssetName(entry.sceneName).startsWith(sceneTarget))
+      ))
+      .flatMap((entry) => entry.urls.length ? entry.urls : [entry.image]));
+  };
 
   scenes.forEach((item, index) => {
-    const urls = unique(collectUrls(item).concat(sceneImageMap.get(item.scene_name) || []));
+    const sceneName = item.scene_name || item.name || `场景 ${index + 1}`;
+    const states = Array.isArray(item.states) ? item.states : [];
+    if (states.length) {
+      states.forEach((state, stateIndex) => {
+        const stateName = state.state_name || state.name || `${sceneName}_状态${stateIndex + 1}`;
+        const urls = unique(collectUrls(item).concat(collectUrls(state), sceneImageUrls(sceneName, stateName)));
+        const image = pickSceneImage(sceneName, stateName) || item.image_url || firstUrlByType(urls, "image") || "";
+        assets.push({
+          type: "场景",
+          name: stateName,
+          prompt: state.prompt || item.prompt || "",
+          manifest: { ...item, state, scene_name: sceneName, state_name: stateName },
+          image,
+          urls,
+          sceneName,
+          stateName
+        });
+      });
+      return;
+    }
+    const urls = unique(collectUrls(item).concat(sceneImageUrls(sceneName, "")));
     assets.push({
       type: "场景",
-      name: item.scene_name || item.name || `场景 ${index + 1}`,
-      prompt: item.states?.map((state) => state.prompt).filter(Boolean).join("\n\n") || item.prompt || "",
+      name: sceneName,
+      prompt: item.prompt || "",
       manifest: item,
-      image: pickMappedImage(item.scene_name || item.name, sceneImageMap) || item.image_url || firstUrlByType(urls, "image") || "",
-      urls
+      image: pickSceneImage(sceneName, "") || item.image_url || firstUrlByType(urls, "image") || "",
+      urls,
+      sceneName
     });
   });
 
@@ -2494,7 +2595,8 @@ function sceneVideoItems(parsed) {
   return (parsed.media.sceneVideos || []).map((video, index) => ({
     title: video.title || `分集视频 ${index + 1}`,
     label: "分集视频",
-    url: video.url
+    url: video.url,
+    downloadName: String(index + 1)
   })).filter((item) => item.url);
 }
 
@@ -3181,8 +3283,9 @@ async function fetchAssetBytes(item, index, usedNames, folder = "") {
   const response = await fetch(item.url, { mode: "cors" });
   if (!response.ok) throw new Error(`HTTP ${response.status}`);
   const ext = fileExtFromUrl(item.url, ".bin");
-  const base = sanitizeFilename(`${String(index + 1).padStart(2, "0")}_${item.label || "asset"}_${item.title || filenameFromUrl(item.url, "asset")}`);
-  const fileName = base.endsWith(ext) ? base : `${base}${ext}`;
+  const explicitName = item.downloadName ? sanitizeFilename(item.downloadName) : "";
+  const base = explicitName || sanitizeFilename(`${String(index + 1).padStart(2, "0")}_${item.label || "asset"}_${item.title || filenameFromUrl(item.url, "asset")}`);
+  const fileName = base.toLowerCase().endsWith(ext.toLowerCase()) ? base : `${base}${ext}`;
   const name = uniqueZipName(`${folder}${fileName}`, usedNames);
   return {
     name,
