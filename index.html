@@ -1165,6 +1165,39 @@ a.link{
   justify-content:center;
   border-radius:999px;
 }
+.export-progress{
+  display:none;
+  border:1px solid color-mix(in srgb, var(--brand) 24%, var(--line));
+  border-radius:14px;
+  padding:10px 11px;
+  background:linear-gradient(135deg, color-mix(in srgb, var(--brand) 8%, var(--panel)), var(--panel-soft));
+  color:var(--text);
+  font-size:12px;
+  line-height:1.45;
+  overflow:hidden;
+}
+.export-progress.active,.export-progress.done{
+  display:block;
+}
+.export-progress::after{
+  content:"";
+  display:block;
+  height:4px;
+  margin-top:8px;
+  border-radius:999px;
+  background:linear-gradient(90deg, transparent, var(--brand), transparent);
+  transform:translateX(-100%);
+}
+.export-progress.active::after{
+  animation:progressSweep 1.15s ease-in-out infinite;
+}
+.export-progress.done::after{
+  transform:none;
+  background:linear-gradient(90deg, var(--brand), color-mix(in srgb, var(--brand) 70%, #fff));
+}
+@keyframes progressSweep{
+  to{transform:translateX(100%)}
+}
 .hero-video-wrap{
   width:100%;
   flex:1;
@@ -2577,8 +2610,13 @@ function roleSceneAssetItems(parsed) {
     .filter((asset) => ["角色", "场景"].includes(asset.type) && asset.image)
     .map((asset) => ({
       title: asset.name,
-      label: `${asset.type}资产图`,
-      url: asset.image
+      label: asset.costumeName ? "角色妆造资产图" : asset.stateName ? "场景状态资产图" : `${asset.type}资产图`,
+      url: asset.image,
+      type: asset.type,
+      characterName: asset.characterName || "",
+      costumeName: asset.costumeName || "",
+      sceneName: asset.sceneName || "",
+      stateName: asset.stateName || ""
     }));
 }
 
@@ -2586,6 +2624,10 @@ function roleSceneAssetLinkText(parsed) {
   const rows = roleSceneAssetItems(parsed).map((asset, index) => [
     `${index + 1}. ${asset.title || `资产 ${index + 1}`}`,
     asset.label,
+    asset.characterName ? `角色：${asset.characterName}` : "",
+    asset.costumeName ? `妆造：${asset.costumeName}` : "",
+    asset.sceneName ? `场景：${asset.sceneName}` : "",
+    asset.stateName ? `状态：${asset.stateName}` : "",
     asset.url
   ].filter(Boolean).join("\n"));
   return rows.length ? rows.join("\n\n") : "未识别到角色/场景资产图片链接。";
@@ -2948,6 +2990,7 @@ function renderTopFinalVideo(parsed) {
             </div>
             ${renderMetricRail(parsed)}
             <div class="side-actions">
+              <div class="export-progress" data-export-progress>准备导出素材包</div>
               <button class="btn primary bulk-export-btn" type="button" data-export="all-package" ${canExport ? "" : "disabled"}>下载完整导出包</button>
               <button class="btn ghost prompt-open" type="button" data-title="项目说明" data-subtitle="导出说明与资产链接" data-prompt="${escapeHtml(projectReadmeText(parsed))}">查看说明</button>
               <button class="btn ghost prompt-open raw-json-capsule" type="button" data-title="原始 JSON" data-subtitle="${escapeHtml(lastSourceName)}" data-prompt="${escapeHtml(safeJson(parsed.raw))}">原始 JSON ↗</button>
@@ -3120,6 +3163,16 @@ function renderAll(parsed) {
 
 function updateStatus(message) {
   statusTextEl.textContent = message;
+  document.querySelectorAll("[data-export-progress]").forEach((item) => {
+    item.textContent = message;
+    const isActive = /正在|读取|打包|写入|生成/.test(message) && !/已生成|完成|失败|无法/.test(message);
+    const isDone = /已生成|完成/.test(message);
+    item.classList.toggle("active", isActive);
+    item.classList.toggle("done", isDone);
+    if (!isActive && !isDone && !message) {
+      item.classList.remove("active", "done");
+    }
+  });
 }
 
 function triggerBrowserDownload(url, filename) {
