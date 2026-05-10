@@ -1099,15 +1099,15 @@ a.link{
 }
 .final-json-grid{
   display:grid;
-  grid-template-columns:minmax(360px,1fr) minmax(220px,.42fr);
-  gap:14px;
+  grid-template-columns:minmax(360px,1fr) minmax(220px,.38fr);
+  gap:12px;
   align-items:stretch;
 }
 .final-pane,.final-side-pane{
   border:1px solid var(--line);
   border-radius:10px;
   background:var(--panel-soft);
-  padding:12px;
+  padding:10px;
   min-width:0;
   display:flex;
   flex-direction:column;
@@ -1117,7 +1117,7 @@ a.link{
   justify-content:space-between;
   gap:12px;
   align-items:center;
-  margin-bottom:10px;
+  margin-bottom:8px;
 }
 .final-pane-head h3,.final-side-head h3{
   margin:0;
@@ -1130,20 +1130,20 @@ a.link{
 .metric-grid{
   display:grid;
   grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:8px;
-  margin-bottom:12px;
+  gap:7px;
+  margin-bottom:10px;
 }
 .metric-card{
   border:1px solid var(--line);
   border-radius:10px;
   background:var(--panel);
-  padding:10px;
+  padding:8px 10px;
 }
 .metric-card strong{
   display:block;
-  font-size:22px;
+  font-size:20px;
   line-height:1;
-  margin-bottom:6px;
+  margin-bottom:5px;
 }
 .metric-card span{
   color:var(--muted);
@@ -1211,8 +1211,8 @@ a.link{
 .hero-video-wrap video{
   width:100%;
   height:100%;
-  min-height:360px;
-  max-height:min(62vh, 680px);
+  min-height:280px;
+  max-height:min(54vh, 560px);
   display:block;
   object-fit:contain;
   background:#060b10;
@@ -3379,6 +3379,32 @@ async function downloadZipFromItems(items, filename) {
   updateStatus(`已生成压缩包：${filename}`);
 }
 
+async function fetchItemsIntoZipFiles(items, folder, label, files, failed, usedNames, concurrency = 4) {
+  if (!items.length) return;
+  let cursor = 0;
+  let finished = 0;
+  const workerCount = Math.max(1, Math.min(concurrency, items.length));
+  const runWorker = async () => {
+    while (cursor < items.length) {
+      const index = cursor;
+      cursor += 1;
+      const item = items[index];
+      updateStatus(`正在写入${label} ${finished + 1}/${items.length}：${item.title || filenameFromUrl(item.url)}`);
+      try {
+        const file = await fetchAssetBytes(item, index, usedNames, folder);
+        files.push(file);
+      } catch (error) {
+        console.warn(`${label}读取失败`, item.url, error);
+        failed.push(`${item.title || item.label || label}\n${item.url}`);
+      } finally {
+        finished += 1;
+        updateStatus(`正在写入${label} ${finished}/${items.length}${finished === items.length ? "，准备下一步..." : ""}`);
+      }
+    }
+  };
+  await Promise.all(Array.from({ length: workerCount }, runWorker));
+}
+
 async function downloadFullExportPackage(parsed) {
   const files = [
     {
@@ -3393,36 +3419,9 @@ async function downloadFullExportPackage(parsed) {
   const usedNames = new Set(files.map((file) => file.name));
 
   updateStatus(`正在生成完整导出包：${sceneVideos.length} 个分集视频，${items.length} 个角色/场景资产，${gridItems.length} 张九宫格图片...`);
-  for (let index = 0; index < sceneVideos.length; index += 1) {
-    const item = sceneVideos[index];
-    updateStatus(`正在写入分集视频 ${index + 1}/${sceneVideos.length}：${item.title || filenameFromUrl(item.url)}`);
-    try {
-      files.push(await fetchAssetBytes(item, index, usedNames, "分集视频/"));
-    } catch (error) {
-      console.warn("分集视频读取失败", item.url, error);
-      failed.push(`${item.title || item.label || "scene_video"}\n${item.url}`);
-    }
-  }
-  for (let index = 0; index < items.length; index += 1) {
-    const item = items[index];
-    updateStatus(`正在写入角色/场景资产 ${index + 1}/${items.length}：${item.title || filenameFromUrl(item.url)}`);
-    try {
-      files.push(await fetchAssetBytes(item, index, usedNames, "角色场景资产/"));
-    } catch (error) {
-      console.warn("角色/场景素材读取失败", item.url, error);
-      failed.push(`${item.title || item.label || "asset"}\n${item.url}`);
-    }
-  }
-  for (let index = 0; index < gridItems.length; index += 1) {
-    const item = gridItems[index];
-    updateStatus(`正在写入九宫格图片 ${index + 1}/${gridItems.length}：${item.title || filenameFromUrl(item.url)}`);
-    try {
-      files.push(await fetchAssetBytes(item, index, usedNames, "九宫格图片/"));
-    } catch (error) {
-      console.warn("九宫格图片读取失败", item.url, error);
-      failed.push(`${item.title || item.label || "grid"}\n${item.url}`);
-    }
-  }
+  await fetchItemsIntoZipFiles(sceneVideos, "分集视频/", "分集视频", files, failed, usedNames, 1);
+  await fetchItemsIntoZipFiles(items, "角色场景资产/", "角色/场景资产", files, failed, usedNames, 6);
+  await fetchItemsIntoZipFiles(gridItems, "九宫格图片/", "九宫格图片", files, failed, usedNames, 8);
 
   if (failed.length) {
     files.push({
