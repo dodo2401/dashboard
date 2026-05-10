@@ -1159,6 +1159,43 @@ a.link{
   color:var(--muted);
   font-size:12px;
 }
+.narration-side-summary{
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:var(--panel);
+  padding:9px;
+  margin-bottom:10px;
+}
+.narration-side-summary h4{
+  margin:0 0 8px;
+  font-size:13px;
+}
+.narration-mini-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:6px;
+  max-height:148px;
+  overflow:auto;
+  padding-right:2px;
+}
+.narration-mini-card{
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:var(--panel-soft);
+  padding:7px 8px;
+  color:var(--text);
+  font-size:11px;
+  line-height:1.35;
+}
+.narration-mini-card strong{
+  display:block;
+  font-size:12px;
+  margin-bottom:2px;
+}
+.narration-mini-card span{
+  display:block;
+  color:var(--muted);
+}
 .raw-json-capsule{
   width:100%;
   justify-content:center;
@@ -1221,8 +1258,8 @@ a.link{
 .hero-video-wrap video{
   width:100%;
   height:100%;
-  min-height:220px;
-  max-height:min(38vh, 420px);
+  min-height:190px;
+  max-height:min(32vh, 360px);
   display:block;
   object-fit:contain;
   background:#060b10;
@@ -2462,6 +2499,24 @@ function renderMetricRail(parsed) {
   `;
 }
 
+function renderNarrationSideSummary(parsed) {
+  if (!parsed.episodes?.length) return "";
+  return `
+    <div class="narration-side-summary">
+      <h4>旁白分集 ${escapeHtml(parsed.episodes.length)} 个</h4>
+      <div class="narration-mini-grid">
+        ${parsed.episodes.map((episode) => `
+          <div class="narration-mini-card">
+            <strong>场景${escapeHtml(episode.sceneIndex)}</strong>
+            <span>${escapeHtml(episode.narrationCount || episode.segmentCount)}条</span>
+            <span>${episode.duration ? `${escapeHtml(Number(episode.duration).toFixed(0))}s` : "时长未识别"}</span>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  `;
+}
+
 function renderSectionNav() {
   const items = [
     ["finalVideo", "成片/JSON"],
@@ -2999,6 +3054,7 @@ function renderTopFinalVideo(parsed) {
               <span>关键指标</span>
             </div>
             ${renderMetricRail(parsed)}
+            ${renderNarrationSideSummary(parsed)}
             <div class="side-actions">
               <div class="export-progress" data-export-progress>准备导出素材包</div>
               <button class="btn primary bulk-export-btn" type="button" data-export="all-package" ${canExport ? "" : "disabled"}>下载完整导出包</button>
