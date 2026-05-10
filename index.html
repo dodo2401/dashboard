@@ -1167,34 +1167,13 @@ a.link{
   margin-bottom:10px;
 }
 .narration-side-summary h4{
-  margin:0 0 8px;
-  font-size:13px;
+  margin:0;
+  font-size:14px;
 }
-.narration-mini-grid{
-  display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:6px;
-  max-height:148px;
-  overflow:auto;
-  padding-right:2px;
-}
-.narration-mini-card{
-  border:1px solid var(--line);
-  border-radius:10px;
-  background:var(--panel-soft);
-  padding:7px 8px;
-  color:var(--text);
-  font-size:11px;
-  line-height:1.35;
-}
-.narration-mini-card strong{
-  display:block;
-  font-size:12px;
-  margin-bottom:2px;
-}
-.narration-mini-card span{
-  display:block;
+.narration-side-summary p{
+  margin:4px 0 0;
   color:var(--muted);
+  font-size:12px;
 }
 .raw-json-capsule{
   width:100%;
@@ -1258,8 +1237,8 @@ a.link{
 .hero-video-wrap video{
   width:100%;
   height:100%;
-  min-height:190px;
-  max-height:min(32vh, 360px);
+  min-height:360px;
+  max-height:min(62vh, 680px);
   display:block;
   object-fit:contain;
   background:#060b10;
@@ -1463,6 +1442,14 @@ function groupAssetItems(items, groups) {
     ...group,
     items: (items || []).filter(group.match)
   })).filter((group) => group.items.length);
+}
+
+function naturalSortText(value) {
+  return String(value || "").replace(/\d+/g, (digits) => digits.padStart(8, "0"));
+}
+
+function gridSortKey(item) {
+  return naturalSortText(`${item.sceneIndex ?? ""}_${item.groupIndex ?? ""}_${item.title || ""}_${item.path || ""}_${filenameFromUrl(item.url, "")}`);
 }
 
 function filenameFromUrl(url, fallback = "asset") {
@@ -2323,7 +2310,14 @@ function normalizeGridImages(data) {
       label: "九宫格图片",
       title: `九宫格 ${index + 1}`,
       url: entry.url,
-      path: entry.path
+      path: entry.path,
+      sceneIndex: Number((String(entry.path).match(/scenes\.(\d+)|scene[_-]?index[^\d]*(\d+)/i) || [])[1] || (String(entry.path).match(/scenes\.(\d+)|scene[_-]?index[^\d]*(\d+)/i) || [])[2] || NaN),
+      groupIndex: Number((String(entry.path).match(/prompt_groups\.(\d+)|group[_-]?index[^\d]*(\d+)/i) || [])[1] || (String(entry.path).match(/prompt_groups\.(\d+)|group[_-]?index[^\d]*(\d+)/i) || [])[2] || NaN)
+    }))
+    .sort((a, b) => gridSortKey(a).localeCompare(gridSortKey(b), "zh-Hans-CN"))
+    .map((entry, index) => ({
+      ...entry,
+      title: `九宫格 ${index + 1}`
     }));
 }
 
@@ -2434,7 +2428,12 @@ function normalizePreviewAssets(data, parsedAssets, frames, media, gridImages = 
       deduped.push(item);
     }
   }
-  return sortedAssets(deduped);
+  return sortedAssets(deduped).sort((a, b) => {
+    const aGrid = a.label?.includes("九宫格");
+    const bGrid = b.label?.includes("九宫格");
+    if (aGrid && bGrid) return gridSortKey(a).localeCompare(gridSortKey(b), "zh-Hans-CN");
+    return 0;
+  });
 }
 
 function parsePipelineJson(data) {
@@ -2501,18 +2500,14 @@ function renderMetricRail(parsed) {
 
 function renderNarrationSideSummary(parsed) {
   if (!parsed.episodes?.length) return "";
+  const totalDuration = parsed.episodes
+    .map((episode) => Number(episode.duration))
+    .filter((value) => Number.isFinite(value))
+    .reduce((sum, value) => sum + value, 0);
   return `
     <div class="narration-side-summary">
       <h4>旁白分集 ${escapeHtml(parsed.episodes.length)} 个</h4>
-      <div class="narration-mini-grid">
-        ${parsed.episodes.map((episode) => `
-          <div class="narration-mini-card">
-            <strong>场景${escapeHtml(episode.sceneIndex)}</strong>
-            <span>${escapeHtml(episode.narrationCount || episode.segmentCount)}条</span>
-            <span>${episode.duration ? `${escapeHtml(Number(episode.duration).toFixed(0))}s` : "时长未识别"}</span>
-          </div>
-        `).join("")}
-      </div>
+      <p>共 ${escapeHtml(parsed.narrationSegments.length)} 条旁白${totalDuration ? ` / ${escapeHtml(Math.round(totalDuration))}s` : ""}</p>
     </div>
   `;
 }
@@ -3381,7 +3376,7 @@ function createZipBlob(files) {
   writeUint32(endView, 16, offset);
   writeUint16(endView, 20, 0);
 
-  return new Blob([concatUint8([...localParts, ...centralParts, end])], { type: "application/zip" });
+  return new Blob([...localParts, ...centralParts, end], { type: "application/zip" });
 }
 
 function uniqueZipName(name, usedNames) {
@@ -3496,6 +3491,8 @@ async function downloadFullExportPackage(parsed) {
     });
   }
 
+  updateStatus("素材已读取完成，正在生成 ZIP 文件...");
+  await new Promise((resolve) => setTimeout(resolve, 30));
   const zip = createZipBlob(files);
   const url = URL.createObjectURL(zip);
   triggerBrowserDownload(url, `${sanitizeFilename(parsed.title || "L3-lab导出包")}_完整导出包.zip`);
