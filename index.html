@@ -293,6 +293,57 @@ input[type="file"]{display:none}
 .nav-link.active{background:var(--brand);border-color:var(--brand);color:#fff}
 .layout{display:block}
 .column{display:flex;flex-direction:column;gap:18px}
+.highlight-flow{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(300px,.72fr);
+  gap:14px;
+}
+.highlight-card{
+  border:1px solid var(--line);
+  border-radius:18px;
+  background:linear-gradient(145deg, color-mix(in srgb, var(--panel) 88%, #fff), color-mix(in srgb, var(--panel-soft) 80%, transparent));
+  padding:16px;
+}
+.highlight-card h3{margin:0 0 8px;font-size:15px}
+.highlight-card p{margin:0 0 12px;color:var(--muted);font-size:13px;line-height:1.7}
+.highlight-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.highlight-textarea{
+  width:100%;
+  min-height:180px;
+  resize:vertical;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:var(--panel);
+  color:var(--text);
+  padding:12px;
+  font:12px/1.6 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  box-sizing:border-box;
+}
+.highlight-mini{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:8px;
+  margin:12px 0;
+}
+.highlight-mini span{
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:10px;
+  background:var(--panel-soft);
+  font-size:12px;
+  color:var(--muted);
+}
+.highlight-mini strong{display:block;color:var(--text);font-size:18px;margin-bottom:2px}
+.command-box{
+  white-space:pre-wrap;
+  word-break:break-word;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:#07110d;
+  color:#d9ffe8;
+  padding:12px;
+  font:12px/1.6 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
 .panel{
   background:var(--panel);
   border:1px solid var(--line);
@@ -1282,6 +1333,8 @@ a.link{
 }
 @media (max-width:520px){
   .summary{grid-template-columns:1fr}
+  .highlight-flow{grid-template-columns:1fr}
+  .highlight-mini{grid-template-columns:1fr}
   .asset-grid,.preview-grid,.embedded-grid{grid-template-columns:repeat(2, minmax(108px,1fr))}
   .frames-grid{grid-template-columns:repeat(2, minmax(0,1fr))}
   .group-assets{grid-template-columns:repeat(2, minmax(92px,1fr))}
@@ -2512,9 +2565,132 @@ function renderNarrationSideSummary(parsed) {
   `;
 }
 
+function orderedHighlightEpisodes(parsed) {
+  const grouped = new Map();
+  parsed.narrationSegments.forEach((item) => {
+    const episode = Number(item.sceneIndex || 1);
+    const sentence = Number(item.index ?? 0) + 1;
+    if (!grouped.has(episode)) grouped.set(episode, []);
+    grouped.get(episode).push({
+      episode,
+      sentence,
+      text: item.text || ""
+    });
+  });
+  return [...grouped.entries()]
+    .sort((a, b) => a[0] - b[0])
+    .map(([episode, segments]) => ({
+      episode,
+      segments: segments.sort((a, b) => a.sentence - b.sentence)
+    }));
+}
+
+function buildHighlightAgentInput(parsed) {
+  const episodes = orderedHighlightEpisodes(parsed);
+  const total = episodes.reduce((sum, item) => sum + item.segments.length, 0);
+  const outputSchema = {
+    title: "高光标题",
+    reason: "选择理由",
+    shots: [
+      {
+        episode: 1,
+        sentence: 1
+      }
+    ]
+  };
+  const lines = [
+    "你是短剧/小说解说投放高光剪辑策划 Agent。",
+    "请从下面分集分句中，选择 1 条适合投放的高光视频方案。",
+    "重要：不要改写原文，不要生成新台词，只能选择已有分句。",
+    "下游只需要对应分集和分句，所以输出 episode 与 sentence 即可。",
+    "",
+    `分集数：${episodes.length}`,
+    `分句数：${total}`,
+    "",
+    "选择要求：",
+    "1. 开头 3-8 句必须有强钩子：冲突、反转、悬念、身份错位、危机或强情绪。",
+    "2. 中段必须有因果推进，不能只堆砌金句。",
+    "3. 结尾停在爽点、反转、悬念或强情绪节点。",
+    "4. 尽量选择同一主线连续分句，允许少量跨段，但观众必须能看懂。",
+    "",
+    "必须输出纯 JSON，字段越少越好，格式如下：",
+    JSON.stringify(outputSchema),
+    "",
+    "可选句子：",
+    ...episodes.flatMap((episode) => [
+      `【第${episode.episode}集】`,
+      ...episode.segments.map((segment) => `${segment.episode}-${segment.sentence}. ${segment.text}`),
+      ""
+    ])
+  ];
+  return {
+    input_version: "dashboard-simple-1.0",
+    source_json_url: remoteUrlInputEl.value || lastSourceName,
+    title: parsed.title,
+    summary: {
+      episode_count: episodes.length,
+      sentence_count: total
+    },
+    agent_query: lines.join("\n"),
+    episodes
+  };
+}
+
+function renderHighlightPipeline(parsed) {
+  const agentInput = buildHighlightAgentInput(parsed);
+  const sourceUrl = remoteUrlInputEl.value || "<node_outputs_json_url>";
+  const projectDir = "/Users/jiazhuo/Documents/Playground/pipeline_dashboard/highlight_pipeline";
+  const command = [
+    `cd ${projectDir}`,
+    `python3 scripts/save_agent_output.py workspace/plan/manual_agent_output.txt --out workspace/plan/highlight_plan.json --full-segment-pool workspace/pool/full_segment_pool.json`,
+    `python3 scripts/build_timeline.py workspace/plan/highlight_plan.json workspace/pool/full_segment_pool.json --out workspace/plan/highlight_timeline.json`,
+    `python3 scripts/download_and_concat.py workspace/plan/highlight_timeline.json --workspace workspace --output output/highlight_01.mp4 --skip-download`
+  ].join("\n");
+  return `
+    <section class="panel" id="highlightPanel">
+      <div class="panel-head">
+        <div>
+          <h2>高光链路</h2>
+          <span>生成 Agent 输入、承接外部 Agent 返回，并回捞本地视频拼接</span>
+        </div>
+      </div>
+      <div class="panel-body">
+        <div class="highlight-flow">
+          <div class="highlight-card">
+            <h3>1. 外部 Agent 输入</h3>
+            <p>已按分集顺序整理为最简字段：分集、句子序号、原文。复制 TXT 给外部 Agent，或下载 JSON 后取 <code>agent_query</code> 字段。</p>
+            <div class="highlight-mini">
+              <span><strong>${escapeHtml(agentInput.summary.episode_count)}</strong>分集</span>
+              <span><strong>${escapeHtml(agentInput.summary.sentence_count)}</strong>分句</span>
+              <span><strong>2</strong>输出字段</span>
+            </div>
+            <textarea class="highlight-textarea" readonly id="highlightAgentInputText">${escapeHtml(agentInput.agent_query)}</textarea>
+            <div class="highlight-actions">
+              <button class="btn primary highlight-copy" type="button" data-copy-target="highlightAgentInputText">复制 Agent 输入</button>
+              <button class="btn ghost highlight-download-agent-json" type="button">下载 Agent 输入 JSON</button>
+              <button class="btn ghost highlight-download-agent-txt" type="button">下载 Agent 输入 TXT</button>
+            </div>
+          </div>
+          <div class="highlight-card">
+            <h3>2. 粘贴 Agent 返回</h3>
+            <p>支持 <code>{"shots":[{"episode":1,"sentence":1}]}</code>，也支持直接返回数组。点击转换后会下载标准 <code>highlight_plan.json</code>。</p>
+            <textarea class="highlight-textarea" id="highlightAgentOutputText" placeholder='粘贴外部 Agent 返回 JSON，例如 {"shots":[{"episode":1,"sentence":1}]}'></textarea>
+            <div class="highlight-actions">
+              <button class="btn primary highlight-plan-convert" type="button">下载 highlight_plan.json</button>
+              <button class="btn ghost prompt-open" type="button" data-title="本地回捞拼接命令" data-subtitle="保存 Agent 输出后执行" data-prompt="${escapeHtml(command)}">查看本地命令</button>
+            </div>
+            <p class="section-note">如果要直接本地跑完整链路，先用脚本准备素材池：<br><code>python3 scripts/prepare_agent_input.py "${escapeHtml(sourceUrl)}"</code></p>
+          </div>
+        </div>
+      </div>
+    </section>
+  `;
+}
+
 function renderSectionNav() {
   const items = [
     ["finalVideo", "成片/JSON"],
+    ["highlightPanel", "高光链路"],
     ["narrationPanel", "旁白"],
     ["assetsPanel", "全部资产"],
     ["framesPanel", "关键帧"]
@@ -3138,11 +3314,68 @@ function closeAssetLightbox() {
   lightboxImageEl.alt = "";
 }
 
+function repairLooseAgentJson(text) {
+  let value = String(text || "").trim();
+  value = value.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "").trim();
+  try {
+    return JSON.parse(value);
+  } catch (error) {
+    if (/^\{\s*\n?\s*\{/.test(value) && /\}\s*$/.test(value)) {
+      const repaired = `[${value.slice(1, -1).trim().replace(/,\s*$/, "")}]`;
+      return JSON.parse(repaired);
+    }
+    throw error;
+  }
+}
+
+function standardHighlightPlanFromAgentOutput(rawOutput, parsed) {
+  const data = Array.isArray(rawOutput)
+    ? { title: "高光片段", reason: "", shots: rawOutput }
+    : rawOutput.highlight
+      ? { title: rawOutput.highlight.title || rawOutput.title, reason: rawOutput.highlight.storyline || rawOutput.reason, shots: rawOutput.highlight.shots || [] }
+      : rawOutput;
+  const shots = data.shots || [];
+  if (!Array.isArray(shots) || !shots.length) {
+    throw new Error("未识别到 shots 数组");
+  }
+  const normalized = shots.map((shot, index) => {
+    const episode = Number(shot.episode || shot.scene_index || 1);
+    const sentence = Number(shot.sentence || (Number(shot.segment_index) + 1) || 1);
+    const segment = parsed.narrationSegments.find((item) => Number(item.sceneIndex || 1) === episode && Number(item.index ?? 0) + 1 === sentence);
+    return {
+      order: index + 1,
+      global_segment_id: shot.global_segment_id || `scene_${String(episode).padStart(3, "0")}_seg_${String(sentence - 1).padStart(3, "0")}`,
+      scene_index: episode,
+      segment_index: sentence - 1,
+      source_text: segment?.text || shot.text || shot.source_text || "",
+      highlight_function: shot.highlight_function || (index < 3 ? "hook" : "conflict"),
+      reason: shot.reason || "",
+      priority: shot.priority || "must_keep"
+    };
+  });
+  return {
+    task_type: "single_highlight_plan",
+    source_run_id: parsed.raw?.run_id || parsed.title || "",
+    source_json_url: remoteUrlInputEl.value || "",
+    highlight: {
+      highlight_id: "highlight_01",
+      title: data.title || "高光片段",
+      selling_point: data.reason || "",
+      hook: normalized[0]?.source_text || "",
+      selected_segment_count: normalized.length,
+      storyline: data.reason || "",
+      blocks: [],
+      shots: normalized
+    }
+  };
+}
+
 function renderAll(parsed) {
   renderStats(parsed);
   renderSectionNav();
   mainColumnEl.innerHTML = [
     renderTopFinalVideo(parsed),
+    renderHighlightPipeline(parsed),
     renderNarration(parsed),
     renderAssets(parsed),
     renderFrames(parsed)
@@ -3166,6 +3399,46 @@ function renderAll(parsed) {
   document.querySelectorAll(".prompt-open").forEach((button) => {
     button.addEventListener("click", () => {
       openPromptModal(button.dataset.title, button.dataset.subtitle, button.dataset.prompt, button.dataset.promptHtml || "");
+    });
+  });
+
+  document.querySelectorAll(".highlight-copy").forEach((button) => {
+    button.addEventListener("click", async () => {
+      const target = document.getElementById(button.dataset.copyTarget);
+      if (!target) return;
+      await navigator.clipboard.writeText(target.value || target.textContent || "");
+      updateStatus("已复制高光 Agent 输入。");
+    });
+  });
+
+  document.querySelectorAll(".highlight-download-agent-json").forEach((button) => {
+    button.addEventListener("click", () => {
+      const agentInput = buildHighlightAgentInput(lastParsed);
+      downloadText("highlight_agent_input.json", safeJson(agentInput), "application/json;charset=utf-8");
+      updateStatus("已导出高光 Agent 输入 JSON。");
+    });
+  });
+
+  document.querySelectorAll(".highlight-download-agent-txt").forEach((button) => {
+    button.addEventListener("click", () => {
+      const agentInput = buildHighlightAgentInput(lastParsed);
+      downloadText("highlight_agent_input.txt", agentInput.agent_query);
+      updateStatus("已导出高光 Agent 输入 TXT。");
+    });
+  });
+
+  document.querySelectorAll(".highlight-plan-convert").forEach((button) => {
+    button.addEventListener("click", () => {
+      const textarea = document.getElementById("highlightAgentOutputText");
+      try {
+        const raw = repairLooseAgentJson(textarea?.value || "");
+        const plan = standardHighlightPlanFromAgentOutput(raw, lastParsed);
+        downloadText("highlight_plan.json", safeJson(plan), "application/json;charset=utf-8");
+        updateStatus(`已生成 highlight_plan.json：${plan.highlight.selected_segment_count} 条。`);
+      } catch (error) {
+        console.warn(error);
+        updateStatus(`高光方案 JSON 解析失败：${error.message}`);
+      }
     });
   });
 
@@ -3196,7 +3469,7 @@ function renderAll(parsed) {
     });
   });
 
-  ["finalVideo", "narrationPanel", "assetsPanel", "framesPanel"].forEach((id) => {
+  ["finalVideo", "highlightPanel", "narrationPanel", "assetsPanel", "framesPanel"].forEach((id) => {
     const el = document.getElementById(id);
     if (el) observer.observe(el);
   });

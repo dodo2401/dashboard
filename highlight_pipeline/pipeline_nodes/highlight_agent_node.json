@@ -1,0 +1,64 @@
+{
+  "node_id": "N03_highlight_agent",
+  "node_name": "高光片段 Agent",
+  "node_type": "llm_agent",
+  "version": "1.0.0",
+  "description": "从 light_segment_pool.json 中选择 1 条适合投放的高光视频方案，输出 highlight_plan.json，供后续确定性回捞视频片段。",
+  "external_agent_api": "https://aistudio.alibaba-inc.com/api/aiapp/run/OYuXGejqqIU/1.0.0",
+  "prompt_file": "../highlight_agent_prompt.md",
+  "input": {
+    "type": "json",
+    "path": "workspace/agent_input/highlight_agent_input.json",
+    "schema_name": "highlight_agent_input",
+    "required_fields": [
+      "source_json_url",
+      "run_id",
+      "summary",
+      "highlight_target",
+      "agent_query",
+      "episodes"
+    ]
+  },
+  "output": {
+    "type": "json",
+    "path": "workspace/plan/highlight_plan.json",
+    "schema_name": "highlight_plan",
+    "required_fields": [
+      "task_type",
+      "source_run_id",
+      "source_json_url",
+      "highlight"
+    ]
+  },
+  "model_config": {
+    "temperature": 0.35,
+    "top_p": 0.9,
+    "response_format": "json_object",
+    "max_output_tokens": 12000
+  },
+  "runtime_contract": {
+    "input_policy": "Agent 只读取 light_segment_pool.json，不读取 full_segment_pool.json，避免长上下文和 URL 噪音。",
+    "selection_policy": "Agent 只负责选择分句和解释高光结构，不负责重新匹配视频、音频或关键帧。",
+    "retrieval_policy": "下游 build_timeline.py 使用 global_segment_id 从 full_segment_pool.json 确定性回捞素材。",
+    "duration_policy": "不要求 Agent 控制单条视频时长，只控制 selected_segment_count 和整体叙事完整度。"
+  },
+  "validation_rules": [
+    "source_run_id 必须等于输入 run_id",
+    "source_json_url 必须等于输入 source_json_url",
+    "highlight.selected_segment_count 必须等于 highlight.shots.length",
+    "highlight.shots[*].global_segment_id 必须存在于输入 segments[*].global_segment_id",
+    "highlight.shots[*].source_text 必须与对应输入 segments[*].text 完全一致",
+    "highlight.shots[*].order 必须从 1 开始连续递增",
+    "输出必须是纯 JSON，不允许 Markdown"
+  ],
+  "next_nodes": [
+    {
+      "node_id": "N04_build_highlight_timeline",
+      "command": "python3 scripts/build_timeline.py workspace/plan/highlight_plan.json workspace/pool/full_segment_pool.json --out workspace/plan/highlight_timeline.json"
+    },
+    {
+      "node_id": "N05_download_and_concat",
+      "command": "python3 scripts/download_and_concat.py workspace/plan/highlight_timeline.json --workspace workspace --output output/highlight_01.mp4"
+    }
+  ]
+}
