@@ -44,21 +44,7 @@ def build_segment_lookup(full_segment_pool: Path) -> dict[tuple[int, int], dict[
     return lookup
 
 
-def normalize_plan(data: Any, lookup: dict[tuple[int, int], dict[str, Any]] | None = None) -> dict[str, Any]:
-    if isinstance(data, list):
-        highlight = {
-            "title": "高光片段",
-            "reason": "",
-            "shots": data,
-        }
-        data = {"highlight": highlight}
-    elif not isinstance(data, dict):
-        raise SystemExit("Agent output must be a JSON object or a JSON array.")
-    elif "highlight" in data:
-        highlight = data.get("highlight") or {}
-    else:
-        highlight = data
-
+def normalize_highlight(highlight: dict[str, Any], lookup: dict[tuple[int, int], dict[str, Any]] | None, index_offset: int = 0) -> dict[str, Any]:
     shots = highlight.get("shots")
     if not isinstance(shots, list) or not shots:
         raise SystemExit("Agent output missing required field: shots")
@@ -82,19 +68,44 @@ def normalize_plan(data: Any, lookup: dict[tuple[int, int], dict[str, Any]] | No
         })
 
     return {
+        "highlight_id": highlight.get("highlight_id", f"highlight_{index_offset + 1:02d}"),
+        "title": highlight.get("title", f"高光片段{index_offset + 1}"),
+        "selling_point": highlight.get("selling_point", highlight.get("reason", "")),
+        "hook": highlight.get("hook", normalized_shots[0]["source_text"] if normalized_shots else ""),
+        "selected_segment_count": len(normalized_shots),
+        "storyline": highlight.get("storyline", highlight.get("reason", "")),
+        "blocks": highlight.get("blocks", []),
+        "shots": normalized_shots,
+    }
+
+
+def normalize_plan(data: Any, lookup: dict[tuple[int, int], dict[str, Any]] | None = None) -> dict[str, Any]:
+    if isinstance(data, list):
+        data = {"highlight": {"title": "高光片段", "reason": "", "shots": data}}
+    elif not isinstance(data, dict):
+        raise SystemExit("Agent output must be a JSON object or a JSON array.")
+
+    if isinstance(data.get("highlights"), list):
+        highlights = [
+            normalize_highlight(item if isinstance(item, dict) else {"shots": item}, lookup, index)
+            for index, item in enumerate(data["highlights"])
+        ]
+        return {
+            "task_type": "multi_highlight_plan",
+            "source_run_id": data.get("source_run_id", ""),
+            "source_json_url": data.get("source_json_url", ""),
+            "highlight_count": len(highlights),
+            "highlights": highlights,
+            "highlight": highlights[0] if highlights else {},
+        }
+
+    highlight = data.get("highlight") if "highlight" in data else data
+    normalized = normalize_highlight(highlight or {}, lookup, 0)
+    return {
         "task_type": "single_highlight_plan",
         "source_run_id": highlight.get("source_run_id", data.get("source_run_id", "")),
         "source_json_url": highlight.get("source_json_url", data.get("source_json_url", "")),
-        "highlight": {
-            "highlight_id": highlight.get("highlight_id", "highlight_01"),
-            "title": highlight.get("title", data.get("title", "高光片段")),
-            "selling_point": highlight.get("selling_point", data.get("reason", "")),
-            "hook": highlight.get("hook", normalized_shots[0]["source_text"] if normalized_shots else ""),
-            "selected_segment_count": len(normalized_shots),
-            "storyline": highlight.get("storyline", data.get("reason", "")),
-            "blocks": highlight.get("blocks", []),
-            "shots": normalized_shots,
-        },
+        "highlight": normalized,
     }
 
 
@@ -115,6 +126,7 @@ def main() -> int:
     print(json.dumps({
         "status": "ok",
         "out": str(out),
+        "highlight_count": len(plan.get("highlights", [])) or 1,
         "selected_segment_count": plan.get("highlight", {}).get("selected_segment_count"),
     }, ensure_ascii=False, indent=2))
     return 0

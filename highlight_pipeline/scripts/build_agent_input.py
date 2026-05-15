@@ -116,35 +116,48 @@ def main() -> int:
         lines.append("")
 
     output_schema = {
-        "title": "高光标题",
-        "reason": "选择理由",
-        "shots": [
+        "highlights": [
             {
-                "episode": 1,
-                "sentence": 1,
-                "text": "原文句子"
+                "title": "高光标题1",
+                "reason": "选择理由",
+                "target_duration": "2-3分钟",
+                "target_sentence_count": 100,
+                "shots": [
+                    {
+                        "episode": 1,
+                        "sentence": 1
+                    }
+                ]
             }
         ]
     }
 
     summary = pool.get("summary") or {}
-    target = pool.get("highlight_target") or {}
+    target = {
+        **(pool.get("highlight_target") or {}),
+        "highlight_count": 10,
+        "preferred_segment_count": 100,
+        "segment_count_range": [80, 120],
+        "target_duration": "2-3分钟高光段，后续随机补足到5-8分钟成片",
+    }
     query = "\n".join([
         "你是短剧/小说解说投放高光剪辑策划 Agent。",
-        "请从下面已经生成好的分集分句素材中，选择 1 条适合投放的高光视频方案。",
+        "请从下面已经生成好的分集分句素材中，选择 10 条适合投放的高光视频方案。",
         "重要：不要改写原文，不要生成新台词，只能选择已有分句。",
-        "你只需要返回分集 episode、句子序号 sentence、原文 text。",
+        "你只需要返回分集 episode、句子序号 sentence。",
         "",
         f"分集数：{summary.get('episode_count', 0)}",
         f"分句数：{summary.get('segment_count', 0)}",
         f"建议选择分句数：{target.get('segment_count_range', [60, 90])}",
         "",
         "选择要求：",
-        "1. 开头 3-8 句必须有强钩子：冲突、反转、悬念、身份错位、危机或强情绪。",
-        "2. 中段必须有因果推进，不能只堆砌金句。",
-        "3. 结尾停在爽点、反转、悬念或强情绪节点。",
-        "4. 尽量选择同一主线连续分句，允许少量跨段，但观众必须能看懂。",
-        "5. shots 数组只返回你选择的句子。",
+        "1. 一次输出 10 条 highlights，每条高光段控制在 2-3 分钟左右，优先约 100 句。",
+        "2. 每条开头 3-8 句必须有强钩子：冲突、反转、悬念、身份错位、危机或强情绪。",
+        "3. 每条中段必须有因果推进，不能只堆砌金句。",
+        "4. 每条结尾停在爽点、反转、悬念或强情绪节点。",
+        "5. 每条尽量选择同一主线连续分句，允许少量跨段，但观众必须能看懂。",
+        "6. 每条 shots 数组只返回你选择的句子，字段只需要 episode 和 sentence。",
+        "7. 下游会随机补足剩余分集素材，把每条最终视频控制到 5-8 分钟，所以这里不要为了凑时长选择弱剧情。",
         "",
         "必须输出纯 JSON，字段越少越好，格式如下：",
         json.dumps(output_schema, ensure_ascii=False),
@@ -159,6 +172,18 @@ def main() -> int:
         "run_id": pool.get("run_id", ""),
         "summary": summary,
         "highlight_target": target,
+        "agent_payload": {
+            "task": "从已生成视频素材池中选择10个投放高光组合",
+            "rules": [
+                "只选择已有分句，不改写原文，不生成新台词",
+                "每个组合约100句，对应2-3分钟高光段",
+                "输出10个highlights，每个highlight只需要shots数组",
+                "shots字段只保留episode和sentence",
+                "后续拼接链路会随机补足剩余分集素材到5-8分钟"
+            ],
+            "output_format": output_schema,
+            "episodes": episodes,
+        },
         "candidate_policy": {
             "enabled": bool(args.candidate_scenes),
             "candidate_scene_count": len(selected_scene_indexes),

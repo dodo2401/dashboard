@@ -149,10 +149,11 @@ def main() -> int:
         "pool_version": "1.0",
         **common,
         "highlight_target": {
-            "highlight_count": 1,
-            "preferred_segment_count": 75,
-            "segment_count_range": [60, 90],
-            "usage": "投放高光视频",
+            "highlight_count": 10,
+            "preferred_segment_count": 100,
+            "segment_count_range": [80, 120],
+            "target_duration": "2-3分钟高光段，后续随机补足到5-8分钟成片",
+            "usage": "投放高光视频批量方案",
         },
         "segments": light_segments,
     }

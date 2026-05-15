@@ -39,6 +39,8 @@ def main() -> int:
     parser.add_argument("--download", action="store_true", help="Download clips and concat when ffmpeg is available")
     parser.add_argument("--download-limit", type=int, default=0, help="Download only first N clips for smoke testing")
     parser.add_argument("--skip-download", action="store_true", help="Reuse existing clips when running download step")
+    parser.add_argument("--target-min-sec", type=float, default=300, help="Minimum final duration for each multi-highlight output.")
+    parser.add_argument("--target-max-sec", type=float, default=480, help="Maximum final duration for each multi-highlight output.")
     args = parser.parse_args()
 
     workspace = Path(args.workspace).expanduser().resolve()
@@ -46,6 +48,7 @@ def main() -> int:
     plan_dir = workspace / "plan"
     plan_path = plan_dir / "highlight_plan.json"
     timeline_path = plan_dir / "highlight_timeline.json"
+    timelines_dir = plan_dir / "highlights"
     agent_input_path = workspace / "agent_input" / "highlight_agent_input.json"
     plan_dir.mkdir(parents=True, exist_ok=True)
 
@@ -123,22 +126,26 @@ def main() -> int:
 
     run([
         sys.executable,
-        str(SCRIPTS / "build_timeline.py"),
+        str(SCRIPTS / "build_multi_highlight_timelines.py"),
         str(plan_path),
         str(pool_dir / "full_segment_pool.json"),
-        "--out",
-        str(timeline_path),
+        "--out-dir",
+        str(timelines_dir),
+        "--fill-random",
+        "--target-min-sec",
+        str(args.target_min_sec),
+        "--target-max-sec",
+        str(args.target_max_sec),
     ])
 
     if args.download:
         cmd = [
             sys.executable,
-            str(SCRIPTS / "download_and_concat.py"),
-            str(timeline_path),
+            str(SCRIPTS / "download_multi_highlights.py"),
+            "--timeline-dir",
+            str(timelines_dir),
             "--workspace",
-            str(workspace),
-            "--output",
-            "output/highlight_01.mp4",
+            str(workspace / "highlight_outputs"),
         ]
         if args.download_limit:
             cmd.extend(["--limit", str(args.download_limit)])
@@ -147,11 +154,11 @@ def main() -> int:
         run(cmd)
     else:
         print("")
-        print("时间线已生成：")
-        print(timeline_path)
+        print("多高光时间线已生成：")
+        print(timelines_dir)
         print("")
         print("如需下载拼接，继续运行：")
-        print(f"{sys.executable} {SCRIPTS / 'download_and_concat.py'} {timeline_path} --workspace {workspace} --output output/highlight_01.mp4")
+        print(f"{sys.executable} {SCRIPTS / 'download_multi_highlights.py'} --timeline-dir {timelines_dir} --workspace {workspace / 'highlight_outputs'}")
 
     return 0
 

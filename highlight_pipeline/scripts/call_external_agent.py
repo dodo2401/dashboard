@@ -54,7 +54,7 @@ def unwrap_response(response: Any, unwrap_field: str) -> Any:
         for key in ("highlight_plan", "result", "output", "data", "content", "text"):
             if key in response:
                 candidate = try_json_loads(response[key])
-                if isinstance(candidate, dict) and ("highlight" in candidate or "task_type" in candidate):
+                if isinstance(candidate, dict) and ("highlight" in candidate or "highlights" in candidate or "task_type" in candidate):
                     return candidate
         return response
     return try_json_loads(response)
@@ -62,7 +62,7 @@ def unwrap_response(response: Any, unwrap_field: str) -> Any:
 
 def find_plan(value: Any, path: str = "$") -> tuple[dict[str, Any] | None, str]:
     value = try_json_loads(value)
-    if isinstance(value, dict) and "highlight" in value:
+    if isinstance(value, dict) and ("highlight" in value or "highlights" in value):
         return value, path
     if isinstance(value, dict):
         for key, child in value.items():
@@ -80,6 +80,19 @@ def find_plan(value: Any, path: str = "$") -> tuple[dict[str, Any] | None, str]:
 def validate_plan(plan: Any) -> dict[str, Any]:
     if not isinstance(plan, dict):
         raise SystemExit("Agent response is not a JSON object.")
+    if isinstance(plan.get("highlights"), list):
+        if not plan["highlights"]:
+            raise SystemExit("Agent response missing required field: highlights")
+        for index, highlight in enumerate(plan["highlights"], start=1):
+            shots = highlight.get("shots") if isinstance(highlight, dict) else None
+            if not isinstance(shots, list) or not shots:
+                raise SystemExit(f"Agent response missing required field: highlights[{index}].shots")
+            highlight.setdefault("highlight_id", f"highlight_{index:02d}")
+            highlight.setdefault("selected_segment_count", len(shots))
+        plan.setdefault("task_type", "multi_highlight_plan")
+        plan.setdefault("highlight_count", len(plan["highlights"]))
+        plan.setdefault("highlight", plan["highlights"][0])
+        return plan
     if "highlight" not in plan:
         raise SystemExit("Agent response missing required field: highlight")
     shots = plan.get("highlight", {}).get("shots")
@@ -111,12 +124,13 @@ def main() -> int:
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
     input_data = load_json(input_path)
+    agent_payload = input_data.get("agent_payload") if isinstance(input_data, dict) else None
     agent_query = input_data.get("agent_query") if isinstance(input_data, dict) else None
-    payload_input = agent_query or input_data
+    payload_input = agent_payload or agent_query or input_data
     payload = {
         args.input_field: payload_input,
     }
-    if not agent_query:
+    if not agent_payload and not agent_query:
         payload[args.prompt_field] = prompt_path.read_text(encoding="utf-8")
     body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
     headers = {
@@ -152,7 +166,7 @@ def main() -> int:
         print(f"Saved raw Agent response: {raw_out}", file=sys.stderr)
         if isinstance(response, dict):
             print(f"Top-level response keys: {list(response.keys())}", file=sys.stderr)
-        raise SystemExit("Agent response missing required field: highlight")
+        raise SystemExit("Agent response missing required field: highlight/highlights")
 
     plan = validate_plan(found_plan)
     out_path.write_text(json.dumps(plan, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -161,6 +175,7 @@ def main() -> int:
         "out": str(out_path),
         "raw_out": str(raw_out),
         "plan_path_in_response": found_path,
+        "highlight_count": len(plan.get("highlights", [])) or 1,
         "selected_segment_count": plan.get("highlight", {}).get("selected_segment_count"),
     }, ensure_ascii=False, indent=2))
     return 0

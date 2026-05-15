@@ -26,7 +26,16 @@ def main() -> int:
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
     by_id = {item.get("global_segment_id"): item for item in pool.get("segments", [])}
-    highlight = plan.get("highlight") or (plan.get("highlight_videos") or [{}])[0]
+    highlight_index = 0
+    if isinstance(plan.get("highlights"), list) and plan["highlights"]:
+        out_name = out_path.name
+        for index, item in enumerate(plan["highlights"]):
+            if item.get("highlight_id") and item["highlight_id"] in out_name:
+                highlight_index = index
+                break
+        highlight = plan["highlights"][highlight_index]
+    else:
+        highlight = plan.get("highlight") or (plan.get("highlight_videos") or [{}])[0]
     shots = highlight.get("shots") or []
     timeline: list[dict[str, Any]] = []
     missing: list[dict[str, Any]] = []

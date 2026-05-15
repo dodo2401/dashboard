@@ -2589,29 +2589,49 @@ function buildHighlightAgentInput(parsed) {
   const episodes = orderedHighlightEpisodes(parsed);
   const total = episodes.reduce((sum, item) => sum + item.segments.length, 0);
   const outputSchema = {
-    title: "高光标题",
-    reason: "选择理由",
-    shots: [
+    highlights: [
       {
-        episode: 1,
-        sentence: 1
+        title: "高光标题1",
+        reason: "选择理由",
+        target_duration: "2-3分钟",
+        target_sentence_count: 100,
+        shots: [
+          {
+            episode: 1,
+            sentence: 1
+          }
+        ]
       }
     ]
   };
+  const agentPayload = {
+    task: "从已生成视频素材池中选择10个投放高光组合",
+    rules: [
+      "只选择已有分句，不改写原文，不生成新台词",
+      "每个组合约100句，对应2-3分钟高光段",
+      "输出10个highlights，每个highlight只需要shots数组",
+      "shots字段只保留episode和sentence",
+      "后续拼接链路会随机补足剩余分集素材到5-8分钟"
+    ],
+    output_format: outputSchema,
+    episodes
+  };
   const lines = [
     "你是短剧/小说解说投放高光剪辑策划 Agent。",
-    "请从下面分集分句中，选择 1 条适合投放的高光视频方案。",
+    "请从下面分集分句中，选择 10 条适合投放的高光视频方案。",
     "重要：不要改写原文，不要生成新台词，只能选择已有分句。",
-    "下游只需要对应分集和分句，所以输出 episode 与 sentence 即可。",
+    "下游只需要对应分集和分句，所以每条 shot 输出 episode 与 sentence 即可。",
     "",
     `分集数：${episodes.length}`,
     `分句数：${total}`,
     "",
     "选择要求：",
-    "1. 开头 3-8 句必须有强钩子：冲突、反转、悬念、身份错位、危机或强情绪。",
-    "2. 中段必须有因果推进，不能只堆砌金句。",
-    "3. 结尾停在爽点、反转、悬念或强情绪节点。",
-    "4. 尽量选择同一主线连续分句，允许少量跨段，但观众必须能看懂。",
+    "1. 一次输出 10 条 highlights，每条高光段控制在 2-3 分钟左右，优先约 100 句。",
+    "2. 每条开头 3-8 句必须有强钩子：冲突、反转、悬念、身份错位、危机或强情绪。",
+    "3. 每条中段必须有因果推进，不能只堆砌金句。",
+    "4. 每条结尾停在爽点、反转、悬念或强情绪节点。",
+    "5. 每条尽量选择同一主线连续分句，允许少量跨段，但观众必须能看懂。",
+    "6. 下游会随机补足剩余分集素材，把每条最终视频控制到 5-8 分钟，所以这里不要为了凑时长选择弱剧情。",
     "",
     "必须输出纯 JSON，字段越少越好，格式如下：",
     JSON.stringify(outputSchema),
@@ -2631,6 +2651,7 @@ function buildHighlightAgentInput(parsed) {
       episode_count: episodes.length,
       sentence_count: total
     },
+    agent_payload: agentPayload,
     agent_query: lines.join("\n"),
     episodes
   };
@@ -2643,43 +2664,42 @@ function renderHighlightPipeline(parsed) {
   const command = [
     `cd ${projectDir}`,
     `python3 scripts/save_agent_output.py workspace/plan/manual_agent_output.txt --out workspace/plan/highlight_plan.json --full-segment-pool workspace/pool/full_segment_pool.json`,
-    `python3 scripts/build_timeline.py workspace/plan/highlight_plan.json workspace/pool/full_segment_pool.json --out workspace/plan/highlight_timeline.json`,
-    `python3 scripts/download_and_concat.py workspace/plan/highlight_timeline.json --workspace workspace --output output/highlight_01.mp4 --skip-download`
+    `python3 scripts/build_multi_highlight_timelines.py workspace/plan/highlight_plan.json workspace/pool/full_segment_pool.json --out-dir workspace/plan/highlights --fill-random --target-min-sec 300 --target-max-sec 480`,
+    `python3 scripts/download_multi_highlights.py --timeline-dir workspace/plan/highlights --workspace workspace/highlight_outputs`
   ].join("\n");
+  const agentPayloadJson = safeJson(agentInput.agent_payload);
   return `
     <section class="panel" id="highlightPanel">
       <div class="panel-head">
         <div>
           <h2>高光链路</h2>
-          <span>生成 Agent 输入、承接外部 Agent 返回，并回捞本地视频拼接</span>
+          <span>生成 10 条高光 Agent 输入、承接外部 Agent 返回，并批量回捞本地视频拼接</span>
         </div>
       </div>
       <div class="panel-body">
         <div class="highlight-flow">
           <div class="highlight-card">
-            <h3>1. 外部 Agent 输入</h3>
-            <p>已按分集顺序整理为最简字段：分集、句子序号、原文。复制 TXT 给外部 Agent，或下载 JSON 后取 <code>agent_query</code> 字段。</p>
+            <h3>1. 外部 Agent 输入 JSON</h3>
+            <p>已按分集顺序整理为最简字段：分集、句子序号、原文。直接复制下面 JSON 给外部 Agent，不需要下载文件。</p>
             <div class="highlight-mini">
               <span><strong>${escapeHtml(agentInput.summary.episode_count)}</strong>分集</span>
               <span><strong>${escapeHtml(agentInput.summary.sentence_count)}</strong>分句</span>
-              <span><strong>2</strong>输出字段</span>
+              <span><strong>10</strong>高光视频</span>
             </div>
-            <textarea class="highlight-textarea" readonly id="highlightAgentInputText">${escapeHtml(agentInput.agent_query)}</textarea>
+            <textarea class="highlight-textarea" readonly id="highlightAgentInputText">${escapeHtml(agentPayloadJson)}</textarea>
             <div class="highlight-actions">
-              <button class="btn primary highlight-copy" type="button" data-copy-target="highlightAgentInputText">复制 Agent 输入</button>
-              <button class="btn ghost highlight-download-agent-json" type="button">下载 Agent 输入 JSON</button>
-              <button class="btn ghost highlight-download-agent-txt" type="button">下载 Agent 输入 TXT</button>
+              <button class="btn primary highlight-copy" type="button" data-copy-target="highlightAgentInputText">复制句子 JSON</button>
             </div>
           </div>
           <div class="highlight-card">
             <h3>2. 粘贴 Agent 返回</h3>
-            <p>支持 <code>{"shots":[{"episode":1,"sentence":1}]}</code>，也支持直接返回数组。点击转换后会下载标准 <code>highlight_plan.json</code>。</p>
-            <textarea class="highlight-textarea" id="highlightAgentOutputText" placeholder='粘贴外部 Agent 返回 JSON，例如 {"shots":[{"episode":1,"sentence":1}]}'></textarea>
+            <p>支持 <code>{"highlights":[{"shots":[{"episode":1,"sentence":1}]}]}</code>，建议一次返回 10 个组合。点击转换后会下载标准 <code>highlight_plan.json</code>，随后进入本地回捞拼接链路。</p>
+            <textarea class="highlight-textarea" id="highlightAgentOutputText" placeholder='粘贴外部 Agent 返回 JSON，例如 {"highlights":[{"title":"高光1","target_duration":"2-3分钟","shots":[{"episode":1,"sentence":1}]}]}'></textarea>
             <div class="highlight-actions">
               <button class="btn primary highlight-plan-convert" type="button">下载 highlight_plan.json</button>
               <button class="btn ghost prompt-open" type="button" data-title="本地回捞拼接命令" data-subtitle="保存 Agent 输出后执行" data-prompt="${escapeHtml(command)}">查看本地命令</button>
             </div>
-            <p class="section-note">如果要直接本地跑完整链路，先用脚本准备素材池：<br><code>python3 scripts/prepare_agent_input.py "${escapeHtml(sourceUrl)}"</code></p>
+            <p class="section-note">如果要直接本地跑完整链路，先用脚本准备素材池：<br><code>python3 scripts/prepare_agent_input.py "${escapeHtml(sourceUrl)}"</code><br>拼接时会随机补足剩余素材，让每条成片尽量落在 5-8 分钟。</p>
           </div>
         </div>
       </div>
@@ -3329,44 +3349,59 @@ function repairLooseAgentJson(text) {
 }
 
 function standardHighlightPlanFromAgentOutput(rawOutput, parsed) {
-  const data = Array.isArray(rawOutput)
-    ? { title: "高光片段", reason: "", shots: rawOutput }
-    : rawOutput.highlight
-      ? { title: rawOutput.highlight.title || rawOutput.title, reason: rawOutput.highlight.storyline || rawOutput.reason, shots: rawOutput.highlight.shots || [] }
-      : rawOutput;
-  const shots = data.shots || [];
-  if (!Array.isArray(shots) || !shots.length) {
-    throw new Error("未识别到 shots 数组");
-  }
-  const normalized = shots.map((shot, index) => {
-    const episode = Number(shot.episode || shot.scene_index || 1);
-    const sentence = Number(shot.sentence || (Number(shot.segment_index) + 1) || 1);
-    const segment = parsed.narrationSegments.find((item) => Number(item.sceneIndex || 1) === episode && Number(item.index ?? 0) + 1 === sentence);
+  const normalizeOne = (item, highlightIndex = 0) => {
+    const data = Array.isArray(item)
+    ? { title: "高光片段", reason: "", shots: item }
+    : item.highlight
+      ? { title: item.highlight.title || item.title, reason: item.highlight.storyline || item.reason, shots: item.highlight.shots || [] }
+      : item;
+    const shots = data.shots || [];
+    if (!Array.isArray(shots) || !shots.length) {
+      throw new Error("未识别到 shots 数组");
+    }
+    const normalized = shots.map((shot, index) => {
+      const episode = Number(shot.episode || shot.scene_index || 1);
+      const sentence = Number(shot.sentence || (Number(shot.segment_index) + 1) || 1);
+      const segment = parsed.narrationSegments.find((item) => Number(item.sceneIndex || 1) === episode && Number(item.index ?? 0) + 1 === sentence);
+      return {
+        order: index + 1,
+        global_segment_id: shot.global_segment_id || `scene_${String(episode).padStart(3, "0")}_seg_${String(sentence - 1).padStart(3, "0")}`,
+        scene_index: episode,
+        segment_index: sentence - 1,
+        source_text: segment?.text || shot.text || shot.source_text || "",
+        highlight_function: shot.highlight_function || (index < 3 ? "hook" : "conflict"),
+        reason: shot.reason || "",
+        priority: shot.priority || "must_keep"
+      };
+    });
     return {
-      order: index + 1,
-      global_segment_id: shot.global_segment_id || `scene_${String(episode).padStart(3, "0")}_seg_${String(sentence - 1).padStart(3, "0")}`,
-      scene_index: episode,
-      segment_index: sentence - 1,
-      source_text: segment?.text || shot.text || shot.source_text || "",
-      highlight_function: shot.highlight_function || (index < 3 ? "hook" : "conflict"),
-      reason: shot.reason || "",
-      priority: shot.priority || "must_keep"
-    };
-  });
-  return {
-    task_type: "single_highlight_plan",
-    source_run_id: parsed.raw?.run_id || parsed.title || "",
-    source_json_url: remoteUrlInputEl.value || "",
-    highlight: {
-      highlight_id: "highlight_01",
-      title: data.title || "高光片段",
+      highlight_id: data.highlight_id || `highlight_${String(highlightIndex + 1).padStart(2, "0")}`,
+      title: data.title || `高光片段${highlightIndex + 1}`,
       selling_point: data.reason || "",
       hook: normalized[0]?.source_text || "",
       selected_segment_count: normalized.length,
       storyline: data.reason || "",
       blocks: [],
       shots: normalized
-    }
+    };
+  };
+  if (Array.isArray(rawOutput.highlights)) {
+    const highlights = rawOutput.highlights.map((item, index) => normalizeOne(item, index));
+    return {
+      task_type: "multi_highlight_plan",
+      source_run_id: parsed.raw?.run_id || parsed.title || "",
+      source_json_url: remoteUrlInputEl.value || "",
+      highlight_count: highlights.length,
+      highlights,
+      highlight: highlights[0]
+    };
+  }
+  const single = normalizeOne(rawOutput, 0);
+  return {
+    task_type: "single_highlight_plan",
+    source_run_id: parsed.raw?.run_id || parsed.title || "",
+    source_json_url: remoteUrlInputEl.value || "",
+    highlight: single
   };
 }
 
@@ -3407,7 +3442,7 @@ function renderAll(parsed) {
       const target = document.getElementById(button.dataset.copyTarget);
       if (!target) return;
       await navigator.clipboard.writeText(target.value || target.textContent || "");
-      updateStatus("已复制高光 Agent 输入。");
+      updateStatus("已复制高光句子 JSON。");
     });
   });
 
@@ -3434,7 +3469,10 @@ function renderAll(parsed) {
         const raw = repairLooseAgentJson(textarea?.value || "");
         const plan = standardHighlightPlanFromAgentOutput(raw, lastParsed);
         downloadText("highlight_plan.json", safeJson(plan), "application/json;charset=utf-8");
-        updateStatus(`已生成 highlight_plan.json：${plan.highlight.selected_segment_count} 条。`);
+        const countText = plan.highlights?.length
+          ? `${plan.highlights.length} 条高光 / 共 ${plan.highlights.reduce((sum, item) => sum + (item.selected_segment_count || 0), 0)} 句`
+          : `${plan.highlight.selected_segment_count} 句`;
+        updateStatus(`已生成 highlight_plan.json：${countText}。`);
       } catch (error) {
         console.warn(error);
         updateStatus(`高光方案 JSON 解析失败：${error.message}`);
