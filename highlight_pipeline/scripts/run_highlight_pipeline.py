@@ -41,6 +41,8 @@ def main() -> int:
     parser.add_argument("--skip-download", action="store_true", help="Reuse existing clips when running download step")
     parser.add_argument("--target-min-sec", type=float, default=300, help="Minimum final duration for each multi-highlight output.")
     parser.add_argument("--target-max-sec", type=float, default=480, help="Maximum final duration for each multi-highlight output.")
+    parser.add_argument("--filler-episode-min", type=int, default=1, help="Minimum number of episodes used for random filler.")
+    parser.add_argument("--filler-episode-max", type=int, default=2, help="Maximum number of episodes used for random filler.")
     args = parser.parse_args()
 
     workspace = Path(args.workspace).expanduser().resolve()
@@ -136,6 +138,10 @@ def main() -> int:
         str(args.target_min_sec),
         "--target-max-sec",
         str(args.target_max_sec),
+        "--filler-episode-min",
+        str(args.filler_episode_min),
+        "--filler-episode-max",
+        str(args.filler_episode_max),
     ])
 
     if args.download:

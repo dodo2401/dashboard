@@ -152,7 +152,7 @@ def main() -> int:
             "highlight_count": 10,
             "preferred_segment_count": 100,
             "segment_count_range": [80, 120],
-            "target_duration": "2-3分钟高光段，后续随机补足到5-8分钟成片",
+            "target_duration": "2-3分钟高光段，后续随机选择1-2集连续素材补足到5-8分钟成片",
             "usage": "投放高光视频批量方案",
         },
         "segments": light_segments,

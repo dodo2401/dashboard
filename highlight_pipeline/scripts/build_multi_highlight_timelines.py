@@ -16,6 +16,14 @@ def load_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def normalize_run_id(value: str) -> str:
+    value = value or ""
+    marker = "narration_final_process_"
+    if marker in value:
+        return marker + value.split(marker, 1)[1].split("/", 1)[0]
+    return value
+
+
 def duration_of(item: dict[str, Any]) -> float:
     try:
         return float(item.get("duration_sec") or 0)
@@ -23,7 +31,7 @@ def duration_of(item: dict[str, Any]) -> float:
         return 0.0
 
 
-def timeline_item_from_segment(segment: dict[str, Any], order: int, edit_action: str) -> dict[str, Any]:
+def timeline_item_from_segment(segment: dict[str, Any], order: int, edit_action: str, run_id: str) -> dict[str, Any]:
     gid = segment.get("global_segment_id") or f"scene_{segment.get('scene_index')}_seg_{segment.get('segment_index')}"
     preferred = segment.get("merged_video_url") or ""
     fallback = segment.get("video_url") or ""
@@ -43,7 +51,7 @@ def timeline_item_from_segment(segment: dict[str, Any], order: int, edit_action:
         "source_type": "merged_video" if preferred else "video_audio",
         "edit_action": edit_action,
         "speed": 1.0,
-        "local_filename": f"{order:03d}_{gid}.mp4",
+        "local_filename": f"{run_id or 'unknown_run'}_{order:03d}_{gid}.mp4",
     }
 
 
@@ -53,20 +61,40 @@ def fill_timeline_with_random_segments(
     *,
     target_min_sec: float,
     target_max_sec: float,
+    filler_episode_min: int,
+    filler_episode_max: int,
     seed: int,
 ) -> dict[str, Any]:
     data = load_json(timeline_path)
+    run_id = normalize_run_id(data.get("source_run_id", ""))
     timeline = data.get("timeline") or []
     used_ids = {item.get("global_segment_id") for item in timeline if item.get("global_segment_id")}
     current_duration = sum(duration_of(item) for item in timeline)
     base_duration = current_duration
-    candidates = [
-        item for item in pool_segments
-        if item.get("global_segment_id") not in used_ids
-        and (item.get("merged_video_url") or item.get("video_url"))
-    ]
     rng = random.Random(seed)
-    rng.shuffle(candidates)
+    by_episode: dict[int, list[dict[str, Any]]] = {}
+    for item in pool_segments:
+        if item.get("global_segment_id") in used_ids:
+            continue
+        if not (item.get("merged_video_url") or item.get("video_url")):
+            continue
+        try:
+            episode = int(item.get("scene_index") or item.get("episode_id") or 0)
+        except (TypeError, ValueError):
+            episode = 0
+        if episode <= 0:
+            continue
+        by_episode.setdefault(episode, []).append(item)
+    for items in by_episode.values():
+        items.sort(key=lambda item: int(item.get("segment_index") or 0))
+
+    episodes = list(by_episode)
+    rng.shuffle(episodes)
+    episode_count = min(max(filler_episode_min, rng.randint(filler_episode_min, filler_episode_max)), len(episodes))
+    selected_episodes = episodes[:episode_count]
+    candidates: list[dict[str, Any]] = []
+    for episode in selected_episodes:
+        candidates.extend(by_episode.get(episode, []))
 
     added_count = 0
     for segment in candidates:
@@ -78,7 +106,7 @@ def fill_timeline_with_random_segments(
         if current_duration + segment_duration > target_max_sec:
             continue
         order = len(timeline) + 1
-        timeline.append(timeline_item_from_segment(segment, order, "random_fill"))
+        timeline.append(timeline_item_from_segment(segment, order, "random_fill", run_id))
         used_ids.add(segment.get("global_segment_id"))
         current_duration += segment_duration
         added_count += 1
@@ -90,6 +118,9 @@ def fill_timeline_with_random_segments(
         "enabled": True,
         "target_min_sec": target_min_sec,
         "target_max_sec": target_max_sec,
+        "filler_episode_min": filler_episode_min,
+        "filler_episode_max": filler_episode_max,
+        "selected_filler_episodes": selected_episodes,
         "base_duration_sec": round(base_duration, 3),
         "added_segment_count": added_count,
         "status": (
@@ -114,6 +145,8 @@ def main() -> int:
     parser.add_argument("--fill-random", action="store_true", help="Append unused generated segments until each timeline reaches the target duration.")
     parser.add_argument("--target-min-sec", type=float, default=300, help="Minimum final duration after random fill.")
     parser.add_argument("--target-max-sec", type=float, default=480, help="Maximum final duration after random fill.")
+    parser.add_argument("--filler-episode-min", type=int, default=1, help="Minimum number of episodes used for random filler.")
+    parser.add_argument("--filler-episode-max", type=int, default=2, help="Maximum number of episodes used for random filler.")
     parser.add_argument("--seed", type=int, default=20260515, help="Random seed for repeatable filler selection.")
     args = parser.parse_args()
 
@@ -123,6 +156,15 @@ def main() -> int:
     out_dir.mkdir(parents=True, exist_ok=True)
     plan: dict[str, Any] = load_json(plan_path)
     pool: dict[str, Any] = load_json(pool_path)
+    plan_run_id = normalize_run_id(plan.get("source_run_id") or plan.get("run_id") or plan.get("source_json_url", ""))
+    pool_run_id = normalize_run_id(pool.get("run_id") or pool.get("source_json_url", ""))
+    if plan_run_id and pool_run_id and plan_run_id != pool_run_id:
+        raise SystemExit(
+            "highlight_plan 与 full_segment_pool 不是同一个任务，已停止生成多高光 timeline。\n"
+            f"plan: {plan_run_id}\n"
+            f"pool : {pool_run_id}\n"
+            "请重新用当前任务的 Agent 结果生成 highlight_plan.json。"
+        )
     pool_segments: list[dict[str, Any]] = pool.get("segments") or []
     highlights = plan.get("highlights") if isinstance(plan.get("highlights"), list) else [plan.get("highlight", {})]
     outputs = []
@@ -146,6 +188,8 @@ def main() -> int:
                     pool_segments,
                     target_min_sec=args.target_min_sec,
                     target_max_sec=args.target_max_sec,
+                    filler_episode_min=args.filler_episode_min,
+                    filler_episode_max=args.filler_episode_max,
                     seed=args.seed + index,
                 ),
             })

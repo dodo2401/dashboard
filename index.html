@@ -295,7 +295,7 @@ input[type="file"]{display:none}
 .column{display:flex;flex-direction:column;gap:18px}
 .highlight-flow{
   display:grid;
-  grid-template-columns:minmax(0,1fr) minmax(300px,.72fr);
+  grid-template-columns:repeat(3,minmax(0,1fr));
   gap:14px;
 }
 .highlight-card{
@@ -319,6 +319,7 @@ input[type="file"]{display:none}
   font:12px/1.6 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   box-sizing:border-box;
 }
+.highlight-textarea.compact{min-height:112px}
 .highlight-mini{
   display:grid;
   grid-template-columns:repeat(3,minmax(0,1fr));
@@ -333,7 +334,14 @@ input[type="file"]{display:none}
   font-size:12px;
   color:var(--muted);
 }
-.highlight-mini strong{display:block;color:var(--text);font-size:18px;margin-bottom:2px}
+.highlight-mini strong{display:block;color:var(--text);font-size:18px;margin-bottom:2px;word-break:break-word}
+.highlight-mini.compact{
+  grid-template-columns:1fr;
+}
+.highlight-mini.compact strong{
+  font-size:14px;
+  line-height:1.35;
+}
 .command-box{
   white-space:pre-wrap;
   word-break:break-word;
@@ -1330,10 +1338,10 @@ a.link{
     max-height:320px;
     padding:0 12px 12px;
   }
+  .highlight-flow{grid-template-columns:1fr}
 }
 @media (max-width:520px){
   .summary{grid-template-columns:1fr}
-  .highlight-flow{grid-template-columns:1fr}
   .highlight-mini{grid-template-columns:1fr}
   .asset-grid,.preview-grid,.embedded-grid{grid-template-columns:repeat(2, minmax(108px,1fr))}
   .frames-grid{grid-template-columns:repeat(2, minmax(0,1fr))}
@@ -2608,17 +2616,18 @@ function buildHighlightAgentInput(parsed) {
     task: "从已生成视频素材池中选择10个投放高光组合",
     rules: [
       "只选择已有分句，不改写原文，不生成新台词",
+      "每个组合是一个不同剪辑版本，开头约2分钟从全剧高光内容中挑选，不按集数顺序顺排",
       "每个组合约100句，对应2-3分钟高光段",
       "输出10个highlights，每个highlight只需要shots数组",
       "shots字段只保留episode和sentence",
-      "后续拼接链路会随机补足剩余分集素材到5-8分钟"
+      "后续拼接链路会随机选择1-2集连续素材补足到5-8分钟，避免太跳跃"
     ],
     output_format: outputSchema,
     episodes
   };
   const lines = [
     "你是短剧/小说解说投放高光剪辑策划 Agent。",
-    "请从下面分集分句中，选择 10 条适合投放的高光视频方案。",
+    "请从下面分集分句中，设计 10 个不同版本的投放高光剪辑方案。",
     "重要：不要改写原文，不要生成新台词，只能选择已有分句。",
     "下游只需要对应分集和分句，所以每条 shot 输出 episode 与 sentence 即可。",
     "",
@@ -2626,12 +2635,12 @@ function buildHighlightAgentInput(parsed) {
     `分句数：${total}`,
     "",
     "选择要求：",
-    "1. 一次输出 10 条 highlights，每条高光段控制在 2-3 分钟左右，优先约 100 句。",
-    "2. 每条开头 3-8 句必须有强钩子：冲突、反转、悬念、身份错位、危机或强情绪。",
-    "3. 每条中段必须有因果推进，不能只堆砌金句。",
-    "4. 每条结尾停在爽点、反转、悬念或强情绪节点。",
-    "5. 每条尽量选择同一主线连续分句，允许少量跨段，但观众必须能看懂。",
-    "6. 下游会随机补足剩余分集素材，把每条最终视频控制到 5-8 分钟，所以这里不要为了凑时长选择弱剧情。",
+    "1. 一次输出 10 条 highlights，10 条必须是不同剪辑版本，不能只是按集数顺序切 10 段。",
+    "2. 每条高光段控制在 2-3 分钟左右，优先约 100 句。",
+    "3. 每条开头约 2 分钟应从全剧/全部分集中挑选最强高光内容，形成强钩子混剪，而不是从第1集顺序开始。",
+    "4. 每条开头要覆盖冲突、反转、悬念、身份错位、危机、爽点或强情绪。",
+    "5. 每条中后段可以围绕1条主线收束，保证观众能看懂。",
+    "6. 下游会随机选择1-2集连续素材补足到 5-8 分钟，所以这里不要为了凑时长选择弱剧情。",
     "",
     "必须输出纯 JSON，字段越少越好，格式如下：",
     JSON.stringify(outputSchema),
@@ -2657,15 +2666,30 @@ function buildHighlightAgentInput(parsed) {
   };
 }
 
+function runIdFromValue(value) {
+  const text = String(value || "");
+  const match = text.match(/narration_final_process_[^/?"'#]+/);
+  return match ? match[0] : "";
+}
+
 function renderHighlightPipeline(parsed) {
   const agentInput = buildHighlightAgentInput(parsed);
   const sourceUrl = remoteUrlInputEl.value || "<node_outputs_json_url>";
+  const currentRunId = parsed.raw?.run_id || runIdFromValue(sourceUrl) || runIdFromValue(lastSourceName) || "未识别";
   const projectDir = "/Users/jiazhuo/Documents/Playground/pipeline_dashboard/highlight_pipeline";
+  const prepareCommand = [
+    `cd ${projectDir}`,
+    `python3 scripts/prepare_agent_input.py "${sourceUrl}"`
+  ].join("\n");
+  const checkCommand = [
+    `cd ${projectDir}`,
+    `python3 -c "import json; pool=json.load(open('workspace/pool/full_segment_pool.json')); plan=json.load(open('workspace/plan/highlight_plan.json')); print('pool=', pool.get('run_id')); print('plan=', plan.get('source_run_id'))"`
+  ].join("\n");
   const command = [
     `cd ${projectDir}`,
     `python3 scripts/save_agent_output.py workspace/plan/manual_agent_output.txt --out workspace/plan/highlight_plan.json --full-segment-pool workspace/pool/full_segment_pool.json`,
-    `python3 scripts/build_multi_highlight_timelines.py workspace/plan/highlight_plan.json workspace/pool/full_segment_pool.json --out-dir workspace/plan/highlights --fill-random --target-min-sec 300 --target-max-sec 480`,
-    `python3 scripts/download_multi_highlights.py --timeline-dir workspace/plan/highlights --workspace workspace/highlight_outputs`
+    `python3 scripts/build_multi_highlight_timelines.py workspace/plan/highlight_plan.json workspace/pool/full_segment_pool.json --out-dir workspace/plan/highlights --fill-random --target-min-sec 300 --target-max-sec 480 --filler-episode-min 1 --filler-episode-max 2`,
+    `python3 scripts/download_multi_highlights.py --timeline-dir workspace/plan/highlights --workspace workspace/highlight_outputs_${currentRunId.replace(/^narration_final_process_/, "").slice(0, 8) || "current"}`
   ].join("\n");
   const agentPayloadJson = safeJson(agentInput.agent_payload);
   return `
@@ -2680,26 +2704,33 @@ function renderHighlightPipeline(parsed) {
         <div class="highlight-flow">
           <div class="highlight-card">
             <h3>1. 外部 Agent 输入 JSON</h3>
-            <p>已按分集顺序整理为最简字段：分集、句子序号、原文。直接复制下面 JSON 给外部 Agent，不需要下载文件。</p>
             <div class="highlight-mini">
               <span><strong>${escapeHtml(agentInput.summary.episode_count)}</strong>分集</span>
               <span><strong>${escapeHtml(agentInput.summary.sentence_count)}</strong>分句</span>
               <span><strong>10</strong>高光视频</span>
             </div>
-            <textarea class="highlight-textarea" readonly id="highlightAgentInputText">${escapeHtml(agentPayloadJson)}</textarea>
+            <textarea class="highlight-textarea compact" readonly id="highlightAgentInputText">${escapeHtml(agentPayloadJson)}</textarea>
             <div class="highlight-actions">
               <button class="btn primary highlight-copy" type="button" data-copy-target="highlightAgentInputText">复制句子 JSON</button>
             </div>
           </div>
           <div class="highlight-card">
             <h3>2. 粘贴 Agent 返回</h3>
-            <p>支持 <code>{"highlights":[{"shots":[{"episode":1,"sentence":1}]}]}</code>，建议一次返回 10 个组合。点击转换后会下载标准 <code>highlight_plan.json</code>，随后进入本地回捞拼接链路。</p>
             <textarea class="highlight-textarea" id="highlightAgentOutputText" placeholder='粘贴外部 Agent 返回 JSON，例如 {"highlights":[{"title":"高光1","target_duration":"2-3分钟","shots":[{"episode":1,"sentence":1}]}]}'></textarea>
             <div class="highlight-actions">
               <button class="btn primary highlight-plan-convert" type="button">下载 highlight_plan.json</button>
-              <button class="btn ghost prompt-open" type="button" data-title="本地回捞拼接命令" data-subtitle="保存 Agent 输出后执行" data-prompt="${escapeHtml(command)}">查看本地命令</button>
             </div>
-            <p class="section-note">如果要直接本地跑完整链路，先用脚本准备素材池：<br><code>python3 scripts/prepare_agent_input.py "${escapeHtml(sourceUrl)}"</code><br>拼接时会随机补足剩余素材，让每条成片尽量落在 5-8 分钟。</p>
+          </div>
+          <div class="highlight-card">
+            <h3>3. 对齐后拼接</h3>
+            <div class="highlight-mini compact">
+              <span><strong>${escapeHtml(currentRunId)}</strong>当前页面任务</span>
+            </div>
+            <div class="highlight-actions">
+              <button class="btn ghost prompt-open" type="button" data-title="生成 / 切换素材池命令" data-subtitle="每次换任务先跑这个" data-prompt="${escapeHtml(prepareCommand)}">素材池命令</button>
+              <button class="btn ghost prompt-open" type="button" data-title="任务一致性检查命令" data-subtitle="pool 与 plan 必须相同" data-prompt="${escapeHtml(checkCommand)}">一致性检查</button>
+              <button class="btn primary prompt-open" type="button" data-title="本地回捞拼接命令" data-subtitle="确认一致后执行" data-prompt="${escapeHtml(command)}">拼接命令</button>
+            </div>
           </div>
         </div>
       </div>
