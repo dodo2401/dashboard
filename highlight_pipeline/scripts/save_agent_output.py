@@ -122,6 +122,12 @@ def main() -> int:
     out.parent.mkdir(parents=True, exist_ok=True)
     lookup = build_segment_lookup(full_segment_pool) if full_segment_pool.exists() else None
     plan = normalize_plan(load_json_or_text_json(source), lookup)
+    if full_segment_pool.exists():
+        pool = json.loads(full_segment_pool.read_text(encoding="utf-8"))
+        if not plan.get("source_run_id"):
+            plan["source_run_id"] = pool.get("run_id", "")
+        if not plan.get("source_json_url"):
+            plan["source_json_url"] = pool.get("source_json_url", "")
     out.write_text(json.dumps(plan, ensure_ascii=False, indent=2), encoding="utf-8")
     print(json.dumps({
         "status": "ok",

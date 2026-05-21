@@ -2685,9 +2685,13 @@ function renderHighlightPipeline(parsed) {
     `cd ${projectDir}`,
     `python3 -c "import json; pool=json.load(open('workspace/pool/full_segment_pool.json')); plan=json.load(open('workspace/plan/highlight_plan.json')); print('pool=', pool.get('run_id')); print('plan=', plan.get('source_run_id'))"`
   ].join("\n");
+  const importCommand = [
+    `cd ${projectDir}`,
+    `python3 scripts/import_agent_output.py`
+  ].join("\n");
   const command = [
     `cd ${projectDir}`,
-    `python3 scripts/save_agent_output.py workspace/plan/manual_agent_output.txt --out workspace/plan/highlight_plan.json --full-segment-pool workspace/pool/full_segment_pool.json`,
+    `python3 scripts/import_agent_output.py`,
     `python3 scripts/build_multi_highlight_timelines.py workspace/plan/highlight_plan.json workspace/pool/full_segment_pool.json --out-dir workspace/plan/highlights --fill-random --target-min-sec 300 --target-max-sec 480 --filler-episode-min 1 --filler-episode-max 2`,
     `python3 scripts/download_multi_highlights.py --timeline-dir workspace/plan/highlights --workspace workspace/highlight_outputs_${currentRunId.replace(/^narration_final_process_/, "").slice(0, 8) || "current"}`
   ].join("\n");
@@ -2718,6 +2722,7 @@ function renderHighlightPipeline(parsed) {
             <h3>2. 粘贴 Agent 返回</h3>
             <textarea class="highlight-textarea" id="highlightAgentOutputText" placeholder='粘贴外部 Agent 返回 JSON，例如 {"highlights":[{"title":"高光1","target_duration":"2-3分钟","shots":[{"episode":1,"sentence":1}]}]}'></textarea>
             <div class="highlight-actions">
+              <button class="btn ghost highlight-copy" type="button" data-copy-target="highlightAgentOutputText">复制返回 JSON</button>
               <button class="btn primary highlight-plan-convert" type="button">下载 highlight_plan.json</button>
             </div>
           </div>
@@ -2728,6 +2733,7 @@ function renderHighlightPipeline(parsed) {
             </div>
             <div class="highlight-actions">
               <button class="btn ghost prompt-open" type="button" data-title="生成 / 切换素材池命令" data-subtitle="每次换任务先跑这个" data-prompt="${escapeHtml(prepareCommand)}">素材池命令</button>
+              <button class="btn ghost prompt-open" type="button" data-title="导入 Agent 返回命令" data-subtitle="先复制外部 Agent 返回 JSON" data-prompt="${escapeHtml(importCommand)}">导入命令</button>
               <button class="btn ghost prompt-open" type="button" data-title="任务一致性检查命令" data-subtitle="pool 与 plan 必须相同" data-prompt="${escapeHtml(checkCommand)}">一致性检查</button>
               <button class="btn primary prompt-open" type="button" data-title="本地回捞拼接命令" data-subtitle="确认一致后执行" data-prompt="${escapeHtml(command)}">拼接命令</button>
             </div>
@@ -3473,7 +3479,7 @@ function renderAll(parsed) {
       const target = document.getElementById(button.dataset.copyTarget);
       if (!target) return;
       await navigator.clipboard.writeText(target.value || target.textContent || "");
-      updateStatus("已复制高光句子 JSON。");
+      updateStatus("已复制 JSON。");
     });
   });
 
